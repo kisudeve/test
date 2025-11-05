@@ -2,9 +2,8 @@
 name: "\U0001F4DA Task"
 about: 기능 개발이나 UI 작업 등 작성 사용
 title: "[Task] 할 일 키워드"
-labels: ''
-assignees: ''
-
+labels: ""
+assignees: ""
 ---
 
 ## 📖 Description

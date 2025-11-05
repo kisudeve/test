@@ -1,7 +1,7 @@
 export default function Page() {
   return (
     <>
-      <h1 className="text-red-700 text-[50px]">Page</h1>
+      <h1>Page</h1>
     </>
   );
 }
