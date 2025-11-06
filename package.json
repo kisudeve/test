@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "gen": "supabase gen types typescript --project-id kdrtsruqkmcavjwafvmq --schema public > src/utils/supabase/supabase.ts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.7.0",
@@ -27,6 +28,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.0.1",
     "prettier": "^3.6.2",
+    "supabase": "^2.54.11",
     "tailwindcss": "^4",
     "typescript": "^5"
   }
