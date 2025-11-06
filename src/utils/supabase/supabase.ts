@@ -12,31 +12,6 @@ export type Database = {
   __InternalSupabase: {
     PostgrestVersion: "13.0.5"
   }
-  graphql_public: {
-    Tables: {
-      [_ in never]: never
-    }
-    Views: {
-      [_ in never]: never
-    }
-    Functions: {
-      graphql: {
-        Args: {
-          extensions?: Json
-          operationName?: string
-          query?: string
-          variables?: Json
-        }
-        Returns: Json
-      }
-    }
-    Enums: {
-      [_ in never]: never
-    }
-    CompositeTypes: {
-      [_ in never]: never
-    }
-  }
   public: {
     Tables: {
       comments: {
@@ -125,30 +100,30 @@ export type Database = {
           created_at: string
           follower_id: string
           following_id: string
-          id: number
+          id: string
         }
         Insert: {
           created_at?: string
           follower_id?: string
           following_id?: string
-          id?: number
+          id?: string
         }
         Update: {
           created_at?: string
           follower_id?: string
           following_id?: string
-          id?: number
+          id?: string
         }
         Relationships: [
           {
-            foreignKeyName: "follows_follower_id_fkey"
+            foreignKeyName: "followers_follower_id_fkey"
             columns: ["follower_id"]
             isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "follows_following_id_fkey"
+            foreignKeyName: "followers_following_id_fkey"
             columns: ["following_id"]
             isOneToOne: false
             referencedRelation: "users"
@@ -224,7 +199,7 @@ export type Database = {
       notifications: {
         Row: {
           created_at: string
-          id: number
+          id: string
           is_read: boolean
           post_id: string | null
           receiver_id: string
@@ -233,8 +208,8 @@ export type Database = {
         }
         Insert: {
           created_at?: string
-          id?: number
-          is_read?: boolean
+          id?: string
+          is_read: boolean
           post_id?: string | null
           receiver_id?: string
           sender_id?: string
@@ -242,7 +217,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
-          id?: number
+          id?: string
           is_read?: boolean
           post_id?: string | null
           receiver_id?: string
@@ -475,9 +450,6 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
-  graphql_public: {
-    Enums: {},
-  },
   public: {
     Enums: {},
   },
