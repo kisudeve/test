@@ -10,6 +10,7 @@ export default async function PostList() {
     .from("posts")
     .select("*, users(display_name, image_url), feels(type), likes(post_id)")
     .order("created_at", { ascending: false })
+    .order("id", { ascending: false })
     .range(0, PAGE_SIZE - 1);
 
   if (listError || !posts) {

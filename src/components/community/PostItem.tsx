@@ -41,7 +41,7 @@ export default function PostItem({
     } else {
       await supabase.from("likes").insert({ post_id: post.id, user_id: userId });
     }
-  }, 1000);
+  }, 500);
 
   return (
     <article className="p-5 rounded-2xl shadow-[0_4px_12px_rgba(0,0,0,0.06)] bg-white border border-slate-200">
@@ -62,7 +62,9 @@ export default function PostItem({
             <div className="flex justify-between items-center">
               <div className="flex flex-col gap-0.5">
                 <strong className="font-semibold text-slate-800">{post.users.display_name}</strong>
-                <span className="text-slate-400 text-xs">{formatRelativeTime(post.created_at)}</span>
+                <span className="text-slate-400 text-xs">
+                  {formatRelativeTime(post.created_at)}
+                </span>
               </div>
               {post.feels[0].type === "up" && (
                 <div className="flex justify-center items-center gap-1 px-3 py-1 bg-red-200 font-medium text-red-500 rounded-2xl">
