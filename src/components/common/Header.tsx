@@ -131,7 +131,7 @@ export default function Header({
       className={[
         "fixed top-4 left-4 rounded-2xl bg-white/85 backdrop-blur shadow-md shadow-gray-200/70",
         "w-64",
-        "h-[96vh] flex flex-col p-4 gap-4",
+        "h-[928px] flex flex-col p-4 gap-4 z-40",
         "font-[Paperlogy]",
         "font-semibold",
         className || "",
