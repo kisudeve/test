@@ -1,3 +1,4 @@
+import Header from "@/components/common/Header";
 import "../css/globals.css";
 export const metadata = {
   title: "Next.js",
@@ -7,7 +8,12 @@ export const metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="ko">
-      <body>{children}</body>
+      <body>
+        <div className="mx-auto max-w-screen-2xl px-4 py-6 grid grid-cols-[auto,1fr] gap-6 min-h-screen">
+          <Header />
+          <main className="min-w-0">{children}</main>
+        </div>
+      </body>
     </html>
   );
 }
