@@ -60,9 +60,9 @@ export default function PostItem({
           <div className="flex-1 flex flex-col gap-4">
             {/* 사용자 닉네임, 작성시간, 글 타입 */}
             <div className="flex justify-between items-center">
-              <div className="flex justify-between items-center gap-4">
-                <strong className="font-medium text-slate-800">{post.users.display_name}</strong>
-                <span className="text-slate-400">{formatRelativeTime(post.created_at)}</span>
+              <div className="flex flex-col gap-0.5">
+                <strong className="font-semibold text-slate-800">{post.users.display_name}</strong>
+                <span className="text-slate-400 text-xs">{formatRelativeTime(post.created_at)}</span>
               </div>
               {post.feels[0].type === "up" && (
                 <div className="flex justify-center items-center gap-1 px-3 py-1 bg-red-200 font-medium text-red-500 rounded-2xl">
