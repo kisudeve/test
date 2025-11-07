@@ -1,3 +1,4 @@
+import Header from "@/components/common/Header";
 import { paperlogy } from "../../public/fonts/local_fonts";
 import "../css/globals.css";
 export const metadata = {
@@ -8,7 +9,11 @@ export const metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="ko" suppressHydrationWarning>
-      <body className={paperlogy.className}>{children}</body>
+      <body className={paperlogy.className}>
+        <Header />
+        {/* 256 (w-64) + 16 (left-4) + 24 (desired gap) = 296px */}
+        <main className="min-h-screen ml-[296px] px-6 py-6">{children}</main>
+      </body>
     </html>
   );
 }
