@@ -13,19 +13,15 @@ interface DashboardContentWrapperProps {
 
 export default function DashboardContentWrapper({ initialData }: DashboardContentWrapperProps) {
   const [data, setData] = useState<DashboardData>(initialData);
-  const [isPending, startTransition] = useTransition();
 
-  // 데이터 로드 함수
-  const loadData = useCallback(() => {
-    startTransition(async () => {
-      try {
-        const newData = await fetchDashboardData();
-        setData(newData);
-      } catch (error) {
-        console.error("데이터 로드 실패:", error);
-      }
-    });
-  }, [startTransition]);
+  const loadData = useCallback(async () => {
+    try {
+      const newData = await fetchDashboardData();
+      setData(newData);
+    } catch (error) {
+      console.error("데이터 로드 실패:", error);
+    }
+  }, []);
 
   useEffect(() => {
     const intervalId = setInterval(() => {
