@@ -10,9 +10,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="ko" suppressHydrationWarning>
       <body className={paperlogy.className}>
-        <Header />
-        {/* 256 (w-64) + 16 (left-4) + 24 (desired gap) = 296px */}
-        <main className="min-h-screen ml-[296px] px-6 py-6">{children}</main>
+        <div className="flex min-h-screen">
+          <Header />
+          <main className="flex-1 min-w-0">{children}</main>
+        </div>
       </body>
     </html>
   );

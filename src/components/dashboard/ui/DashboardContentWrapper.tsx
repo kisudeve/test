@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useTransition, useCallback } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { fetchDashboardData, type DashboardData } from "@/components/dashboard/model/dashboard";
 import DashboardChart from "./DashboardChart";
 import DashboardStats from "./DashboardStats";
@@ -32,7 +32,7 @@ export default function DashboardContentWrapper({ initialData }: DashboardConten
   }, [loadData]);
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4 md:p-6 lg:p-8">
+    <div className="w-full h-full bg-gray-50 p-6">
       <div className="w-full space-y-6">
         {/* 상단 섹션 */}
         <div className="bg-white rounded-lg shadow-sm p-4 md:p-6">
