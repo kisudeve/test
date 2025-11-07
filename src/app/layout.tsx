@@ -1,3 +1,4 @@
+import { paperlogy } from "../../public/fonts/local_fonts";
 import "../css/globals.css";
 export const metadata = {
   title: "Next.js",
@@ -6,8 +7,8 @@ export const metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="ko">
-      <body>{children}</body>
+    <html lang="ko" suppressHydrationWarning>
+      <body className={paperlogy.className}>{children}</body>
     </html>
   );
 }
