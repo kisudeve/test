@@ -19,6 +19,7 @@ export default function PostItem({
 }) {
   const supabase = createClient();
   const [liked, setLiked] = useState<boolean>(post.likes.length > 0);
+  const [likeCount, setLikeCount] = useState<number>(post.likes_count as number);
 
   const likeHandler = async (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     e.stopPropagation();
@@ -30,6 +31,7 @@ export default function PostItem({
     }
 
     setLiked((prev) => !prev);
+    setLikeCount((prev) => (liked ? prev - 1 : prev + 1));
     debouncedApiCall();
   };
 
@@ -107,7 +109,7 @@ export default function PostItem({
                 liked ? "stroke-red-500 fill-red-500" : "stroke-slate-300 fill-slate-300",
               )}
             />
-            {post.likes_count}
+            {likeCount}
           </button>
           <button className="flex items-center gap-1 font-medium text-sm text-slate-500 cursor-pointer hover:opacity-70">
             <MessageCircle size={16} className="stroke-slate-300 fill-slate-300" />
