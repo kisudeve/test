@@ -5,7 +5,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-// Simple inline SVG icons so we don't add deps
 const Icon = {
   logo: ({ className }: { className?: string }) => (
     <div className={"flex items-center justify-center w-full " + (className || "")}>
@@ -162,22 +161,39 @@ export default function Header({
                 todayScore.changePct >= 0 ? "text-emerald-500" : "text-rose-500"
               }`}
             >
-              {todayScore.changePct >= 0 ? "+" : ""}
+              {todayScore.changePct >= 0 ? "+" : "-"}
               {todayScore.changePct.toFixed(2)}%
-              <svg
-                viewBox="0 0 24 24"
-                aria-hidden
-                className="w-7 h-7"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                {/* trending up arrow */}
-                <path d="M3 17l6-6 4 4 7-7" />
-                <path d="M17 8h4v4" />
-              </svg>
+              {todayScore.changePct >= 0 ? (
+                <svg
+                  viewBox="0 0 24 24"
+                  aria-hidden
+                  className="w-7 h-7"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  {/* trending up arrow */}
+                  <path d="M3 17l6-6 4 4 7-7" />
+                  <path d="M17 8h4v4" />
+                </svg>
+              ) : (
+                <svg
+                  viewBox="0 0 24 24"
+                  aria-hidden
+                  className="w-7 h-7"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  {/* trending down arrow */}
+                  <path d="M3 7l6 6 4-4 7 7" />
+                  <path d="M17 16h4v-4" />
+                </svg>
+              )}
             </span>
           </div>
         </div>
@@ -219,7 +235,7 @@ export default function Header({
         {/* CTA 버튼 */}
         <Link
           href="/write"
-          className="h-12 flex items-center justify-center gap-2 rounded-2xl bg-linear-to-r from-[#A8E0FF] to-[#C5C8FF] text-white px-4 py-4 font-semibold  hover:opacity-90 active:scale-[.99] transition"
+          className="h-12 flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#A8E0FF] to-[#C5C8FF] text-white px-4 py-4 font-semibold  hover:opacity-90 active:scale-[.99] transition"
         >
           <Icon.write />
           <span className="text-[14px]">오늘의 감정 작성</span>
