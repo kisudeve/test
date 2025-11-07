@@ -1,0 +1,44 @@
+export default function DashboardSkeleton() {
+  return (
+    <div className="min-h-screen bg-gray-50 p-4 md:p-6 lg:p-8 animate-pulse">
+      <div className="w-full space-y-6">
+        {/* 상단  */}
+        <div className="bg-white rounded-lg shadow-sm p-4 md:p-6">
+          <div className="h-8 bg-gray-200 rounded w-64 mb-4"></div>
+          <div className="h-96 bg-gray-100 rounded-lg"></div>
+        </div>
+
+        {/* 시장 요약 */}
+        <div className="bg-white rounded-lg shadow-sm p-4 md:p-6">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 bg-gray-200 rounded-lg"></div>
+              <div className="flex-1">
+                <div className="h-6 bg-gray-200 rounded w-48 mb-2"></div>
+                <div className="h-4 bg-gray-200 rounded w-96"></div>
+              </div>
+            </div>
+            <div className="h-4 bg-gray-200 rounded w-40"></div>
+          </div>
+        </div>
+
+        {/* 3개 카드 영역 */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="bg-white rounded-lg shadow-sm p-4 md:p-6">
+              <div className="h-6 bg-gray-200 rounded w-32 mb-4"></div>
+              <div className="space-y-3">
+                {[1, 2, 3].map((j) => (
+                  <div key={j} className="flex items-center justify-between">
+                    <div className="h-4 bg-gray-200 rounded w-24"></div>
+                    <div className="h-4 bg-gray-200 rounded w-16"></div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
