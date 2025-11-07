@@ -1,7 +1,9 @@
+import PostList from "@/components/community/PostList";
+
 export default function Page() {
   return (
     <>
-      <h1>Page</h1>
+      <PostList />
     </>
   );
 }
