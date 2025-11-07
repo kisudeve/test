@@ -63,6 +63,9 @@ export default function PostListClient({
     );
 
     obs.observe(oTarget.current);
+    return () => {
+      obs.disconnect();
+    };
   }, [hasMore, loading, loadMorePosts]);
 
   return (
