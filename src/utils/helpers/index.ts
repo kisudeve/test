@@ -1,3 +1,6 @@
+// 초기 페이지값 (무한스크롤)
+export const PAGE_SIZE = 10;
+
 // 입력받은 날짜, 현재시간 기준으로 상대시간 구하기
 export function formatRelativeTime(iso?: string | null) {
   if (!iso) return "";

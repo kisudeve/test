@@ -1,14 +1,16 @@
-import PostItem from "./PostItem";
 import { createClient } from "@/utils/supabase/server";
+import PostListClient from "./PostListClient";
+import { PAGE_SIZE } from "@/utils/helpers";
 
 export default async function PostList() {
   const supabase = await createClient();
 
-  // 포스트 목록
+  // 초기 포스트 목록
   const { data: posts, error: listError } = await supabase
     .from("posts")
     .select("*, users(display_name, image_url), feels(type), likes(post_id)")
-    .order("created_at", { ascending: false });
+    .order("created_at", { ascending: false })
+    .range(0, PAGE_SIZE - 1);
 
   if (listError || !posts) {
     return null;
@@ -19,11 +21,5 @@ export default async function PostList() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  return (
-    <section className="flex flex-col gap-4 m-8">
-      {posts.map((post) => (
-        <PostItem key={post.id} post={post} userId={user?.id} />
-      ))}
-    </section>
-  );
+  return <PostListClient initialPosts={posts} userId={user?.id} />;
 }
