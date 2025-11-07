@@ -1,7 +1,6 @@
 "use client";
 
 import { TrendingUp, TrendingDown, Users } from "lucide-react";
-import type { DashboardData } from "@/components/dashboard/model/dashboard";
 
 interface DashboardCardsProps {
   topRising: Array<{ name: string; change: string }>;
