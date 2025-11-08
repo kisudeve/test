@@ -5,7 +5,7 @@ import DOWN from "@/assets/write/down.svg";
 import HOLD from "@/assets/write/hold.svg";
 import uploadPicture from "@/assets/write/uploadPicture.svg";
 import { up, down, hold } from "./hashtags";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import * as Slider from "@radix-ui/react-slider";
 
 // 감정 버튼 설정
@@ -16,6 +16,10 @@ const emotions = [
 ] as const;
 
 export default function WriteDetail() {
+  const imageUploadInput = useRef<HTMLInputElement>(null);
+
+  const [imageUploadPreview, setImageUploadPreview] = useState("");
+  const [imageUpload, setImageUpload] = useState<File | null>(null);
   const [pick, setPick] = useState<"up" | "down" | "hold" | "">("");
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [sliderValue, setSliderValue] = useState([4]); // 현재 단계 (0~9)
@@ -30,6 +34,21 @@ export default function WriteDetail() {
       prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag],
     );
   };
+
+  const imageUploadHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files) return;
+    const file = e.target.files[0];
+
+    if (!file.type.startsWith("image/")) return;
+
+    if (file) {
+      const imagePreviewUrl = URL.createObjectURL(file);
+      setImageUploadPreview(imagePreviewUrl);
+      setImageUpload(file);
+    }
+  };
+  console.log(imageUploadPreview);
+  console.log(imageUpload);
   return (
     <div className="flex justify-center items-center flex-col w-[1440px] h-[960px] bg-amber-300">
       <div className="flex items-center flex-col w-[752px] h-[928px] rounded-2xl shadow-[0_4px_12px_rgba(0,0,0,0.06)] bg-white">
@@ -62,9 +81,13 @@ export default function WriteDetail() {
         </div>
 
         {/* 해시태그 영역 */}
-        <div>
+        <div
+          className={`transition-all duration-150 ${
+            pick ? "translate-y-11 opacity-100" : "translate-y-0 opacity-0"
+          }`}
+        >
           {pick ? (
-            <div className="relative w-[688px] flex justify-center mt-10 mb-3">
+            <div className="relative w-[688px] flex justify-center mb-3">
               {/* 숫자 말풍선 */}
               <div
                 className={` absolute -top-9 flex justify-center items-center w-7 h-7 ${pick === "up" ? "bg-[#FF6467]" : pick === "down" ? "bg-[#51A2FF]" : pick === "hold" ? "bg-[#99A1AF]" : ""} text-white text-sm rounded-full shadow-md transition-all duration-100`}
@@ -126,7 +149,7 @@ export default function WriteDetail() {
           ) : (
             ""
           )}
-          <div className=" w-[688px] flex flex-row justify-between text-[#4A5565]">
+          <div className=" w-[688px] flex flex-row justify-between text-[#4A5565] mb-10">
             {hashtags.map((tag) => (
               <button
                 key={tag}
@@ -153,11 +176,27 @@ export default function WriteDetail() {
           className="bg-[#F9FAFB] border rounded-xl border-[#E5E7EB] w-[688px] h-[340px] mt-7 resize-none outline-none focus:scale-102 transform transition-transform duration-200"
           placeholder="오늘의 메모를 남겨보세요..."
         ></textarea>
+        <input
+          type="file"
+          className="hidden"
+          ref={imageUploadInput}
+          accept="image/*"
+          onChange={(e) => {
+            imageUploadHandler(e);
+          }}
+        />
 
         <Image
-          src={uploadPicture}
-          alt="uploadPicture"
-          className="mt-7 cursor-pointer hover:scale-102 transform transition-transform duration-200"
+          key={imageUploadPreview || "default"}
+          src={imageUploadPreview || uploadPicture}
+          alt="업로드 이미지"
+          className="mt-7 cursor-pointer hover:scale-102 transform transition-transform duration-200 h-[108px] w-[688px] rounded-2xl"
+          onClick={() => {
+            if (imageUploadPreview) setImageUploadPreview("");
+            else imageUploadInput?.current?.click();
+          }}
+          width={688}
+          height={108}
         />
 
         <button className="mt-7 flex justify-center items-center text-[#ffffff] w-[688px] h-[42px] shadow-[0_2px_4px_rgba(0,0,0,0.1),0_4px_6px_rgba(0,0,0,0.1)] rounded-xl bg-linear-to-r from-[#A8E0FF] to-[#C5C8FF] cursor-pointer hover:scale-102 transform transition-transform duration-200">
