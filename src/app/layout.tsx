@@ -10,8 +10,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="ko" suppressHydrationWarning>
       <body className={paperlogy.className}>
-        <div className="flex min-h-screen">
-          <Header />
+        ㅇ{" "}
+        <div className="flex min-h-screen bg-gray-50">
+          <div className=" py-6 pl-4 h-screen w-[18%] flex shrink-0">
+            <Header />
+          </div>
           <main className="flex-1 min-w-0">{children}</main>
         </div>
       </body>
