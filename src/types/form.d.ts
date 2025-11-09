@@ -1,5 +1,8 @@
+export type ButtonType = "submit" | "edit" | "delete" | "common";
+
 export type ButtonProps = React.ComponentPropsWithoutRef<"button"> & {
-  init?: boolean;
+  variant?: ButtonType;
+  children: React.ReactNode;
 };
 
 export type InputProps = Omit<React.ComponentPropsWithoutRef<"input">, "type"> & {
