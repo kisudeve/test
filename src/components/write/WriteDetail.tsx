@@ -80,7 +80,6 @@ export default function WriteDetail() {
           </div>
         </div>
 
-        {/* 해시태그 영역 */}
         <div
           className={`transition-all duration-200 ${
             pick ? "translate-y-11 opacity-100" : "translate-y-0 opacity-0"
@@ -149,6 +148,7 @@ export default function WriteDetail() {
           ) : (
             ""
           )}
+          {/* 해시태그 영역 */}
           <div className=" w-[688px] flex flex-row justify-between text-[#4A5565] mb-10">
             {hashtags.map((tag) => (
               <button
@@ -194,8 +194,8 @@ export default function WriteDetail() {
             imageUploadHandler(e);
           }}
         />
+        {/* 업로드된 이미지 */}
         <div className="relative group/image mt-7 w-[700px] h-[115px] rounded-2xl flex justify-center items-center">
-          {/* 업로드된 이미지 */}
           <Image
             src={imageUploadPreview || uploadPicture}
             alt="업로드 이미지"
@@ -205,7 +205,6 @@ export default function WriteDetail() {
       ${imageUploadPreview ? "hover:brightness-60 cursor-default" : "cursor-pointer"}
     `}
             onClick={() => {
-              // ✅ 업로드 이미지 클릭 시에만 input 실행
               if (!imageUploadPreview) imageUploadInput.current?.click();
             }}
           />
