@@ -41,7 +41,7 @@ export default function WriteDetail() {
     if (!e.target.files) return;
     const file = e.target.files[0];
 
-    if (!file.type.startsWith("image/")) return;
+    if (!file || !file.type.startsWith("image/")) return;
 
     if (file) {
       const imagePreviewUrl = URL.createObjectURL(file);
@@ -222,6 +222,7 @@ export default function WriteDetail() {
                 onClick={(e) => {
                   e.stopPropagation();
                   setImageUploadPreview("");
+                  setImageUpload(null);
                 }}
               >
                 <Image
