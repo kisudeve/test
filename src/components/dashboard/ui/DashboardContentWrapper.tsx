@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { fetchDashboardData, type DashboardData } from "@/components/dashboard/model/dashboard";
-import DashboardChart from "./DashboardChart";
-import DashboardStats from "./DashboardStats";
+import { fetchDashboardData } from "@/components/dashboard/model/dashboard";
+import type { DashboardData } from "@/components/dashboard/type/dashboard";
+import DashboardChart from "@/components/dashboard/ui/DashboardChart";
+import DashboardStats from "@/components/dashboard/ui/DashboardStats";
 
 const POLLING_INTERVAL = 5 * 60 * 1000; // 5분 (밀리초)
 

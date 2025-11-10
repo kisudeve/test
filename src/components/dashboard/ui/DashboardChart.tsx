@@ -12,7 +12,7 @@ import {
   ResponsiveContainer,
   ReferenceLine,
 } from "recharts";
-import type { ChartDataPoint } from "@/components/dashboard/model/dashboard";
+import type { ChartDataPoint } from "@/components/dashboard/type/dashboard";
 
 type Period = "1일" | "1주" | "1개월" | "All";
 
@@ -207,10 +207,9 @@ export default function DashboardChart({ chartData }: DashboardChartProps) {
           </div>
         </div>
       </div>
-
       {/* 차트 */}
-      <div className="w-full h-64 md:h-80 lg:h-96 bg-white rounded-lg">
-        <ResponsiveContainer width="100%" height="100%">
+      <div className="w-full bg-white rounded-lg">
+        <ResponsiveContainer width="100%" height={384}>
           <LineChart
             data={processedData}
             margin={{ top: 10, right: 20, left: 0, bottom: 30 }}
