@@ -1,7 +1,12 @@
-export default function Page() {
+import WriteDetail from "@/components/write/WriteDetail";
+import { Suspense } from "react";
+
+export default function WritePage() {
   return (
     <>
-      <h1>Page</h1>
+      <Suspense fallback={<div>로딩중 ...</div>}>
+        <WriteDetail />
+      </Suspense>
     </>
   );
 }
