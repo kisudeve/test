@@ -6,7 +6,7 @@ import type { DashboardData } from "@/components/dashboard/type/dashboard";
 import DashboardChart from "@/components/dashboard/ui/DashboardChart";
 import DashboardStats from "@/components/dashboard/ui/DashboardStats";
 
-const POLLING_INTERVAL = 5 * 60 * 1000; // 5분 (밀리초)
+const POLLING_INTERVAL = 1 * 60 * 1000; // (1000ms = 1 second)
 
 interface DashboardContentWrapperProps {
   initialData: DashboardData;
@@ -18,6 +18,7 @@ export default function DashboardContentWrapper({ initialData }: DashboardConten
   const loadData = useCallback(async () => {
     try {
       const newData = await fetchDashboardData();
+      // 항상 새 데이터로 업데이트하여 리렌더링 보장
       setData(newData);
     } catch (error) {
       console.error("데이터 로드 실패:", error);
