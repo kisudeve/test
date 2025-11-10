@@ -1,12 +1,13 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import { RefreshCcw } from "lucide-react";
 import { fetchDashboardData } from "@/components/dashboard/model/dashboard";
 import type { DashboardData } from "@/components/dashboard/type/dashboard";
 import DashboardChart from "@/components/dashboard/ui/DashboardChart";
 import DashboardStats from "@/components/dashboard/ui/DashboardStats";
 
-const POLLING_INTERVAL = 1 * 60 * 1000; // (1000ms = 1 second)
+const POLLING_INTERVAL = 5 * 60 * 1000; // (1000ms = 1 second)
 
 interface DashboardContentWrapperProps {
   initialData: DashboardData;
@@ -14,27 +15,40 @@ interface DashboardContentWrapperProps {
 
 export default function DashboardContentWrapper({ initialData }: DashboardContentWrapperProps) {
   const [data, setData] = useState<DashboardData>(initialData);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
-  const loadData = useCallback(async () => {
+  const loadData = useCallback(async (showLoading = false) => {
     try {
+      if (showLoading) {
+        setIsRefreshing(true);
+      }
       const newData = await fetchDashboardData();
-      // 항상 새 데이터로 업데이트하여 리렌더링 보장
       setData(newData);
     } catch (error) {
       console.error("데이터 로드 실패:", error);
+    } finally {
+      if (showLoading) {
+        setIsRefreshing(false);
+      }
     }
   }, []);
 
+  // 수동 새로고침
+  const handleRefresh = useCallback(() => {
+    loadData(true);
+  }, [loadData]);
+
+  // 자동 새로고침
   useEffect(() => {
     const intervalId = setInterval(() => {
-      loadData();
+      loadData(true);
     }, POLLING_INTERVAL);
 
     return () => clearInterval(intervalId);
   }, [loadData]);
 
   return (
-    <div className="w-full h-full bg-gray-50 p-6">
+    <div className="w-full h-full bg-gray-50 p-6 relative">
       <div className="w-full space-y-6">
         {/* 상단 섹션 */}
         <div className="bg-white rounded-lg shadow-sm p-4 md:p-6">
@@ -46,6 +60,18 @@ export default function DashboardContentWrapper({ initialData }: DashboardConten
         {/* 하단 부분*/}
         <DashboardStats data={data} />
       </div>
+
+      {/* 새로고침 버튼 */}
+      <button
+        onClick={handleRefresh}
+        disabled={isRefreshing}
+        className="fixed bottom-8 right-8 z-50 bg-white hover:bg-white disabled:bg-gray-200 text-white rounded-full p-4 shadow-lg transition-all duration-200 hover:shadow-xl disabled:cursor-not-allowed flex items-center justify-center group"
+        aria-label="새로고침"
+      >
+        <RefreshCcw
+          className={`w-6 h-6 transition-transform duration-500 text-black ${isRefreshing ? "animate-spin" : "group-hover:rotate-180"}`}
+        />
+      </button>
     </div>
   );
 }
