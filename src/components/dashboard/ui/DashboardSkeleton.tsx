@@ -3,8 +3,8 @@ export default function DashboardSkeleton() {
     <div className="w-full h-full bg-gray-50 p-6 animate-pulse">
       <div className="w-full space-y-6">
         {/* 상단  */}
-        <div className="bg-white rounded-lg shadow-sm p-4 md:p-6 ">
-          <div className="h-14 bg-gray-100 rounded w-68 mb-16"></div>
+        <div className="bg-white rounded-lg shadow-sm p-4 md:p-6">
+          <div className="h-14 bg-gray-100 rounded w-64 mb-16"></div>
           <div className="h-96 bg-gray-100 rounded-lg"></div>
         </div>
 
