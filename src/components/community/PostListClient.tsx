@@ -1,10 +1,10 @@
 "use client";
 
 import { CommunityPost } from "@/types/community";
-import PostItem from "./PostItem";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { PAGE_SIZE } from "@/utils/helpers";
 import { createClient } from "@/utils/supabase/client";
+import PostListItemClient from "./PostListItemClient";
 
 export default function PostListClient({
   initialPosts,
@@ -71,7 +71,7 @@ export default function PostListClient({
   return (
     <section className="flex flex-col gap-4 m-8">
       {posts.map((post) => (
-        <PostItem key={post.id} post={post} userId={userId} />
+        <PostListItemClient key={post.id} post={post} userId={userId} />
       ))}
 
       {hasMore && <div ref={oTarget}>{loading && <p>로딩중</p>}</div>}

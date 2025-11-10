@@ -1,16 +1,18 @@
 "use client";
 
-import { Heart, MessageCircle, Minus, TrendingDown, TrendingUp } from "lucide-react";
-import Image from "next/image";
+import { Heart, MessageCircle } from "lucide-react";
 import { formatRelativeTime } from "@/utils/helpers";
 import { createClient } from "@/utils/supabase/client";
 import Link from "next/link";
-import { CommunityPost } from "@/types/community";
+import { CommunityPost, FeelType } from "@/types/community";
 import { twMerge } from "tailwind-merge";
 import { useState } from "react";
 import { useDebouncedCallback } from "@/hooks/useDebouncedCallback";
+import Button from "../common/Button";
+import ProfileImage from "../common/ProfileImage";
+import FeelBadge from "../common/FeelBadge";
 
-export default function PostItem({
+export default function PostListItemClient({
   post,
   userId,
 }: {
@@ -48,15 +50,7 @@ export default function PostItem({
       <Link href={`/community/${post.id}`}>
         <div className="flex gap-4 pb-5">
           {/* 사용자 프로필 사진 */}
-          <div className="w-12 h-12">
-            <Image
-              src={post.users.image_url || ""}
-              width={48}
-              height={48}
-              alt={`${post.users.display_name}님의 프로필 이미지`}
-              className="w-full h-full rounded-full object-cover"
-            />
-          </div>
+          <ProfileImage displayName={post.users.display_name} imageUrl={post.users.image_url} />
           <div className="flex-1 flex flex-col gap-4">
             {/* 사용자 닉네임, 작성시간, 글 타입 */}
             <div className="flex justify-between items-center">
@@ -66,24 +60,7 @@ export default function PostItem({
                   {formatRelativeTime(post.created_at)}
                 </span>
               </div>
-              {post.feels[0].type === "up" && (
-                <div className="flex justify-center items-center gap-1 px-3 py-1 bg-red-200 font-medium text-red-500 rounded-2xl">
-                  <TrendingUp size={20} />
-                  <span>UP</span>
-                </div>
-              )}
-              {post.feels[0].type === "down" && (
-                <div className="flex justify-center items-center gap-1 px-3 py-1 bg-blue-200 font-medium text-blue-500 rounded-2xl">
-                  <TrendingDown size={20} />
-                  <span>DOWN</span>
-                </div>
-              )}
-              {post.feels[0].type === "hold" && (
-                <div className="flex justify-center items-center gap-1 px-3 py-1 bg-slate-200 font-medium text-slate-500 rounded-2xl">
-                  <Minus size={20} />
-                  <span>HOLD</span>
-                </div>
-              )}
+              <FeelBadge type={post.feels[0].type as FeelType} />
             </div>
             <div className="flex flex-col gap-2">
               <h3 className="text-xl font-bold">{post.title}</h3>
@@ -100,10 +77,7 @@ export default function PostItem({
           </div>
         </div>
         <div className="flex gap-5 border-t border-slate-200 pt-5">
-          <button
-            className="flex items-center gap-1 font-medium text-sm text-slate-500 cursor-pointer hover:opacity-70"
-            onClick={likeHandler}
-          >
+          <Button onClick={likeHandler}>
             <Heart
               size={18}
               className={twMerge(
@@ -112,11 +86,11 @@ export default function PostItem({
               )}
             />
             {likeCount}
-          </button>
-          <button className="flex items-center gap-1 font-medium text-sm text-slate-500 cursor-pointer hover:opacity-70">
+          </Button>
+          <Button>
             <MessageCircle size={16} className="stroke-slate-300 fill-slate-300" />
             {post.comments_count}
-          </button>
+          </Button>
         </div>
       </Link>
     </article>

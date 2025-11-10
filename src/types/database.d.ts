@@ -1,4 +1,5 @@
 import { Database } from "@/utils/supabase/supabase";
+export type { Database } from "@/utils/supabase/supabase";
 
 export type Post = Database["public"]["Tables"]["posts"]["Row"];
 export type User = Database["public"]["Tables"]["users"]["Row"];
