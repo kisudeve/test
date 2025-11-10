@@ -5,11 +5,11 @@ import DOWN from "@/assets/write/down.svg";
 import HOLD from "@/assets/write/hold.svg";
 import uploadPicture from "@/assets/write/uploadPicture.svg";
 import { up, down, hold } from "./hashtags";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import * as Slider from "@radix-ui/react-slider";
 import closeButton from "@/assets/write/closeButton.svg";
 import { createClient } from "@/utils/supabase/client";
-import { useParams, useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 // 감정 버튼 설정
 const emotions = [
@@ -19,16 +19,18 @@ const emotions = [
 ] as const;
 
 export default function WriteDetail() {
+  const searchParams = useSearchParams();
+  const postId = searchParams.get("post_id"); // 1
   const supabase = createClient();
   const router = useRouter();
 
   const imageUploadInput = useRef<HTMLInputElement>(null);
 
-  const [imageUploadPreview, setImageUploadPreview] = useState("");
+  const [imageUploadPreview, setImageUploadPreview] = useState<string | null>("");
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [imageUpload, setImageUpload] = useState<File | null>(null);
-  const [pick, setPick] = useState<"up" | "down" | "hold" | "">("");
+  const [pick, setPick] = useState<"up" | "down" | "hold" | string | "">("");
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [sliderValue, setSliderValue] = useState([4]); // 현재 단계 (0~9)
   const totalSteps = 10;
@@ -83,7 +85,6 @@ export default function WriteDetail() {
         return;
       }
 
-      // 1️⃣ 이미지가 있을 경우 Storage 업로드
       let imageUrl = null;
       if (imageUpload) {
         const filePath = `user-${user.id}/${Date.now()}-${imageUpload.name}`;
@@ -102,10 +103,9 @@ export default function WriteDetail() {
           data: { publicUrl },
         } = supabase.storage.from("post_image").getPublicUrl(filePath);
 
-        imageUrl = publicUrl; // ✅ 여기서 image_url로 쓸 수 있는 주소 완성
+        imageUrl = publicUrl;
       }
 
-      // 2️⃣ posts 테이블에 글 등록 (image_url 포함)
       const { data: postData, error: postError } = await supabase
         .from("posts")
         .insert([
@@ -113,7 +113,7 @@ export default function WriteDetail() {
             user_id: user.id,
             title,
             content,
-            image_url: imageUrl, // ✅ 이미지 URL 저장
+            image_url: imageUrl,
           },
         ])
         .select("id")
@@ -123,7 +123,6 @@ export default function WriteDetail() {
 
       const postId = postData.id;
 
-      // 3️⃣ 감정(feels) 테이블
       let insertAmount = 0;
       if (pick === "down") insertAmount = sliderValue[0] * -1;
       else if (pick === "hold") insertAmount = 0;
@@ -140,7 +139,6 @@ export default function WriteDetail() {
 
       if (feelError) throw feelError;
 
-      // 4️⃣ hashtags 테이블
       const tagString = selectedTags.join(",");
       const { error: tagError } = await supabase
         .from("hashtags")
@@ -155,6 +153,66 @@ export default function WriteDetail() {
       alert("글 작성 중 오류가 발생했습니다.");
     }
   };
+
+  useEffect(() => {
+    if (!postId) return;
+    (async () => {
+      const {
+        data: { user },
+        error: userError,
+      } = await supabase.auth.getUser();
+
+      if (!user || userError) {
+        alert("로그인 후 수정이 가능합니다.");
+        router.replace("/auth/sign-in");
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from("posts")
+        .select(
+          `
+    id,
+    title,
+    content,
+    user_id,
+    image_url,
+    hashtags(*),
+    feels(*)
+    `,
+        )
+        .eq("id", postId)
+        .eq("user_id", user?.id ?? "")
+        .single();
+
+      if (!data || error) {
+        alert("내 게시글만 수정 가능합니다.");
+        router.replace("/");
+        return;
+      }
+
+      const feels = data.feels[0];
+      const hashtags = data.hashtags[0];
+
+      setImageUploadPreview(data.image_url);
+      setTitle(data.title ?? "");
+      setContent(data.content ?? "");
+      setPick(feels.type);
+      if (feels.type === "down") {
+        setSliderValue([feels.amount * -1]);
+      } else if (feels.type === "hold") {
+        setSliderValue([4]);
+      } else {
+        setSliderValue([feels.amount * 1]);
+      }
+
+      if (Array.isArray(hashtags.content)) {
+        setSelectedTags(hashtags.content);
+      } else if (typeof hashtags.content === "string") {
+        setSelectedTags(hashtags.content.split(",").map((t) => t.trim()));
+      }
+    })();
+  }, [postId, router, supabase]);
   return (
     <div className="flex justify center items-center flex-col w-[752px] h-full rounded-2xl shadow-[0_4px_12px_rgba(0,0,0,0.06)] bg-white">
       <p className="pt-7 text-[24px] text-[#1A2035]">오늘의 감정 기록</p>
