@@ -207,7 +207,7 @@ export default function DashboardChart({ chartData }: DashboardChartProps) {
           </div>
         </div>
       </div>
-      {/* 차트 */}ㄹ{" "}
+      {/* 차트 */}
       <div className="w-full bg-white rounded-lg">
         <ResponsiveContainer width="100%" height={384}>
           <LineChart
