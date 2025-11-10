@@ -1,7 +1,12 @@
+import { Suspense } from "react";
+import { DashboardContent, DashboardSkeleton } from "@/components/dashboard";
+
 export default function Page() {
   return (
-    <>
-      <h1 className="text-red-700 text-[50px]">Page</h1>
-    </>
+    <div className="w-full h-screen bg-gray-50 overflow-auto">
+      <Suspense fallback={<DashboardSkeleton />}>
+        <DashboardContent />
+      </Suspense>
+    </div>
   );
 }

@@ -129,9 +129,10 @@ export default function Header({
   return (
     <aside
       className={[
-        "fixed top-4 left-4 rounded-2xl bg-white/85 backdrop-blur shadow-md shadow-gray-200/70",
-        "w-64",
-        "h-[928px] flex flex-col p-4 gap-4 z-40",
+        "bg-white/85 backdrop-blur shadow-md shadow-gray-200/70 rounded-lg",
+        "w-full",
+        "h-full flex flex-col p-4 gap-4",
+        "shrink-0",
         "font-[Paperlogy]",
         "font-semibold",
         className || "",
@@ -150,14 +151,14 @@ export default function Header({
 
       {/* 오늘의 감정 지수 카드 */}
       <section>
-        <div className="w-56 rounded-2xl bg-black text-white p-4 shadow-sm">
+        <div className="w-full rounded-2xl bg-black text-white p-4 shadow-sm">
           <p className="text-[14px] text-gray-300">오늘의 감정 지수</p>
-          <div className="mt-3 flex items-end justify-between">
-            <span className="text-[30px] font-extrabold tabular-nums tracking-tight">
+          <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+            <span className="text-[26px] font-extrabold tabular-nums tracking-tight sm:text-[30px]">
               {todayScore.value.toLocaleString()}
             </span>
             <span
-              className={`inline-flex items-center gap-2 text-[14px] font-semibold ${
+              className={`inline-flex shrink-0 items-center gap-1 rounded-lg bg-white/10 px-3 py-1 text-sm font-semibold backdrop-blur sm:gap-2 sm:bg-transparent sm:px-0 sm:py-0 sm:text-[14px] ${
                 todayScore.changePct >= 0 ? "text-emerald-500" : "text-rose-500"
               }`}
             >
@@ -167,7 +168,7 @@ export default function Header({
                 <svg
                   viewBox="0 0 24 24"
                   aria-hidden
-                  className="w-7 h-7"
+                  className="h-5 w-5 sm:h-7 sm:w-7"
                   fill="none"
                   stroke="currentColor"
                   strokeWidth="2.5"
@@ -182,7 +183,7 @@ export default function Header({
                 <svg
                   viewBox="0 0 24 24"
                   aria-hidden
-                  className="w-7 h-7"
+                  className="h-5 w-5 sm:h-7 sm:w-7"
                   fill="none"
                   stroke="currentColor"
                   strokeWidth="2.5"
