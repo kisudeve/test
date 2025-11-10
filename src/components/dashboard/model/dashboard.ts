@@ -68,7 +68,7 @@ export async function fetchDashboardData(): Promise<DashboardData> {
     communityStats: {
       newPosts: `${postsCount || 0}개`,
       comments: `${commentsCount || 0}개`,
-      currentUsers: "3,450명",
+      currentUsers: "0명", // supabase presence 기능 추가 시 변경 예정
     },
     lastUpdated,
   };
