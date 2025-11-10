@@ -2,7 +2,7 @@
 
 import { Lightbulb } from "lucide-react";
 import type { DashboardData } from "@/components/dashboard/model/dashboard";
-import DashboardCards from "./DashboardCards";
+import DashboardCards from "@/components/dashboard/ui/DashboardCards";
 
 interface DashboardStatsProps {
   data: DashboardData;
