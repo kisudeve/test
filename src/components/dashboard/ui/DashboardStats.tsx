@@ -1,7 +1,7 @@
 "use client";
 
 import { Lightbulb } from "lucide-react";
-import type { DashboardData } from "@/components/dashboard/model/dashboard";
+import type { DashboardData } from "@/components/dashboard/type/dashboard";
 import DashboardCards from "@/components/dashboard/ui/DashboardCards";
 
 interface DashboardStatsProps {

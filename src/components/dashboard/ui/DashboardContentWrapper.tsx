@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { fetchDashboardData, type DashboardData } from "@/components/dashboard/model/dashboard";
+import { fetchDashboardData } from "@/components/dashboard/model/dashboard";
+import type { DashboardData } from "@/components/dashboard/type/dashboard";
 import DashboardChart from "@/components/dashboard/ui/DashboardChart";
 import DashboardStats from "@/components/dashboard/ui/DashboardStats";
 

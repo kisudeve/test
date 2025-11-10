@@ -12,7 +12,7 @@ import {
   ResponsiveContainer,
   ReferenceLine,
 } from "recharts";
-import type { ChartDataPoint } from "@/components/dashboard/model/dashboard";
+import type { ChartDataPoint } from "@/components/dashboard/type/dashboard";
 
 type Period = "1일" | "1주" | "1개월" | "All";
 
