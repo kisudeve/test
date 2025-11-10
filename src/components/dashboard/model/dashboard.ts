@@ -1,31 +1,31 @@
 "use server";
 
-// 차트 데이터 타입 정의 (더미 데이터 기준)
-export interface ChartDataPoint {
-  date: string;
-  day: number;
-  weekday: string;
-  up: number;
-  down: number;
-  hold: number;
-}
+// 더미데이터 영역이기에 추후 작업 시 변동 될 가능성 있습니다.
 
-// 대시보드 데이터 타입 정의 (더미 데이터 기준)
-export interface DashboardData {
-  chartData: ChartDataPoint[];
-  topRising: Array<{ name: string; change: string }>;
-  topFalling: Array<{ name: string; change: string }>;
-  communityStats: {
-    newPosts: string;
-    comments: string;
-    currentUsers: string;
-  };
-  lastUpdated: string;
-}
+import { createClient } from "@/utils/supabase/server";
+import type { DashboardData, ChartDataPoint, Post, Comment } from "@/components/dashboard/type/dashboard";
 
-// 대시보드 데이터 페칭 함수 (더미 데이터 사용)
+// 대시보드 데이터 페칭 함수
 export async function fetchDashboardData(): Promise<DashboardData> {
   await new Promise((resolve) => setTimeout(resolve, 1000)); // 스켈레톤 디자인 확인
+
+  const supabase = await createClient();
+
+  const { count: postsCount, error: postsError } = await supabase
+    .from("posts")
+    .select<"*", Post>("*", { count: "exact", head: true });
+
+  if (postsError) {
+    console.error("Failed to fetch posts count:", postsError);
+  }
+
+  const { count: commentsCount, error: commentsError } = await supabase
+    .from("comments")
+    .select<"*", Comment>("*", { count: "exact", head: true });
+
+  if (commentsError) {
+    console.error("Failed to fetch comments count:", commentsError);
+  }
 
   const now = new Date();
   const lastUpdated = `${now.getFullYear()}년 ${now.getMonth() + 1}월 ${now.getDate()}일 ${now.getHours() >= 12 ? "오후" : "오전"} ${now.getHours() % 12 || 12}:${String(now.getMinutes()).padStart(2, "0")}`;
@@ -66,8 +66,8 @@ export async function fetchDashboardData(): Promise<DashboardData> {
       { name: "#분노", change: "+15.2%" },
     ],
     communityStats: {
-      newPosts: "1,204개",
-      comments: "5,832개",
+      newPosts: `${postsCount || 0}개`,
+      comments: `${commentsCount || 0}개`,
       currentUsers: "3,450명",
     },
     lastUpdated,
