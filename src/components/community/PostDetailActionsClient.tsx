@@ -2,7 +2,7 @@
 import { createClient } from "@/utils/supabase/client";
 import { useState } from "react";
 import { useDebouncedCallback } from "@/hooks/useDebouncedCallback";
-import Button from "../common/Button";
+import Button from "@/components/common/Button";
 import { Heart, MessageCircle } from "lucide-react";
 import { twMerge } from "tailwind-merge";
 

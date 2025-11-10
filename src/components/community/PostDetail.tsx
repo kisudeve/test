@@ -1,7 +1,7 @@
 import { formatRelativeTime } from "@/utils/helpers";
 import { FeelType } from "@/types/community";
-import ProfileImage from "../common/ProfileImage";
-import FeelBadge from "../common/FeelBadge";
+import ProfileImage from "@/components/common/ProfileImage";
+import FeelBadge from "@/components/common/FeelBadge";
 import PostDetailActionsClient from "./PostDetailActionsClient";
 import { createClient } from "@/utils/supabase/server";
 import { notFound } from "next/navigation";

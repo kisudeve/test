@@ -3,7 +3,7 @@ import Button from "@/components/common/Button";
 import TextArea from "@/components/common/TextArea";
 import { insertComment } from "@/utils/actions/comment";
 import { useActionState, useEffect, useRef } from "react";
-import Input from "../common/Input";
+import Input from "@/components/common/Input";
 
 export default function CommentFormClient({ postId }: { postId: string }) {
   const formRef = useRef<HTMLFormElement>(null);

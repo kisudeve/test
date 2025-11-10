@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { createClient } from "../supabase/server";
+import { createClient } from "@/utils/supabase/server";
 import { FormState } from "@/types/form";
 
 export const insertComment = async (

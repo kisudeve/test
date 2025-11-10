@@ -8,9 +8,9 @@ import { CommunityPost, FeelType } from "@/types/community";
 import { twMerge } from "tailwind-merge";
 import { useState } from "react";
 import { useDebouncedCallback } from "@/hooks/useDebouncedCallback";
-import Button from "../common/Button";
-import ProfileImage from "../common/ProfileImage";
-import FeelBadge from "../common/FeelBadge";
+import Button from "@/components/common/Button";
+import ProfileImage from "@/components/common/ProfileImage";
+import FeelBadge from "@/components/common/FeelBadge";
 
 export default function PostListItemClient({
   post,
