@@ -42,6 +42,16 @@ export default function PostListItemClient({
       await supabase.from("likes").delete().eq("user_id", userId).eq("post_id", post.id);
     } else {
       await supabase.from("likes").insert({ post_id: post.id, user_id: userId });
+      // 본인이 작성한 글이 아닐 때만 좋아요 알림
+      if (post.user_id !== userId) {
+        await supabase.from("notifications").insert({
+          post_id: post.id,
+          sender_id: userId,
+          receiver_id: post.user_id,
+          type: "like",
+          is_read: false,
+        });
+      }
     }
   }, 500);
 
@@ -60,7 +70,7 @@ export default function PostListItemClient({
                   {formatRelativeTime(post.created_at)}
                 </span>
               </div>
-              <FeelBadge type={post.feels[0].type as FeelType} />
+              {/* <FeelBadge type={post.feels.type} /> */}
             </div>
             <div className="flex flex-col gap-2">
               <h3 className="text-xl font-bold">{post.title}</h3>
@@ -85,11 +95,11 @@ export default function PostListItemClient({
                 liked ? "stroke-red-500 fill-red-500" : "stroke-slate-300 fill-slate-300",
               )}
             />
-            {likeCount}
+            {likeCount ?? "0"}
           </Button>
           <Button>
             <MessageCircle size={16} className="stroke-slate-300 fill-slate-300" />
-            {post.comments_count}
+            {post.comments_count ?? "0"}
           </Button>
         </div>
       </Link>
