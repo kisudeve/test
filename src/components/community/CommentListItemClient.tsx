@@ -28,9 +28,9 @@ export default function CommentListItemClient({
             imageUrl={comment.users.image_url}
             size="md"
           />
-          <div className="flex-1">
+          <div className="flex-1 flex flex-col gap-2">
             <div className="flex justify-between items-baseline">
-              <div className="flex flex-col gap-0.5">
+              <div className="flex items-center gap-2">
                 <strong className="text-md font-semibold text-slate-800">
                   {comment.users.display_name}
                 </strong>
