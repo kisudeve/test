@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   LineChart,
   Line,
@@ -26,23 +26,31 @@ interface CustomTooltipProps {
   payload?: Array<{
     value: number;
   }>;
-  label?: string;
+  label?: string | number;
 }
+
+const formatKoreanDate = (isoString: string) => {
+  const date = new Date(isoString);
+  const weekdays = ["일요일", "월요일", "화요일", "수요일", "목요일", "금요일", "토요일"];
+  return `${date.getMonth() + 1}월 ${date.getDate()}일 ${weekdays[date.getDay()]}`;
+};
 
 const CustomTooltip = ({
   active,
   payload,
   label,
   chartData,
-}: CustomTooltipProps & { chartData: ChartDataPoint[] }) => {
+}: CustomTooltipProps & { chartData: ProcessedPoint[] }) => {
   if (active && payload && payload.length) {
-    const data = chartData.find((d) => d.date === label);
+    const index = typeof label === "number" ? Math.round(label) : NaN;
+    const data =
+      Number.isFinite(index) && index >= 0 && index < chartData.length
+        ? chartData[index]
+        : chartData.find((d) => d.date === label);
     if (data) {
       return (
         <div className="bg-white p-4 border border-gray-200 rounded-lg shadow-xl z-50">
-          <p className="font-semibold text-sm mb-3 text-gray-800">
-            2025-09-{String(data.day).padStart(2, "0")}
-          </p>
+          <p className="font-semibold text-sm mb-3 text-gray-800">{formatKoreanDate(data.date)}</p>
           <div className="space-y-2">
             <div className="flex items-center gap-2.5">
               <div className="w-2.5 h-2.5 rounded-full bg-red-500"></div>
@@ -69,46 +77,96 @@ interface CustomTickProps {
   x?: number;
   y?: number;
   payload?: {
-    value: string;
+    value: number;
   };
 }
+
+type ProcessedPoint = ChartDataPoint & { index: number };
 
 const CustomTick = ({
   x = 0,
   y = 0,
   payload,
   chartData,
-}: CustomTickProps & { chartData: ChartDataPoint[] }) => {
-  if (!payload) return null;
+}: CustomTickProps & { chartData: ProcessedPoint[] }) => {
+  if (!payload || chartData.length === 0) return null;
 
-  const data = chartData.find((d) => d.date === payload.value);
+  const index = Math.round(payload.value);
+  const data = chartData[index];
+  if (!data) return null;
 
-  // 시작점에서는 아무것도 표시하지 않음
-  if (payload.value === chartData[0].date) {
-    return null;
-  }
+  const date = new Date(data.date);
+  const line1 = `${date.getMonth() + 1}월 ${date.getDate()}일`;
+  const line2 = `${data.weekday}요일`;
 
-  if (data) {
-    return (
-      <g transform={`translate(${x},${y})`}>
-        <text x={0} y={0} dy={16} textAnchor="middle" fill="#6b7280" fontSize={12}>
-          <tspan x={0} dy="0">
-            {data.weekday}
-          </tspan>
-          <tspan x={0} dy="14">
-            {data.day}
-          </tspan>
-        </text>
-      </g>
-    );
-  }
-
-  return null;
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <text x={0} y={0} dy={12} textAnchor="middle" fill="#6b7280" fontSize={11}>
+        <tspan x={0} dy="0">
+          {line1}
+        </tspan>
+        <tspan x={0} dy="13">
+          {line2}
+        </tspan>
+      </text>
+    </g>
+  );
 };
 
 export default function DashboardChart({ chartData }: DashboardChartProps) {
   const [selectedPeriod, setSelectedPeriod] = useState<Period>("1주");
-  const [hoveredDate, setHoveredDate] = useState<string | null>("Wed 17");
+
+  // 데이터 정렬 및 메모이제이션
+  const sortedData = useMemo(
+    () => [...chartData].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()),
+    [chartData],
+  );
+
+  // 데이터 필터링
+  const filteredData = useMemo(() => {
+    if (selectedPeriod === "All") {
+      return sortedData;
+    }
+
+    const last = sortedData.at(-1);
+    if (!last) return [];
+
+    const lastDate = new Date(last.date);
+    lastDate.setHours(0, 0, 0, 0);
+
+    const days = selectedPeriod === "1일" ? 1 : selectedPeriod === "1주" ? 7 : 30;
+    const threshold = new Date(lastDate);
+    threshold.setDate(threshold.getDate() - (days - 1));
+
+    return sortedData.filter((point) => {
+      const current = new Date(point.date);
+      current.setHours(0, 0, 0, 0);
+      return current.getTime() >= threshold.getTime();
+    });
+  }, [selectedPeriod, sortedData]);
+
+  // 데이터 필터링
+  const processedData = useMemo(
+    () => filteredData.map((point, index) => ({ ...point, index })),
+    [filteredData],
+  );
+
+  const [hoveredOverride, setHoveredOverride] = useState<number | null>(null);
+  const defaultHover = processedData.at(-1)?.index ?? null;
+  const hoveredDate = useMemo(() => {
+    if (
+      hoveredOverride !== null &&
+      processedData.some((point) => point.index === hoveredOverride)
+    ) {
+      return hoveredOverride;
+    }
+    return defaultHover;
+  }, [hoveredOverride, processedData, defaultHover]);
+
+  const tickValues = useMemo(() => {
+    if (processedData.length === 0) return [];
+    return processedData.map((point) => point.index);
+  }, [processedData]);
 
   return (
     <div className="w-full">
@@ -118,7 +176,10 @@ export default function DashboardChart({ chartData }: DashboardChartProps) {
           {(["1일", "1주", "1개월", "All"] as Period[]).map((period) => (
             <button
               key={period}
-              onClick={() => setSelectedPeriod(period)}
+              onClick={() => {
+                setSelectedPeriod(period);
+                setHoveredOverride(null);
+              }}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                 selectedPeriod === period
                   ? "bg-blue-600 text-white"
@@ -151,14 +212,17 @@ export default function DashboardChart({ chartData }: DashboardChartProps) {
       <div className="w-full h-64 md:h-80 lg:h-96 bg-white rounded-lg">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart
-            data={chartData}
+            data={processedData}
             margin={{ top: 10, right: 20, left: 0, bottom: 30 }}
             onMouseMove={(e) => {
-              if (e?.activeLabel) {
-                setHoveredDate(e.activeLabel);
+              const label = e?.activeLabel;
+              if (label === undefined || label === null) return;
+              const numericLabel = Math.round(Number(label));
+              if (!Number.isNaN(numericLabel)) {
+                setHoveredOverride(numericLabel);
               }
             }}
-            onMouseLeave={() => setHoveredDate(null)}
+            onMouseLeave={() => setHoveredOverride(null)}
           >
             <defs>
               <linearGradient id="colorUp" x1="0" y1="0" x2="0" y2="1">
@@ -173,20 +237,26 @@ export default function DashboardChart({ chartData }: DashboardChartProps) {
               vertical={false} // 수직선 표시
             />
             <XAxis
-              dataKey="date" // 날짜를 기준으로
+              dataKey="index" // 순번을 기준으로
+              type="number"
+              domain={processedData.length > 0 ? [-0.5, processedData.length - 0.5] : [0, 0]}
               stroke="#6b7280" // 선 색상
               axisLine={{ stroke: "#e5e7eb" }} // 기본 스타일
               tickLine={{ stroke: "#e5e7eb" }} // 눈금 선 스타일
-              tick={<CustomTick chartData={chartData} />}
+              ticks={tickValues}
+              interval={0}
+              height={48}
+              tickMargin={14}
+              tick={<CustomTick chartData={processedData} />}
             />
             {/* 일자별 경계선 */}
-            {chartData.map((item, index) => {
+            {processedData.map((item, index) => {
               // 첫 번째는 시작점이므로 경계선 표시X
               if (index === 0) return null;
               return (
                 <ReferenceLine
                   key={`border-${index}`}
-                  x={item.date} // 날짜를 기준으로
+                  x={item.index} // 인덱스를 기준으로
                   stroke="#e5e7eb" // 선 색상
                   strokeWidth={1} // 선 두께 : 1px
                 />
@@ -201,8 +271,8 @@ export default function DashboardChart({ chartData }: DashboardChartProps) {
               tickLine={{ stroke: "#e5e7eb" }} // 눈금 선 스타일
               width={40} // Y축 너비
             />
-            <Tooltip content={<CustomTooltip chartData={chartData} />} />
-            {hoveredDate && (
+            <Tooltip content={<CustomTooltip chartData={processedData} />} />
+            {hoveredDate !== null && (
               <ReferenceLine
                 x={hoveredDate}
                 stroke="#9ca3af" // 선 색상

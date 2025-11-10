@@ -29,18 +29,32 @@ export async function fetchDashboardData(): Promise<DashboardData> {
 
   const now = new Date();
   const lastUpdated = `${now.getFullYear()}년 ${now.getMonth() + 1}월 ${now.getDate()}일 ${now.getHours() >= 12 ? "오후" : "오전"} ${now.getHours() % 12 || 12}:${String(now.getMinutes()).padStart(2, "0")}`;
+  const weekdays = ["일", "월", "화", "수", "목", "금", "토"];
+
+  const chartData: ChartDataPoint[] = Array.from({ length: 30 }, (_, idx) => {
+    const dayOffset = 29 - idx; // 1개월 → 오늘
+    const current = new Date(now);
+    current.setHours(0, 0, 0, 0);
+    current.setDate(current.getDate() - dayOffset);
+
+    const trend = 100 + idx * 4;
+    const wave = Math.round(15 * Math.sin((idx / 5) * Math.PI));
+    const up = trend + wave;
+    const down = 18 + ((idx * 7) % 28);
+    const hold = 6 + ((idx * 4) % 14);
+
+    return {
+      date: current.toISOString(), // timestampz 형식
+      day: current.getDate(),
+      weekday: weekdays[current.getDay()],
+      up,
+      down,
+      hold,
+    };
+  });
 
   return {
-    chartData: [
-      { date: "Mon 15", day: 15, weekday: "Mon", up: 36, down: 20, hold: 0 },
-      { date: "Tue 16", day: 16, weekday: "Tue", up: 110, down: 15, hold: 5 },
-      { date: "Wed 17", day: 17, weekday: "Wed", up: 245, down: 11, hold: 0 },
-      { date: "Thu 18", day: 18, weekday: "Thu", up: 170, down: 18, hold: 2 },
-      { date: "Fri 19", day: 19, weekday: "Fri", up: 220, down: 10, hold: 0 },
-      { date: "Sat 20", day: 20, weekday: "Sat", up: 87, down: 15, hold: 5 },
-      { date: "Sun 21", day: 21, weekday: "Sun", up: 139, down: 12, hold: 3 },
-      { date: "Mon 22", day: 22, weekday: "Mon", up: 201, down: 8, hold: 0 },
-    ],
+    chartData,
     topRising: [
       { name: "#설렘", change: "+15.2%" },
       { name: "#설렘", change: "+15.2%" },
