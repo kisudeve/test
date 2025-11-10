@@ -1,3 +1,5 @@
+import Header from "@/components/common/Header";
+import { paperlogy } from "../../public/fonts/local_fonts";
 import "../css/globals.css";
 export const metadata = {
   title: "Next.js",
@@ -6,8 +8,15 @@ export const metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="ko">
-      <body>{children}</body>
+    <html lang="ko" suppressHydrationWarning>
+      <body className={paperlogy.className}>
+        <div className="flex min-h-screen bg-gray-50">
+          <div className=" py-6 pl-4 h-screen w-[18%] flex shrink-0">
+            <Header />
+          </div>
+          <main className="flex-1 min-w-0">{children}</main>
+        </div>
+      </body>
     </html>
   );
 }
