@@ -57,8 +57,8 @@ export async function fetchDashboardData(): Promise<DashboardData> {
     chartData,
     topRising: [
       { name: "#설렘", change: "+15.2%" },
-      { name: "#설렘", change: "+15.2%" },
-      { name: "#설렘", change: "+15.2%" },
+      { name: "#기쁨", change: "+15.2%" },
+      { name: "#행복", change: "+15.2%" },
     ],
     topFalling: [
       { name: "#피곤", change: "+15.2%" },
