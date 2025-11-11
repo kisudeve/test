@@ -3,7 +3,7 @@
 import Button from "@/components/common/Button";
 import TextArea from "@/components/common/TextArea";
 import { insertComment, updateComment } from "@/utils/actions/comment";
-import { use, useActionState, useCallback, useEffect, useRef } from "react";
+import { useActionState, useCallback, useEffect, useRef } from "react";
 import Input from "@/components/common/Input";
 import { User } from "@/types/database";
 import ProfileImage from "@/components/common/ProfileImage";
@@ -77,7 +77,6 @@ export default function CommentFormClient({
                   {editingCommentId && (
                     <Input type="hidden" name="commentId" value={editingCommentId} />
                   )}
-                  <Input type="hidden" name="postId" value={postId} />
                   <TextArea
                     name="comment"
                     className="w-full h-20"

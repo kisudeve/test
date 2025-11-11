@@ -54,7 +54,6 @@ export default function PostListItemClient({
       }
     }
   }, 500);
-  console.log(post);
 
   return (
     <article className="p-5 rounded-2xl shadow-[0_4px_12px_rgba(0,0,0,0.06)] bg-white border border-slate-200">
