@@ -4,13 +4,13 @@ import { Heart, MessageCircle } from "lucide-react";
 import { formatRelativeTime } from "@/utils/helpers";
 import { createClient } from "@/utils/supabase/client";
 import Link from "next/link";
-import { CommunityPost, FeelType } from "@/types/community";
+import { CommunityPost } from "@/types/community";
 import { twMerge } from "tailwind-merge";
 import { useState } from "react";
 import { useDebouncedCallback } from "@/hooks/useDebouncedCallback";
-import Button from "../common/Button";
-import ProfileImage from "../common/ProfileImage";
-import FeelBadge from "../common/FeelBadge";
+import Button from "@/components/common/Button";
+import ProfileImage from "@/components/common/ProfileImage";
+import FeelBadge from "@/components/common/FeelBadge";
 
 export default function PostListItemClient({
   post,
@@ -42,8 +42,19 @@ export default function PostListItemClient({
       await supabase.from("likes").delete().eq("user_id", userId).eq("post_id", post.id);
     } else {
       await supabase.from("likes").insert({ post_id: post.id, user_id: userId });
+      // 본인이 작성한 글이 아닐 때만 좋아요 알림
+      if (post.user_id !== userId) {
+        await supabase.from("notifications").insert({
+          post_id: post.id,
+          sender_id: userId,
+          receiver_id: post.user_id,
+          type: "like",
+          is_read: false,
+        });
+      }
     }
   }, 500);
+  console.log(post);
 
   return (
     <article className="p-5 rounded-2xl shadow-[0_4px_12px_rgba(0,0,0,0.06)] bg-white border border-slate-200">
@@ -60,7 +71,7 @@ export default function PostListItemClient({
                   {formatRelativeTime(post.created_at)}
                 </span>
               </div>
-              <FeelBadge type={post.feels[0].type as FeelType} />
+              <FeelBadge type={post.feels.length > 0 ? post.feels[0].type : "hold"} />
             </div>
             <div className="flex flex-col gap-2">
               <h3 className="text-xl font-bold">{post.title}</h3>
@@ -85,11 +96,11 @@ export default function PostListItemClient({
                 liked ? "stroke-red-500 fill-red-500" : "stroke-slate-300 fill-slate-300",
               )}
             />
-            {likeCount}
+            {likeCount ?? "0"}
           </Button>
           <Button>
             <MessageCircle size={16} className="stroke-slate-300 fill-slate-300" />
-            {post.comments_count}
+            {post.comments_count ?? "0"}
           </Button>
         </div>
       </Link>
