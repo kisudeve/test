@@ -2,7 +2,7 @@ import { CommunityPost } from "./types";
 
 export const MOCK_POSTS: CommunityPost[] = [
   {
-    id: "p1",
+    id: "1",
     title: "새로 오픈한 카페에서의 소소한 행복",
     content: "새로 오픈한 카페에 왔는데 라떼가 정말 맛있네요! 오늘 하루는 이걸로 버틸 수 있겠어요.",
     created_at: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(),
@@ -14,7 +14,7 @@ export const MOCK_POSTS: CommunityPost[] = [
     tags: ["커피", "행복", "주말"],
   },
   {
-    id: "p2",
+    id: "2",
     title: "아침부터 비가 와서 그런지 피곤",
     content: "아침부터 비가 와서 그런지 #피곤 하고 기운이 없네요. 따뜻한 커피 마시고 싶다.",
     created_at: new Date(Date.now() - 1000 * 60 * 60 * 5).toISOString(),
@@ -26,7 +26,7 @@ export const MOCK_POSTS: CommunityPost[] = [
     tags: ["출근길", "피곤"],
   },
   {
-    id: "p3",
+    id: "3",
     title: "평범한 월요일 오후",
     content: "특별한 일 없이 조용히 지나가는 중. #일상 #무난",
     created_at: new Date(Date.now() - 1000 * 60 * 60 * 8).toISOString(),
