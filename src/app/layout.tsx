@@ -1,6 +1,8 @@
-import "../css/globals.css";
-import Header from "@/components/common/Header";
 import React from "react";
+import { paperlogy } from "../../public/fonts/local_fonts";
+import { PresenceProvider } from "@/contexts/PresenceContext";
+import Header from "@/components/common/Header";
+import "../css/globals.css";
 
 export const metadata = {
   title: "DevCourse3",
@@ -10,13 +12,16 @@ export const metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="ko" suppressHydrationWarning>
-      <body>
-        <div className="flex min-h-screen bg-gray-50">
-          <div className="py-6 pl-4 w-[18%] min-w-[180px] shrink-0 sticky top-0 h-screen overflow-y-auto overflow-x-hidden">
-            <Header />
+      <body className={paperlogy.className}>
+        {/* 실시간 접속자 관리를 위한 Provider */}
+        <PresenceProvider channelName="dashboard">
+          <div className="flex min-h-screen bg-gray-50">
+            <div className="py-6 pl-4 w-[18%] min-w-[180px] shrink-0 sticky top-0 h-screen overflow-y-auto overflow-x-hidden"">
+              <Header />
+            </div>
+            <main className="flex-1 min-w-0">{children}</main>
           </div>
-          <main className="flex-1 min-w-0">{children}</main>
-        </div>
+        </PresenceProvider>
       </body>
     </html>
   );

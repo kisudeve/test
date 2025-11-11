@@ -1,11 +1,14 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { fetchDashboardData, type DashboardData } from "@/components/dashboard/model/dashboard";
+import { RefreshCcw } from "lucide-react";
+import { fetchDashboardData } from "@/components/dashboard/model/dashboard";
+import type { DashboardData } from "@/components/dashboard/type/dashboard";
 import DashboardChart from "@/components/dashboard/ui/DashboardChart";
 import DashboardStats from "@/components/dashboard/ui/DashboardStats";
+import { usePresenceContext } from "@/contexts/PresenceContext";
 
-const POLLING_INTERVAL = 5 * 60 * 1000; // 5분 (밀리초)
+const POLLING_INTERVAL = 5 * 60 * 1000; // (1000ms = 1 second) | 초기값 5분
 
 interface DashboardContentWrapperProps {
   initialData: DashboardData;
@@ -13,26 +16,64 @@ interface DashboardContentWrapperProps {
 
 export default function DashboardContentWrapper({ initialData }: DashboardContentWrapperProps) {
   const [data, setData] = useState<DashboardData>(initialData);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
-  const loadData = useCallback(async () => {
-    try {
-      const newData = await fetchDashboardData();
-      setData(newData);
-    } catch (error) {
-      console.error("데이터 로드 실패:", error);
-    }
-  }, []);
+  // 실시간 접속자 수 (전역 Context에서 가져옴)
+  const { currentUsers } = usePresenceContext();
 
+  const loadData = useCallback(
+    async (showLoading = false) => {
+      try {
+        if (showLoading) {
+          setIsRefreshing(true);
+        }
+        const newData = await fetchDashboardData();
+        // 서버에서 가져온 데이터에 현재 실시간 접속자 수를 유지
+        setData({
+          ...newData,
+          communityStats: {
+            ...newData.communityStats,
+            currentUsers: `${currentUsers || 1}명`, // 1명은 본인을 의미해서 초기값으로 설정
+          },
+        });
+      } catch (error) {
+        console.error("데이터 로드 실패:", error);
+      } finally {
+        if (showLoading) {
+          setIsRefreshing(false);
+        }
+      }
+    },
+    [currentUsers],
+  );
+
+  // 수동 새로고침
+  const handleRefresh = useCallback(() => {
+    loadData(true);
+  }, [loadData]);
+
+  // 자동 새로고침
   useEffect(() => {
     const intervalId = setInterval(() => {
-      loadData();
+      loadData(true);
     }, POLLING_INTERVAL);
 
     return () => clearInterval(intervalId);
   }, [loadData]);
 
+  // 현재 접속자 수가 변경될 때마다 데이터 업데이트
+  useEffect(() => {
+    setData((prevData) => ({
+      ...prevData,
+      communityStats: {
+        ...prevData.communityStats,
+        currentUsers: `${currentUsers || 1}명`,
+      },
+    }));
+  }, [currentUsers]);
+
   return (
-    <div className="w-full h-full bg-gray-50 p-6">
+    <div className="w-full h-full bg-gray-50 p-6 relative">
       <div className="w-full space-y-6">
         {/* 상단 섹션 */}
         <div className="bg-white rounded-lg shadow-sm p-4 md:p-6">
@@ -44,6 +85,18 @@ export default function DashboardContentWrapper({ initialData }: DashboardConten
         {/* 하단 부분*/}
         <DashboardStats data={data} />
       </div>
+
+      {/* 새로고침 버튼 */}
+      <button
+        onClick={handleRefresh}
+        disabled={isRefreshing}
+        className="fixed bottom-8 right-8 z-50 bg-white hover:bg-white disabled:bg-gray-200 text-white rounded-full p-4 shadow-lg transition-all duration-200 hover:shadow-xl disabled:cursor-not-allowed flex items-center justify-center group"
+        aria-label="새로고침"
+      >
+        <RefreshCcw
+          className={`w-6 h-6 transition-transform duration-500 text-black ${isRefreshing ? "animate-spin" : "group-hover:rotate-180"}`}
+        />
+      </button>
     </div>
   );
 }

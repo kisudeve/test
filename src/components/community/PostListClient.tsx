@@ -69,7 +69,7 @@ export default function PostListClient({
   }, [hasMore, loading, loadMorePosts]);
 
   return (
-    <section className="flex flex-col gap-4 m-8">
+    <section className="flex flex-col gap-4 py-6 px-4">
       {posts.map((post) => (
         <PostListItemClient key={post.id} post={post} userId={userId} />
       ))}

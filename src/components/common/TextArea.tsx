@@ -2,7 +2,7 @@
 
 import { TextAreaProps } from "@/types/form";
 import { twMerge } from "tailwind-merge";
-import { paperlogy } from "../../../public/fonts/local_fonts";
+import { paperlogy } from "@/../public/fonts/local_fonts";
 
 export default function TextArea(props: TextAreaProps) {
   const { className = "", children, ...rest } = props;
