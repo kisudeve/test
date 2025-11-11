@@ -1,7 +1,7 @@
 import { formatRelativeTime } from "@/utils/helpers";
 import { FeelType } from "@/types/community";
-import ProfileImage from "../common/ProfileImage";
-import FeelBadge from "../common/FeelBadge";
+import ProfileImage from "@/components/common/ProfileImage";
+import FeelBadge from "@/components/common/FeelBadge";
 import PostDetailActionsClient from "./PostDetailActionsClient";
 import { createClient } from "@/utils/supabase/server";
 import { notFound } from "next/navigation";
@@ -32,7 +32,7 @@ export default async function PostDetail({ postId }: { postId: string }) {
   }
 
   return (
-    <section className="m-10 p-10 rounded-2xl shadow-[0_4px_12px_rgba(0,0,0,0.06)] bg-white border border-slate-200">
+    <section className="my-6 mx-4 p-10 rounded-2xl shadow-[0_4px_12px_rgba(0,0,0,0.06)] bg-white border border-slate-200">
       <div className="flex flex-col gap-6">
         <div className="flex gap-4">
           {/* 사용자 프로필 사진 */}
