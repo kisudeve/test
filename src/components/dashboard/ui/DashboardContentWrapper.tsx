@@ -8,7 +8,7 @@ import DashboardChart from "@/components/dashboard/ui/DashboardChart";
 import DashboardStats from "@/components/dashboard/ui/DashboardStats";
 import { usePresenceContext } from "@/contexts/PresenceContext";
 
-const POLLING_INTERVAL = 1 * 60 * 1000; // (1000ms = 1 second)
+const POLLING_INTERVAL = 5 * 60 * 1000; // (1000ms = 1 second) | 초기값 5분
 
 interface DashboardContentWrapperProps {
   initialData: DashboardData;

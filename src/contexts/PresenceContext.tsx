@@ -26,13 +26,14 @@ interface PresenceProviderProps {
 export function PresenceProvider({ children, channelName = "dashboard" }: PresenceProviderProps) {
   const [currentUsers, setCurrentUsers] = useState(1);
   const channelRef = useRef<RealtimeChannel | null>(null);
+
   const supabase = createClient();
   const isInitializedRef = useRef(false);
 
   // 중복 로그인을 방지한 고유 계정 아이디 계산
-  const calculateUniqueUsers = useCallback((channel: RealtimeChannel) => {
-    const state = channel.presenceState();
-    const uniqueUsers = new Set<string>();
+  const uniqueUsersCount = useCallback((channel: RealtimeChannel) => {
+    const state = channel.presenceState(); // 상태 관리
+    const uniqueUsers = new Set<string>(); // 고유 유저 아이디 관리
 
     Object.values(state).forEach((presences) => {
       if (Array.isArray(presences)) {
@@ -83,17 +84,17 @@ export function PresenceProvider({ children, channelName = "dashboard" }: Presen
       channel
         .on("presence", { event: "sync" }, () => {
           if (!isMounted || !channel) return;
-          const count = calculateUniqueUsers(channel);
+          const count = uniqueUsersCount(channel);
           setCurrentUsers(count);
         })
         .on("presence", { event: "join" }, () => {
           if (!isMounted || !channel) return;
-          const count = calculateUniqueUsers(channel);
+          const count = uniqueUsersCount(channel);
           setCurrentUsers(count);
         })
         .on("presence", { event: "leave" }, () => {
           if (!isMounted || !channel) return;
-          const count = calculateUniqueUsers(channel);
+          const count = uniqueUsersCount(channel);
           setCurrentUsers(count);
         })
         .subscribe(async (status) => {
@@ -120,11 +121,11 @@ export function PresenceProvider({ children, channelName = "dashboard" }: Presen
     return () => {
       // 페이지 이동 시에도 채널 유지할 것이기에 정의 X
     };
-  }, [channelName, supabase, calculateUniqueUsers]);
+  }, [channelName, supabase, uniqueUsersCount]);
 
   // 페이지를 닫거나, 종료하는 경우만 채널 삭제
   useEffect(() => {
-    const handleBeforeUnload = () => {
+    const handleUnload = () => {
       if (channelRef.current) {
         channelRef.current
           .untrack()
@@ -139,10 +140,10 @@ export function PresenceProvider({ children, channelName = "dashboard" }: Presen
       }
     };
 
-    window.addEventListener("beforeunload", handleBeforeUnload);
+    window.addEventListener("unload", handleUnload);
 
     return () => {
-      window.removeEventListener("beforeunload", handleBeforeUnload);
+      window.removeEventListener("unload", handleUnload);
     };
   }, [supabase]);
 
