@@ -131,6 +131,7 @@ export default function Header({
       className={[
         "bg-white/85 backdrop-blur shadow-md shadow-gray-200/70 rounded-lg",
         "w-full",
+        "min-w-[180px]",
         "h-full flex flex-col p-4 gap-4",
         "shrink-0",
         "font-[Paperlogy]",
@@ -145,7 +146,6 @@ export default function Header({
           <div className="text-black">
             <Icon.logo />
           </div>
-          <span className="font-semibold text-lg tracking-tight sm:hidden">updown</span>
         </Link>
       </div>
 
@@ -153,12 +153,12 @@ export default function Header({
       <section>
         <div className="w-full rounded-2xl bg-black text-white p-4 shadow-sm">
           <p className="text-[14px] text-gray-300">오늘의 감정 지수</p>
-          <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-            <span className="text-[26px] font-extrabold tabular-nums tracking-tight sm:text-[30px]">
+          <div className="mt-3 flex flex-col gap-3 max-[1215px]:flex-wrap min-[1216px]:flex-nowrap">
+            <span className="text-[26px] font-extrabold tabular-nums tracking-tight max-[1215px]:text-[28px] min-[1216px]:text-[34px]">
               {todayScore.value.toLocaleString()}
             </span>
             <span
-              className={`inline-flex shrink-0 items-center gap-1 rounded-lg bg-white/10 px-3 py-1 text-sm font-semibold backdrop-blur sm:gap-2 sm:bg-transparent sm:px-0 sm:py-0 sm:text-[14px] ${
+              className={`inline-flex shrink-0 items-center gap-1 rounded-lg font-semibold backdrop-blur bg-transparent px-0 py-0 text-[14px] ${
                 todayScore.changePct >= 0 ? "text-emerald-500" : "text-rose-500"
               }`}
             >
