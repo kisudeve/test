@@ -20,13 +20,14 @@ const emotions = [
 
 export default function WriteDetail() {
   const searchParams = useSearchParams();
-  const postId = searchParams.get("post_id"); // 1
+  const pageId = searchParams.get("post_id"); // 1
   const supabase = createClient();
   const router = useRouter();
 
   const imageUploadInput = useRef<HTMLInputElement>(null);
 
-  const [imageUploadPreview, setImageUploadPreview] = useState<string | null>("");
+  const [existingImage, setExistingImage] = useState<string | null>(null);
+  const [imageUploadPreview, setImageUploadPreview] = useState<string | null>(null);
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [imageUpload, setImageUpload] = useState<File | null>(null);
@@ -105,49 +106,99 @@ export default function WriteDetail() {
 
         imageUrl = publicUrl;
       }
+      if (!pageId) {
+        const { data: postData, error: postError } = await supabase
+          .from("posts")
+          .insert([
+            {
+              user_id: user.id,
+              title,
+              content,
+              image_url: imageUrl,
+            },
+          ])
+          .select("id")
+          .single();
 
-      const { data: postData, error: postError } = await supabase
-        .from("posts")
-        .insert([
+        if (postError) throw postError;
+
+        const postId = postData.id;
+
+        let insertAmount = 0;
+        if (pick === "down") insertAmount = (sliderValue[0] + 1) * -1;
+        else if (pick === "hold") insertAmount = 0;
+        else insertAmount = sliderValue[0] + 1;
+
+        const { error: feelError } = await supabase.from("feels").insert([
           {
+            post_id: postId,
+            type: pick,
+            amount: insertAmount,
+            user_id: user.id,
+          },
+        ]);
+
+        if (feelError) throw feelError;
+
+        const tagString = selectedTags.join(",");
+        const { error: tagError } = await supabase
+          .from("hashtags")
+          .insert([{ post_id: postId, content: tagString }]);
+
+        if (tagError) throw tagError;
+
+        alert("글이 성공적으로 등록되었습니다!");
+        router.back();
+      } else {
+        let insertImage = null;
+        if (!imageUpload) insertImage = existingImage;
+        else insertImage = imageUrl;
+        const { data: postData, error: postError } = await supabase
+          .from("posts")
+          .update({
             user_id: user.id,
             title,
             content,
-            image_url: imageUrl,
-          },
-        ])
-        .select("id")
-        .single();
+            image_url: insertImage,
+          })
+          .eq("id", pageId)
+          .eq("user_id", user.id)
+          .select("id")
+          .single();
 
-      if (postError) throw postError;
+        if (postError) throw postError;
 
-      const postId = postData.id;
+        const postId = postData.id;
 
-      let insertAmount = 0;
-      if (pick === "down") insertAmount = sliderValue[0] * -1;
-      else if (pick === "hold") insertAmount = 0;
-      else insertAmount = sliderValue[0];
+        let insertAmount = 0;
+        if (pick === "down") insertAmount = (sliderValue[0] + 1) * -1;
+        else if (pick === "hold") insertAmount = 0;
+        else insertAmount = sliderValue[0] + 1;
 
-      const { error: feelError } = await supabase.from("feels").insert([
-        {
-          post_id: postId,
-          type: pick,
-          amount: insertAmount,
-          user_id: user.id,
-        },
-      ]);
+        const { error: feelError } = await supabase
+          .from("feels")
+          .update({
+            post_id: postId,
+            type: pick,
+            amount: insertAmount,
+            user_id: user.id,
+          })
+          .eq("post_id", pageId)
+          .eq("user_id", user.id);
 
-      if (feelError) throw feelError;
+        if (feelError) throw feelError;
 
-      const tagString = selectedTags.join(",");
-      const { error: tagError } = await supabase
-        .from("hashtags")
-        .insert([{ post_id: postId, content: tagString }]);
+        const tagString = selectedTags.join(",");
+        const { error: tagError } = await supabase
+          .from("hashtags")
+          .update({ post_id: postId, content: tagString })
+          .eq("post_id", pageId);
 
-      if (tagError) throw tagError;
+        if (tagError) throw tagError;
 
-      alert("글이 성공적으로 등록되었습니다!");
-      router.back();
+        alert("글이 성공적으로 수정되었습니다!");
+        router.back();
+      }
     } catch (e) {
       console.error(e);
       alert("글 작성 중 오류가 발생했습니다.");
@@ -155,7 +206,7 @@ export default function WriteDetail() {
   };
 
   useEffect(() => {
-    if (!postId) return;
+    if (!pageId) return;
     (async () => {
       const {
         data: { user },
@@ -181,7 +232,7 @@ export default function WriteDetail() {
     feels(*)
     `,
         )
-        .eq("id", postId)
+        .eq("id", pageId)
         .eq("user_id", user?.id ?? "")
         .single();
 
@@ -195,15 +246,16 @@ export default function WriteDetail() {
       const hashtags = data.hashtags[0];
 
       setImageUploadPreview(data.image_url);
+      setExistingImage(data.image_url);
       setTitle(data.title ?? "");
       setContent(data.content ?? "");
       setPick(feels.type);
       if (feels.type === "down") {
-        setSliderValue([feels.amount * -1]);
+        setSliderValue([(feels.amount + 1) * -1]);
       } else if (feels.type === "hold") {
         setSliderValue([4]);
       } else {
-        setSliderValue([feels.amount * 1]);
+        setSliderValue([feels.amount - 1]);
       }
 
       if (Array.isArray(hashtags.content)) {
@@ -212,7 +264,7 @@ export default function WriteDetail() {
         setSelectedTags(hashtags.content.split(",").map((t) => t.trim()));
       }
     })();
-  }, [postId, router, supabase]);
+  }, [pageId, router, supabase]);
   return (
     <div className="flex justify center items-center flex-col w-[752px] h-full rounded-2xl shadow-[0_4px_12px_rgba(0,0,0,0.06)] bg-white">
       <p className="pt-7 text-[24px] text-[#1A2035]">오늘의 감정 기록</p>
@@ -400,7 +452,7 @@ export default function WriteDetail() {
               className="pointer-events-auto cursor-pointer close-btn hover:scale-110"
               onClick={(e) => {
                 e.stopPropagation();
-                setImageUploadPreview("");
+                setImageUploadPreview(null);
                 setImageUpload(null);
               }}
             >
