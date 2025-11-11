@@ -6,6 +6,7 @@ import { fetchDashboardData } from "@/components/dashboard/model/dashboard";
 import type { DashboardData } from "@/components/dashboard/type/dashboard";
 import DashboardChart from "@/components/dashboard/ui/DashboardChart";
 import DashboardStats from "@/components/dashboard/ui/DashboardStats";
+import { usePresence } from "@/components/dashboard/hooks/usePresence";
 
 const POLLING_INTERVAL = 5 * 60 * 1000; // (1000ms = 1 second)
 
@@ -16,6 +17,9 @@ interface DashboardContentWrapperProps {
 export default function DashboardContentWrapper({ initialData }: DashboardContentWrapperProps) {
   const [data, setData] = useState<DashboardData>(initialData);
   const [isRefreshing, setIsRefreshing] = useState(false);
+
+  // 실시간 접속자 수
+  const currentUsers = usePresence("dashboard");
 
   const loadData = useCallback(async (showLoading = false) => {
     try {
@@ -46,6 +50,17 @@ export default function DashboardContentWrapper({ initialData }: DashboardConten
 
     return () => clearInterval(intervalId);
   }, [loadData]);
+
+  // 현재 접속자 수가 변경될 때마다 데이터 업데이트
+  useEffect(() => {
+    setData((prevData) => ({
+      ...prevData,
+      communityStats: {
+        ...prevData.communityStats,
+        currentUsers: `${currentUsers || 1}명`,
+      },
+    }));
+  }, [currentUsers]);
 
   return (
     <div className="w-full h-full bg-gray-50 p-6 relative">
