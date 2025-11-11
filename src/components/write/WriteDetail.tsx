@@ -31,7 +31,7 @@ export default function WriteDetail() {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [imageUpload, setImageUpload] = useState<File | null>(null);
-  const [pick, setPick] = useState<"up" | "down" | "hold" | string | "">("");
+  const [pick, setPick] = useState<"up" | "down" | "hold" | "">("");
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [sliderValue, setSliderValue] = useState([4]); // 현재 단계 (0~9)
   const totalSteps = 10;
