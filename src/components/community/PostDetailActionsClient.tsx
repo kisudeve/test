@@ -40,19 +40,6 @@ export default function PostDetailActionsClient({
     debouncedApiCall();
   };
 
-  const deleteHandler = async (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-    e.stopPropagation();
-    e.preventDefault();
-
-    const confirmDelete = confirm("정말로 이 게시물을 삭제하시겠습니까?");
-    if (!confirmDelete) {
-      return;
-    }
-    await supabase.from("posts").delete().eq("id", postId);
-
-    router.push("/community");
-  };
-
   const debouncedApiCall = useDebouncedCallback(async () => {
     if (userId && liked) {
       await supabase.from("likes").delete().eq("user_id", userId).eq("post_id", postId);
@@ -84,7 +71,7 @@ export default function PostDetailActionsClient({
           <Button variant="edit" onClick={() => router.push(`/write?post_id=${postId}`)}>
             수정
           </Button>
-          <Button variant="delete" onClick={deleteHandler}>
+          <Button variant="delete" onClick={() => router.push(`/community/${postId}/confirm-post`)}>
             삭제
           </Button>
         </div>
