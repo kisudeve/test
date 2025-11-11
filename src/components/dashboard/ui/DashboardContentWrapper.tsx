@@ -6,9 +6,9 @@ import { fetchDashboardData } from "@/components/dashboard/model/dashboard";
 import type { DashboardData } from "@/components/dashboard/type/dashboard";
 import DashboardChart from "@/components/dashboard/ui/DashboardChart";
 import DashboardStats from "@/components/dashboard/ui/DashboardStats";
-import { usePresence } from "@/components/dashboard/hooks/usePresence";
+import { usePresenceContext } from "@/contexts/PresenceContext";
 
-const POLLING_INTERVAL = 5 * 60 * 1000; // (1000ms = 1 second)
+const POLLING_INTERVAL = 1 * 60 * 1000; // (1000ms = 1 second)
 
 interface DashboardContentWrapperProps {
   initialData: DashboardData;
@@ -18,24 +18,34 @@ export default function DashboardContentWrapper({ initialData }: DashboardConten
   const [data, setData] = useState<DashboardData>(initialData);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
-  // 실시간 접속자 수
-  const currentUsers = usePresence("dashboard");
+  // 실시간 접속자 수 (전역 Context에서 가져옴)
+  const { currentUsers } = usePresenceContext();
 
-  const loadData = useCallback(async (showLoading = false) => {
-    try {
-      if (showLoading) {
-        setIsRefreshing(true);
+  const loadData = useCallback(
+    async (showLoading = false) => {
+      try {
+        if (showLoading) {
+          setIsRefreshing(true);
+        }
+        const newData = await fetchDashboardData();
+        // 서버에서 가져온 데이터에 현재 실시간 접속자 수를 유지
+        setData({
+          ...newData,
+          communityStats: {
+            ...newData.communityStats,
+            currentUsers: `${currentUsers || 1}명`, // 1명은 본인을 의미해서 초기값으로 설정
+          },
+        });
+      } catch (error) {
+        console.error("데이터 로드 실패:", error);
+      } finally {
+        if (showLoading) {
+          setIsRefreshing(false);
+        }
       }
-      const newData = await fetchDashboardData();
-      setData(newData);
-    } catch (error) {
-      console.error("데이터 로드 실패:", error);
-    } finally {
-      if (showLoading) {
-        setIsRefreshing(false);
-      }
-    }
-  }, []);
+    },
+    [currentUsers],
+  );
 
   // 수동 새로고침
   const handleRefresh = useCallback(() => {
