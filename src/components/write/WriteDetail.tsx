@@ -10,6 +10,7 @@ import * as Slider from "@radix-ui/react-slider";
 import closeButton from "@/assets/write/closeButton.svg";
 import { createClient } from "@/utils/supabase/client";
 import { useRouter, useSearchParams } from "next/navigation";
+import { badWords } from "./badWords";
 
 // 감정 버튼 설정
 const emotions = [
@@ -26,6 +27,8 @@ export default function WriteDetail() {
 
   const imageUploadInput = useRef<HTMLInputElement>(null);
 
+  const [hasBadTitle, setHasBadTitle] = useState(false);
+  const [hasBadContent, setHasBadContent] = useState(false);
   const [existingImage, setExistingImage] = useState<string | null>(null);
   const [imageUploadPreview, setImageUploadPreview] = useState<string | null>(null);
   const [title, setTitle] = useState("");
@@ -35,6 +38,41 @@ export default function WriteDetail() {
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [sliderValue, setSliderValue] = useState([4]); // 현재 단계 (0~9)
   const totalSteps = 10;
+
+  // 의미 있는 특수문자들
+  const escapeRegex = (src: string) => {
+    return src.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  };
+
+  const handleChangeTitle = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const inputValueTitle = e.target.value;
+
+    if (inputValueTitle.length <= 40) setTitle(inputValueTitle);
+
+    // 욕설
+    const hasBad = badWords.some((word) => {
+      const safeWord = escapeRegex(word);
+      const regex = new RegExp(safeWord, "i");
+      return regex.test(inputValueTitle); // ← 최신 입력값으로 검사
+    });
+
+    setHasBadTitle(hasBad);
+  };
+
+  const handleChangeContent = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const inputValueTitle = e.target.value;
+
+    if (inputValueTitle.length <= 500) setContent(inputValueTitle);
+
+    // 욕설
+    const hasBad = badWords.some((word) => {
+      const safeWord = escapeRegex(word);
+      const regex = new RegExp(safeWord, "i");
+      return regex.test(inputValueTitle); // ← 최신 입력값으로 검사
+    });
+
+    setHasBadContent(hasBad);
+  };
 
   // pick에 따라 hashtag 배열 가져오기
   const hashtags = pick === "up" ? up : pick === "down" ? down : pick === "hold" ? hold : [];
@@ -60,6 +98,10 @@ export default function WriteDetail() {
   };
 
   const handlePublish = async () => {
+    if (hasBadContent || hasBadTitle) {
+      alert("적절하지 못한 내용을 포함하고 있습니다.");
+      return;
+    }
     if (pick === "") {
       alert("감정을 선택해주세요.");
       return;
@@ -397,28 +439,34 @@ export default function WriteDetail() {
           className=" bg-[#F9FAFB] border rounded-xl border-[#E5E7EB] w-[688px] h-14 mt-7 resize-none outline-none focus:scale-102 transform transition-transform duration-200"
           placeholder="오늘의 메모를 남겨보세요..."
           value={title}
-          onChange={(e) => {
-            if (e.target.value.length <= 40) setTitle(e.target.value);
-          }}
+          onChange={handleChangeTitle}
         />
         <span className="absolute bottom-2 right-4 font-normal text-[#AAAAAA] text-[14px]">
           {title.length} / 40
         </span>
+        {hasBadTitle ? (
+          <p className="mt-0.5 ml-2 absolute text-[#c85c5c]">적절하지 못한 제목입니다</p>
+        ) : (
+          ""
+        )}
       </div>
 
       {/* 메모 */}
       <div className="relative">
         <textarea
-          className=" bg-[#F9FAFB] border rounded-xl border-[#E5E7EB] w-[688px] h-[340px] mt-7 resize-none outline-none focus:scale-102 transform transition-transform duration-200"
+          className=" bg-[#F9FAFB] border rounded-xl border-[#E5E7EB] w-[688px] h-[340px] mt-12 resize-none outline-none focus:scale-102 transform transition-transform duration-200"
           placeholder="오늘의 메모를 남겨보세요..."
           value={content}
-          onChange={(e) => {
-            if (e.target.value.length <= 500) setContent(e.target.value);
-          }}
+          onChange={handleChangeContent}
         />
         <span className="absolute bottom-2 right-4 font-normal text-[#AAAAAA] text-[14px]">
           {content.length} / 500
         </span>
+        {hasBadContent ? (
+          <p className="absolute ml-2 text-[#c85c5c]">적절하지 못한 내용입니다</p>
+        ) : (
+          ""
+        )}
       </div>
 
       {/* 업로드된 이미지 */}
@@ -431,7 +479,7 @@ export default function WriteDetail() {
           imageUploadHandler(e);
         }}
       />
-      <div className="relative group/image mt-7 w-[700px] h-[115px] rounded-2xl flex justify-center items-center">
+      <div className="relative group/image mt-10 w-[700px] h-[115px] rounded-2xl flex justify-center items-center">
         <Image
           src={imageUploadPreview || uploadPicture}
           alt="업로드 이미지"
