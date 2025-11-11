@@ -4,7 +4,7 @@ import { Heart, MessageCircle } from "lucide-react";
 import { formatRelativeTime } from "@/utils/helpers";
 import { createClient } from "@/utils/supabase/client";
 import Link from "next/link";
-import { CommunityPost, FeelType } from "@/types/community";
+import { CommunityPost } from "@/types/community";
 import { twMerge } from "tailwind-merge";
 import { useState } from "react";
 import { useDebouncedCallback } from "@/hooks/useDebouncedCallback";
@@ -54,6 +54,7 @@ export default function PostListItemClient({
       }
     }
   }, 500);
+  console.log(post);
 
   return (
     <article className="p-5 rounded-2xl shadow-[0_4px_12px_rgba(0,0,0,0.06)] bg-white border border-slate-200">
@@ -70,7 +71,7 @@ export default function PostListItemClient({
                   {formatRelativeTime(post.created_at)}
                 </span>
               </div>
-              {/* <FeelBadge type={post.feels.type} /> */}
+              <FeelBadge type={post.feels.length > 0 ? post.feels[0].type : "hold"} />
             </div>
             <div className="flex flex-col gap-2">
               <h3 className="text-xl font-bold">{post.title}</h3>
