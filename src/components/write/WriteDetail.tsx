@@ -148,7 +148,7 @@ export default function WriteDetail() {
         if (tagError) throw tagError;
 
         alert("글이 성공적으로 등록되었습니다!");
-        router.back();
+        router.push("/community");
       } else {
         let insertImage = null;
         if (!imageUpload) insertImage = existingImage;
@@ -197,7 +197,7 @@ export default function WriteDetail() {
         if (tagError) throw tagError;
 
         alert("글이 성공적으로 수정되었습니다!");
-        router.back();
+        router.push(`/community/${pageId}`);
       }
     } catch (e) {
       console.error(e);
@@ -261,7 +261,12 @@ export default function WriteDetail() {
       if (Array.isArray(hashtags.content)) {
         setSelectedTags(hashtags.content);
       } else if (typeof hashtags.content === "string") {
-        setSelectedTags(hashtags.content.split(",").map((t) => t.trim()));
+        setSelectedTags(
+          hashtags.content
+            .split(",")
+            .map((t) => t.trim())
+            .filter((t) => t !== ""),
+        );
       }
     })();
   }, [pageId, router, supabase]);
