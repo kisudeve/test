@@ -1,5 +1,6 @@
 import Header from "@/components/common/Header";
 import { paperlogy } from "../../public/fonts/local_fonts";
+import { PresenceProvider } from "@/contexts/PresenceContext";
 import "../css/globals.css";
 export const metadata = {
   title: "Next.js",
@@ -10,12 +11,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="ko" suppressHydrationWarning>
       <body className={paperlogy.className}>
-        <div className="flex min-h-screen bg-gray-50">
-          <div className=" py-6 pl-4 h-screen w-[18%] flex shrink-0">
-            <Header />
+        {/* 실시간 접속자 관리를 위한 Provider */}
+        <PresenceProvider channelName="dashboard">
+          <div className="flex min-h-screen bg-gray-50">
+            <div className=" py-6 pl-4 h-screen w-[18%] flex shrink-0">
+              <Header />
+            </div>
+            <main className="flex-1 min-w-0">{children}</main>
           </div>
-          <main className="flex-1 min-w-0">{children}</main>
-        </div>
+        </PresenceProvider>
       </body>
     </html>
   );
