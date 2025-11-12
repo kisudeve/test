@@ -1,6 +1,7 @@
 import React from "react";
 import { paperlogy } from "../../public/fonts/local_fonts";
 import { PresenceProvider } from "@/contexts/PresenceContext";
+import { UserInitializer } from "@/components/auth/UserInitializer";
 import Header from "@/components/common/Header";
 import "../css/globals.css";
 
@@ -15,6 +16,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className={paperlogy.className}>
         {/* 실시간 접속자 관리를 위한 Provider */}
         <PresenceProvider channelName="dashboard">
+          {/* 사용자 정보 초기화 Loader*/}
+          <UserInitializer />
           <div className="flex min-h-screen bg-gray-50">
             <div className="py-6 pl-4 w-[18%] min-w-[180px] shrink-0 sticky top-0 h-screen overflow-y-auto overflow-x-hidden">
               <Header />
