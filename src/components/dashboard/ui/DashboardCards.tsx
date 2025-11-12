@@ -1,5 +1,6 @@
 "use client";
 
+import { memo } from "react";
 import { TrendingUp, TrendingDown, Antenna } from "lucide-react";
 
 interface DashboardCardsProps {
@@ -12,7 +13,7 @@ interface DashboardCardsProps {
   };
 }
 
-export default function DashboardCards({
+const DashboardCards = memo(function DashboardCards({
   topRising,
   topFalling,
   communityStats,
@@ -86,4 +87,6 @@ export default function DashboardCards({
       </div>
     </div>
   );
-}
+});
+
+export default DashboardCards;

@@ -9,6 +9,23 @@ interface DashboardStatsProps {
 }
 
 export default function DashboardStats({ data }: DashboardStatsProps) {
+  const formatLastUpdated = (lastUpdated: string) => {
+    const match = lastUpdated.match(/^(.+일)\s+(.+)$/);
+    if (match) {
+      return {
+        date: match[1], // 날짜
+        time: match[2], // 시간
+      };
+    }
+    // 에러 발생 시 기존 데이터 반환 ("YYYY년 MM월 DD일 HH:MM")
+    return {
+      date: lastUpdated,
+      time: "",
+    };
+  };
+
+  const { date, time } = formatLastUpdated(data.lastUpdated);
+
   return (
     <>
       {/* 시장 요약 카드 */}
@@ -29,7 +46,10 @@ export default function DashboardStats({ data }: DashboardStatsProps) {
           </div>
           <div className="text-right">
             <p className="text-lg md:text-lg text-gray-500 mb-1">최근 업데이트</p>
-            <p className="text-xl md:text-xl font-medium text-gray-700">{data.lastUpdated}</p>
+            <div className="text-lg md:text-lg font-medium text-gray-700">
+              <p>{date}</p>
+              {time && <p>{time}</p>}
+            </div>
           </div>
         </div>
       </div>
