@@ -2,14 +2,12 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/utils/supabase/server";
 import type { Database } from "@/types/database";
 
-
-type UsersRow    = Database["public"]["Tables"]["users"]["Row"];
+type UsersRow = Database["public"]["Tables"]["users"]["Row"];
 type UsersInsert = Database["public"]["Tables"]["users"]["Insert"];
-type UsersLite   = Pick<UsersRow, "id" | "display_name" | "bio">;
+type UsersLite = Pick<UsersRow, "id" | "display_name" | "bio">;
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
-
   const code = searchParams.get("code");
   const oauthError = searchParams.get("error");
   const errorDescription = searchParams.get("error_description");
@@ -26,9 +24,7 @@ export async function GET(request: Request) {
     return NextResponse.redirect(`${origin}/auth/auth-code-error`);
   }
 
-
   const supabase = await createClient();
-
 
   const { error: exchangeErr } = await supabase.auth.exchangeCodeForSession(code);
   if (exchangeErr) {
@@ -36,7 +32,6 @@ export async function GET(request: Request) {
     return NextResponse.redirect(`${origin}/auth/auth-code-error`);
   }
 
-  
   const {
     data: { user },
     error: userErr,
@@ -48,17 +43,13 @@ export async function GET(request: Request) {
   }
 
   const authId: UsersRow["id"] = user.id;
-  const email: UsersRow["email"] =
-  typeof user.email === "string" ? user.email : "";
-
- 
+  const email: UsersRow["email"] = typeof user.email === "string" ? user.email : "";
   const meta = (user.user_metadata ?? {}) as Record<string, unknown>;
   const avatar: UsersRow["image_url"] =
     typeof meta.avatar_url === "string" ? meta.avatar_url : null;
- const nameFromProvider: UsersRow["display_name"] =
-  typeof meta.name === "string" ? meta.name : ""; 
+  const nameFromProvider: UsersRow["display_name"] =
+    typeof meta.name === "string" ? meta.name : "";
 
-  
   const { data: existingRaw, error: selErr } = await supabase
     .from("users")
     .select("id, display_name, bio")
@@ -69,7 +60,6 @@ export async function GET(request: Request) {
 
   const existing = (existingRaw ?? null) as UsersLite | null;
 
-  
   if (!existing) {
     const payload: UsersInsert = {
       id: authId,
@@ -98,11 +88,8 @@ export async function GET(request: Request) {
 
   const profile = profileRaw as UsersLite;
   const needOnboarding = !profile.display_name || !profile.bio;
-
-
   const redirectPath = needOnboarding ? "/onboarding" : next;
 
- 
   const forwardedHost = request.headers.get("x-forwarded-host");
   const isLocal = process.env.NODE_ENV === "development";
 
