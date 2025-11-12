@@ -1,13 +1,23 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+import { twMerge } from "tailwind-merge";
 
-export function Modal({ children }: { children: React.ReactNode }) {
+export function Modal({ className, children }: { className?: string; children: React.ReactNode }) {
   const router = useRouter();
 
   const closeModal = () => {
     router.back();
   };
+
+  useEffect(() => {
+    const prevStyle = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prevStyle;
+    };
+  }, []);
 
   return (
     <>
@@ -20,7 +30,10 @@ export function Modal({ children }: { children: React.ReactNode }) {
         role="dialog"
       >
         <div
-          className="min-w-100 p-6 rounded-lg bg-white border border-slate-200 shadow-lg"
+          className={twMerge(
+            "min-w-100 p-6 rounded-lg bg-white border border-slate-200 shadow-lg",
+            className,
+          )}
           onClick={(e) => e.stopPropagation()}
         >
           {children}

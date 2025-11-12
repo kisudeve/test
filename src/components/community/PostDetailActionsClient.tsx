@@ -6,6 +6,8 @@ import Button from "@/components/common/Button";
 import { Heart, MessageCircle } from "lucide-react";
 import { twMerge } from "tailwind-merge";
 import { useRouter } from "next/navigation";
+import ConfirmDialog from "@/components/common/ConfirmDialog";
+import { toast } from "sonner";
 
 export default function PostDetailActionsClient({
   postId,
@@ -40,6 +42,16 @@ export default function PostDetailActionsClient({
     debouncedApiCall();
   };
 
+  const deleteHandler = async () => {
+    const { error } = await supabase.from("posts").delete().eq("id", postId);
+    if (error) {
+      toast.error("게시물 삭제에 실패했습니다. 다시 시도해주세요.");
+      return;
+    }
+    router.push("/community");
+    toast.success("게시물이 삭제되었습니다.");
+  };
+
   const debouncedApiCall = useDebouncedCallback(async () => {
     if (userId && liked) {
       await supabase.from("likes").delete().eq("user_id", userId).eq("post_id", postId);
@@ -71,9 +83,12 @@ export default function PostDetailActionsClient({
           <Button variant="edit" onClick={() => router.push(`/write?post_id=${postId}`)}>
             수정
           </Button>
-          <Button variant="delete" onClick={() => router.push(`/community/${postId}/confirm-post`)}>
-            삭제
-          </Button>
+          <ConfirmDialog
+            title="게시글 삭제"
+            description="정말 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다."
+            trigger={<Button variant="delete">삭제</Button>}
+            onConfirm={deleteHandler}
+          />
         </div>
       )}
     </div>

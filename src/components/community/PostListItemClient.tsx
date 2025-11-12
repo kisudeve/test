@@ -20,8 +20,10 @@ export default function PostListItemClient({
   userId: string | undefined;
 }) {
   const supabase = createClient();
-  const [liked, setLiked] = useState<boolean>(post.likes.length > 0);
-  const [likeCount, setLikeCount] = useState<number>(post.likes_count as number);
+  const [liked, setLiked] = useState<boolean>(
+    post.likes?.some((like) => like.user_id === userId) ?? false,
+  );
+  const [likeCount, setLikeCount] = useState<number>(post.likes.length as number);
 
   const likeHandler = async (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     e.stopPropagation();

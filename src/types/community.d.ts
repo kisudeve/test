@@ -3,7 +3,7 @@ import { Comment, Feel, Like, Post, User } from "@/types/database";
 export type CommunityPost = Post & {
   users: Pick<User, "display_name" | "image_url">;
   feels: Array<Pick<Feel, "type">>;
-  likes: Array<Partial<Pick<Like, "post_id" | "user_id">>>;
+  likes: Array<Pick<Like, "post_id" | "user_id">>;
 };
 
 export type CommunityComment = Comment & {

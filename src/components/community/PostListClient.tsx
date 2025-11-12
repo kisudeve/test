@@ -27,7 +27,7 @@ export default function PostListClient({
 
     const { data: posts, error: postsError } = await supabase
       .from("posts")
-      .select("*, users(display_name, image_url), feels(type), likes(post_id)")
+      .select("*, users(display_name, image_url), feels(type), likes(post_id, user_id)")
       .order("created_at", { ascending: false })
       .order("id", { ascending: false })
       .range(page.current, page.current + PAGE_SIZE - 1);

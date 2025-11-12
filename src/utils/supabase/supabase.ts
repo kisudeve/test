@@ -56,7 +56,7 @@ export type Database = {
       };
       comments: {
         Row: {
-          comment_id: string | null;
+          parent_id: string | null;
           content: string;
           created_at: string;
           id: string;
@@ -64,7 +64,7 @@ export type Database = {
           user_id: string;
         };
         Insert: {
-          comment_id?: string | null;
+          parent_id?: string | null;
           content: string;
           created_at?: string;
           id?: string;
@@ -72,7 +72,7 @@ export type Database = {
           user_id?: string;
         };
         Update: {
-          comment_id?: string | null;
+          parent_id?: string | null;
           content?: string;
           created_at?: string;
           id?: string;
@@ -81,8 +81,8 @@ export type Database = {
         };
         Relationships: [
           {
-            foreignKeyName: "comments_comment_id_fkey";
-            columns: ["comment_id"];
+            foreignKeyName: "comments_parent_id_fkey";
+            columns: ["parent_id"];
             isOneToOne: false;
             referencedRelation: "comments";
             referencedColumns: ["id"];

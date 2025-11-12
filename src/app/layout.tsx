@@ -3,6 +3,7 @@ import { paperlogy } from "../../public/fonts/local_fonts";
 import { PresenceProvider } from "@/contexts/PresenceContext";
 import Header from "@/components/common/Header";
 import "../css/globals.css";
+import { ToasterClient } from "@/components/common/ToasterClient";
 
 export const metadata = {
   title: "DevCourse3",
@@ -22,6 +23,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <main className="flex-1 min-w-0">{children}</main>
           </div>
         </PresenceProvider>
+        <ToasterClient />
       </body>
     </html>
   );
