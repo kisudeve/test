@@ -123,9 +123,15 @@ export default function Header({
 }: HeaderProps) {
   const pathname = usePathname();
   const computedActiveKey = React.useMemo(() => {
-    const hit = NAV.find((n) => n.href === pathname);
-    return hit?.key ?? activeKey;
-  }, [pathname, activeKey]);
+  for (const n of NAV) {
+    if (n.href === "/") {
+      if (pathname === "/") return n.key;
+    } else {
+      if (pathname === n.href || pathname.startsWith(n.href + "/")) return n.key;
+    }
+  }
+  return activeKey; 
+}, [pathname, activeKey]);
   return (
     <aside
       className={[
