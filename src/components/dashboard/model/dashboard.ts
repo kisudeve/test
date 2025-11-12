@@ -9,11 +9,13 @@ import type { Database } from "@/utils/supabase/supabase";
 type Hashtag = Database["public"]["Tables"]["hashtags"]["Row"];
 
 // 대시보드 데이터 페칭 함수
-export async function fetchDashboardData(): Promise<DashboardData> {
+export async function fetchDashboardData(currentUsers?: number): Promise<DashboardData> {
   await new Promise((resolve) => setTimeout(resolve, 1000)); // 스켈레톤 디자인 확인
 
+  const now = new Date(); // 오늘 날짜 담는 변수
   const supabase = await createClient();
 
+  // 게시글 갯수
   const { count: postsCount, error: postsError } = await supabase
     .from("posts")
     .select<"*", Post>("*", { count: "exact", head: true });
@@ -22,6 +24,7 @@ export async function fetchDashboardData(): Promise<DashboardData> {
     console.error("Failed to fetch posts count:", postsError);
   }
 
+  // 댓글 갯수
   const { count: commentsCount, error: commentsError } = await supabase
     .from("comments")
     .select<"*", Comment>("*", { count: "exact", head: true });
@@ -30,9 +33,7 @@ export async function fetchDashboardData(): Promise<DashboardData> {
     console.error("Failed to fetch comments count:", commentsError);
   }
 
-  const now = new Date();
-
-  // 해시태그 데이터 가져오기
+  // 해시태그 데이터
   const { data: hashtagsData, error: hashtagsError } = await supabase
     .from("hashtags")
     .select<"*", Hashtag>("*");
@@ -89,7 +90,7 @@ export async function fetchDashboardData(): Promise<DashboardData> {
       increaseRate = -100;
     } else {
       // 두 기간 모두 있는 경우: 표준 증가율 계산
-      // 예: 어제 2회, 오늘 3회 → ((3-2)/2) * 100 = +50%
+      // 어제 2회, 오늘 3회 → ((3-2)/2) * 100 = +50%
       increaseRate = ((currentCount - previousCount) / previousCount) * 100;
     }
 
@@ -119,21 +120,8 @@ export async function fetchDashboardData(): Promise<DashboardData> {
     .map(({ name, change }) => ({ name, change }));
 
   // 데이터가 부족한 경우 기본값 사용
-  const finalTopRising = topRising.length > 0
-    ? topRising
-    : [
-      { name: "#설렘", change: "+15.2%" },
-      { name: "#기쁨", change: "+15.2%" },
-      { name: "#행복", change: "+15.2%" },
-    ];
-
-  const finalTopFalling = topFalling.length > 0
-    ? topFalling
-    : [
-      { name: "#피곤", change: "-15.2%" },
-      { name: "#슬픔", change: "-15.2%" },
-      { name: "#분노", change: "-15.2%" },
-    ];
+  const finalTopRising = topRising.length > 0 ? topRising : [];
+  const finalTopFalling = topFalling.length > 0 ? topFalling : [];
 
   const lastUpdated = `${now.getFullYear()}년 ${now.getMonth() + 1}월 ${now.getDate()}일 ${now.getHours() >= 12 ? "오후" : "오전"} ${now.getHours() % 12 || 12}:${String(now.getMinutes()).padStart(2, "0")}`;
   const weekdays = ["일", "월", "화", "수", "목", "금", "토"];
@@ -160,6 +148,7 @@ export async function fetchDashboardData(): Promise<DashboardData> {
     };
   });
 
+  // 대시보드 데이터 반환
   return {
     chartData,
     topRising: finalTopRising,
@@ -167,7 +156,7 @@ export async function fetchDashboardData(): Promise<DashboardData> {
     communityStats: {
       newPosts: `${postsCount || 0}개`,
       comments: `${commentsCount || 0}개`,
-      currentUsers: "0명", // supabase presence 기능 추가 시 변경 예정
+      currentUsers: `${currentUsers || 1}명`, // 실시간 접속자 수 (기본값: 1명)
     },
     lastUpdated,
   };

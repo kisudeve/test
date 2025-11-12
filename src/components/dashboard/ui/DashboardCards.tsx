@@ -2,6 +2,7 @@
 
 import { memo } from "react";
 import { TrendingUp, TrendingDown, Antenna } from "lucide-react";
+import { EmptyState } from "@/components/dashboard/components/EmptyState";
 
 interface DashboardCardsProps {
   topRising: Array<{ name: string; change: string }>;
@@ -26,17 +27,21 @@ const DashboardCards = memo(function DashboardCards({
           <span className="text-lg font-bold text-gray-800">상승 감정 TOP 3</span>
           <TrendingUp className="w-5 h-5 text-green-600" />
         </div>
-        <ul className="space-y-3">
-          {topRising.map((item, index) => (
-            <li
-              key={index}
-              className="flex items-center justify-between p-2 hover:bg-gray-50 rounded"
-            >
-              <span className="text-gray-700">{item.name}</span>
-              <span className="text-green-600 font-semibold select-none">{item.change}</span>
-            </li>
-          ))}
-        </ul>
+        {topRising.length > 0 ? (
+          <ul className="space-y-3">
+            {topRising.map((item, index) => (
+              <li
+                key={index}
+                className="flex items-center justify-between p-2 hover:bg-gray-50 rounded"
+              >
+                <span className="text-gray-700">{item.name}</span>
+                <span className="text-green-600 font-semibold select-none">{item.change}</span>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <EmptyState message="상승 감정 데이터가 없습니다" />
+        )}
       </div>
 
       {/* 하락 감정 */}
@@ -45,17 +50,21 @@ const DashboardCards = memo(function DashboardCards({
           <span className="text-lg font-bold text-gray-800">하락 감정 TOP 3</span>
           <TrendingDown className="w-5 h-5 text-red-600" />
         </div>
-        <ul className="space-y-3">
-          {topFalling.map((item, index) => (
-            <li
-              key={index}
-              className="flex items-center justify-between p-2 hover:bg-gray-50 rounded"
-            >
-              <span className="text-gray-700">{item.name}</span>
-              <span className="text-red-600 font-semibold select-none">{item.change}</span>
-            </li>
-          ))}
-        </ul>
+        {topFalling.length > 0 ? (
+          <ul className="space-y-3">
+            {topFalling.map((item, index) => (
+              <li
+                key={index}
+                className="flex items-center justify-between p-2 hover:bg-gray-50 rounded"
+              >
+                <span className="text-gray-700">{item.name}</span>
+                <span className="text-red-600 font-semibold select-none">{item.change}</span>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <EmptyState message="하락 감정 데이터가 없습니다" />
+        )}
       </div>
 
       {/* 커뮤니티 활동 */}
