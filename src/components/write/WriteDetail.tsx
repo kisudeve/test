@@ -313,8 +313,8 @@ export default function WriteDetail() {
     })();
   }, [pageId, router, supabase]);
   return (
-    <div className="flex justify center items-center flex-col w-[752px] h-full rounded-2xl shadow-[0_4px_12px_rgba(0,0,0,0.06)] bg-white">
-      <p className="pt-7 text-[24px] text-[#1A2035]">오늘의 감정 기록</p>
+    <div className="ml-7 flex justify center items-center flex-col w-[752px] h-full rounded-2xl shadow-[0_4px_12px_rgba(0,0,0,0.06)] bg-white">
+      <p className="font-bold pt-7 text-[24px] text-[#1A2035]">오늘의 감정 기록</p>
 
       {/* 감정 선택 영역 */}
       <div className="flex justify-start items-center flex-col text-base">
@@ -515,7 +515,7 @@ export default function WriteDetail() {
         )}
       </div>
       <button
-        className="mt-7 flex justify-center items-center text-[#ffffff] w-[688px] h-[42px] shadow-[0_2px_4px_rgba(0,0,0,0.1),0_4px_6px_rgba(0,0,0,0.1)] rounded-xl bg-linear-to-r from-[#A8E0FF] to-[#C5C8FF] cursor-pointer hover:scale-102 transform transition-transform duration-200"
+        className="mt-7 flex justify-center items-center text-[#ffffff] w-[688px] h-[42px] shadow-[0_2px_4px_rgba(0,0,0,0.1),0_4px_6px_rgba(0,0,0,0.1)] rounded-xl bg-linear-to-r from-[#A8E0FF] to-[#C5C8FF] cursor-pointer hover:scale-101 transform transition-transform duration-150 active:scale-[.99]"
         onClick={handlePublish}
       >
         기록 완료

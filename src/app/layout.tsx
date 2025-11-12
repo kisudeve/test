@@ -18,11 +18,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <PresenceProvider channelName="dashboard">
           {/* 사용자 정보 초기화 Loader*/}
           <UserInitializer />
-          <div className="flex min-h-screen bg-gray-50">
-            <div className="py-6 pl-4 w-[18%] min-w-[180px] shrink-0 sticky top-0 h-screen overflow-y-auto overflow-x-hidden">
-              <Header />
+          <div className="min-h-screen bg-[linear-gradient(45deg,#F5F7FA_50%,#C3CFE2_120.71%)]">
+            <div className="flex min-h-screen">
+              <div className="py-6 pl-4 w-[18%] min-w-[180px] shrink-0 sticky top-0 h-screen overflow-y-auto overflow-x-hidden">
+                <Header />
+              </div>
+              <main className="flex-1 min-w-0">{children}</main>
             </div>
-            <main className="flex-1 min-w-0">{children}</main>
           </div>
         </PresenceProvider>
       </body>
