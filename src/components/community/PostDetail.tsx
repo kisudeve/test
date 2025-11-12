@@ -5,30 +5,19 @@ import FeelBadge from "@/components/common/FeelBadge";
 import PostDetailActionsClient from "./PostDetailActionsClient";
 import { createClient } from "@/utils/supabase/server";
 import { notFound } from "next/navigation";
+import Image from "next/image";
+import Link from "next/link";
 
 export default async function PostDetail({ postId }: { postId: string }) {
   const supabase = await createClient();
 
-  const [
-    { data: post, error: postError },
-    {
-      data: { user },
-      error: userError,
-    },
-  ] = await Promise.all([
-    supabase
-      .from("posts")
-      .select("*, users(display_name, image_url), feels(type), likes(post_id)")
-      .eq("id", postId)
-      .single(),
-    supabase.auth.getUser(),
-  ]);
-
+  const { data: post, error: postError } = await supabase
+    .from("posts")
+    .select("*, users(display_name, image_url), feels(type), likes(post_id, user_id)")
+    .eq("id", postId)
+    .single();
   if (!post || postError) {
     notFound();
-  }
-  if (userError) {
-    console.error(userError);
   }
 
   return (
@@ -61,11 +50,17 @@ export default async function PostDetail({ postId }: { postId: string }) {
           <div className="flex flex-col gap-2">
             <h3 className="text-2xl font-bold">{post.title}</h3>
             <p className="font-medium text-slate-700">{post.content}</p>
-            {/* {post.image_url && (
-                  <div className="aspect-4/3">
-                    <Image width={570} height={380} src={post.image_url} alt={post.title} className="w-full h-full object-cover" />
-                  </div>
-                )} */}
+            {post.image_url && (
+              <Link href={`/community/${post.id}/zoom?image_url=${post.image_url}`}>
+                <Image
+                  src={post.image_url}
+                  alt="Post Image"
+                  width={800}
+                  height={600}
+                  className="w-full aspect-2/1 object-cover rounded-2xl"
+                />
+              </Link>
+            )}
           </div>
           {/* 해시태그 */}
           <div className="flex gap-2">
@@ -76,10 +71,9 @@ export default async function PostDetail({ postId }: { postId: string }) {
         {/* 좋아요, 댓글 버튼 */}
         <PostDetailActionsClient
           postId={post.id}
-          userId={user?.id}
-          initialLiked={post.likes.length > 0}
-          initialLikeCount={post.likes_count as number}
-          commentsCount={post.comments_count as number}
+          initialLike={post.likes}
+          initialLikeCount={post.likes.length}
+          commentsCount={Number(post.comments_count)}
         />
       </div>
     </section>

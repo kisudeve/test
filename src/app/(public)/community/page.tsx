@@ -8,7 +8,7 @@ export default async function Page() {
   // 초기 포스트 목록
   const { data: posts, error: listError } = await supabase
     .from("posts")
-    .select("*, users(display_name, image_url), feels(type), likes(post_id)")
+    .select("*, users(display_name, image_url), feels(type), likes(post_id, user_id)")
     .order("created_at", { ascending: false })
     .order("id", { ascending: false })
     .range(0, PAGE_SIZE - 1);
@@ -17,10 +17,5 @@ export default async function Page() {
     return null;
   }
 
-  // 사용자 아이디 확인
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  return <PostListClient initialPosts={posts} userId={user?.id} />;
+  return <PostListClient initialPosts={posts} />;
 }

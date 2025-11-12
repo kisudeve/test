@@ -3,11 +3,12 @@
 import Button from "@/components/common/Button";
 import TextArea from "@/components/common/TextArea";
 import { insertComment, updateComment } from "@/utils/actions/comment";
-import { use, useActionState, useCallback, useEffect, useRef } from "react";
+import { useActionState, useCallback, useEffect, useRef } from "react";
 import Input from "@/components/common/Input";
 import { User } from "@/types/database";
 import ProfileImage from "@/components/common/ProfileImage";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 export default function CommentFormClient({
   profile,
@@ -24,6 +25,7 @@ export default function CommentFormClient({
 }) {
   const router = useRouter();
 
+  const prevPendingRef = useRef(false); // 이전 pending 상태 추적
   const formRef = useRef<HTMLFormElement>(null);
   const isEditing = !!editingCommentId;
 
@@ -33,30 +35,41 @@ export default function CommentFormClient({
   });
 
   const handleCancel = useCallback(() => {
-    cancelEditing();
     formRef.current?.reset();
     router.refresh();
-  }, [cancelEditing, router]);
+  }, [router]);
 
-  // 수정모드
+  // 수정 모드 진입 시 기존 내용 폼에 채우기
   useEffect(() => {
-    if (isEditing) {
-      formRef.current!.comment!.focus();
-      formRef.current!.comment!.value = editingComment || "";
-    }
+    if (!isEditing) return;
+
+    formRef.current!.comment!.focus();
+    formRef.current!.comment!.value = editingComment || "";
   }, [isEditing, editingComment]);
 
-  // state 변경 시 콘솔 출력
   useEffect(() => {
-    if (state?.error) {
-      console.error("Error:", state.error);
+    const wasPending = prevPendingRef.current;
+    const nowPending = !!pending;
+
+    if (wasPending && !nowPending) {
+      if (state?.error) {
+        toast.error(state.error || "댓글 처리 중 문제가 발생했습니다.");
+      } else if (state?.success) {
+        // 성공 분기
+        if (isEditing) {
+          toast.success("댓글이 수정되었습니다.");
+          cancelEditing();
+          setTimeout(() => router.refresh(), 0);
+        } else {
+          toast.success("댓글이 등록되었습니다.");
+          formRef.current?.reset();
+          setTimeout(() => router.refresh(), 0);
+        }
+      }
     }
 
-    if (state?.success) {
-      console.log("댓글이 등록되었습니다.");
-      handleCancel();
-    }
-  }, [state, pending, handleCancel]);
+    prevPendingRef.current = nowPending;
+  }, [pending, state, isEditing, cancelEditing, router]);
 
   return (
     <>
@@ -77,7 +90,6 @@ export default function CommentFormClient({
                   {editingCommentId && (
                     <Input type="hidden" name="commentId" value={editingCommentId} />
                   )}
-                  <Input type="hidden" name="postId" value={postId} />
                   <TextArea
                     name="comment"
                     className="w-full h-20"

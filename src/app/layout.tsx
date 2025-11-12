@@ -4,6 +4,7 @@ import { PresenceProvider } from "@/contexts/PresenceContext";
 import { UserInitializer } from "@/components/auth/UserInitializer";
 import Header from "@/components/common/Header";
 import "../css/globals.css";
+import { ToasterClient } from "@/components/common/ToasterClient";
 
 export const metadata = {
   title: "DevCourse3",
@@ -27,6 +28,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </div>
           </div>
         </PresenceProvider>
+        <ToasterClient />
       </body>
     </html>
   );

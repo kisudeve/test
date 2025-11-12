@@ -4,6 +4,7 @@ import Button from "@/components/common/Button";
 import { twMerge } from "tailwind-merge";
 import { Heart } from "lucide-react";
 import { CommunityComment } from "@/types/community";
+import ConfirmDialog from "../common/ConfirmDialog";
 import { deleteComment } from "@/utils/actions/comment";
 
 export default function CommentListItemClient({
@@ -15,8 +16,8 @@ export default function CommentListItemClient({
   profileId: string | undefined;
   onEdit: (commentId: string) => void;
 }) {
-  const handleDelete = () => {
-    deleteComment(comment.post_id, comment.id, comment.user_id);
+  const deleteHandler = async () => {
+    await deleteComment(comment.post_id, comment.id, comment.parent_id);
   };
 
   return (
@@ -44,9 +45,12 @@ export default function CommentListItemClient({
                     <Button variant="edit" onClick={() => onEdit(comment.id)}>
                       수정
                     </Button>
-                    <Button variant="delete" onClick={handleDelete}>
-                      삭제
-                    </Button>
+                    <ConfirmDialog
+                      title="댓글 삭제"
+                      description="정말 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다."
+                      trigger={<Button variant="delete">삭제</Button>}
+                      onConfirm={deleteHandler}
+                    />
                   </div>
                 </>
               )}

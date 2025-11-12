@@ -5,17 +5,15 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { PAGE_SIZE } from "@/utils/helpers";
 import { createClient } from "@/utils/supabase/client";
 import PostListItemClient from "./PostListItemClient";
+import { useUserId } from "@/store/useStore";
 
-export default function PostListClient({
-  initialPosts,
-  userId,
-}: {
-  initialPosts: CommunityPost[];
-  userId: string | undefined;
-}) {
+export default function PostListClient({ initialPosts }: { initialPosts: CommunityPost[] }) {
+  const userId = useUserId();
+
   const [posts, setPosts] = useState<CommunityPost[]>(initialPosts);
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(false);
+
   const oTarget = useRef(null);
   const page = useRef(PAGE_SIZE);
 
@@ -27,7 +25,7 @@ export default function PostListClient({
 
     const { data: posts, error: postsError } = await supabase
       .from("posts")
-      .select("*, users(display_name, image_url), feels(type), likes(post_id)")
+      .select("*, users(display_name, image_url), feels(type), likes(post_id, user_id)")
       .order("created_at", { ascending: false })
       .order("id", { ascending: false })
       .range(page.current, page.current + PAGE_SIZE - 1);
