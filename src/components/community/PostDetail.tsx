@@ -25,11 +25,14 @@ export default async function PostDetail({ postId }: { postId: string }) {
       <div className="flex flex-col gap-6">
         <div className="flex gap-4">
           {/* 사용자 프로필 사진 */}
-          <ProfileImage
-            displayName={post.users.display_name}
-            imageUrl={post.users.image_url}
-            size="lg"
-          />
+          <Link href={`/profile/${post.user_id}`}>
+            <ProfileImage
+              displayName={post.users.display_name}
+              imageUrl={post.users.image_url}
+              size="lg"
+            />
+          </Link>
+
           <div className="flex-1 flex flex-col gap-4">
             {/* 사용자 닉네임, 작성시간, 글 타입 */}
             <div className="flex justify-between items-center">

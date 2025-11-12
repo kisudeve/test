@@ -11,6 +11,7 @@ import { useDebouncedCallback } from "@/hooks/useDebouncedCallback";
 import Button from "@/components/common/Button";
 import ProfileImage from "@/components/common/ProfileImage";
 import FeelBadge from "@/components/common/FeelBadge";
+import { useRouter } from "next/navigation";
 
 export default function PostListItemClient({
   post,
@@ -20,11 +21,18 @@ export default function PostListItemClient({
   userId: string | undefined;
 }) {
   const supabase = createClient();
+  const router = useRouter();
+
   const [liked, setLiked] = useState<boolean>(
     post.likes?.some((like) => like.user_id === userId) ?? false,
   );
   const [likeCount, setLikeCount] = useState<number>(post.likes.length as number);
 
+  const navigateToProfile = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    e.stopPropagation();
+    e.preventDefault();
+    router.push(`/profile/${post.user_id}`);
+  };
   const likeHandler = async (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     e.stopPropagation();
     e.preventDefault();
@@ -62,7 +70,13 @@ export default function PostListItemClient({
       <Link href={`/community/${post.id}`}>
         <div className="flex gap-4 pb-5">
           {/* 사용자 프로필 사진 */}
-          <ProfileImage displayName={post.users.display_name} imageUrl={post.users.image_url} />
+          <div onClick={navigateToProfile}>
+            <ProfileImage
+              displayName={post.users.display_name}
+              imageUrl={post.users.image_url}
+              size="lg"
+            />
+          </div>
           <div className="flex-1 flex flex-col gap-4">
             {/* 사용자 닉네임, 작성시간, 글 타입 */}
             <div className="flex justify-between items-center">
