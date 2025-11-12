@@ -4,6 +4,9 @@
 
 import { createClient } from "@/utils/supabase/server";
 import type { DashboardData, ChartDataPoint, Post, Comment } from "@/components/dashboard/type/dashboard";
+import type { Database } from "@/utils/supabase/supabase";
+
+type Hashtag = Database["public"]["Tables"]["hashtags"]["Row"];
 
 // 대시보드 데이터 페칭 함수
 export async function fetchDashboardData(): Promise<DashboardData> {
@@ -28,6 +31,110 @@ export async function fetchDashboardData(): Promise<DashboardData> {
   }
 
   const now = new Date();
+
+  // 해시태그 데이터 가져오기
+  const { data: hashtagsData, error: hashtagsError } = await supabase
+    .from("hashtags")
+    .select<"*", Hashtag>("*");
+
+  if (hashtagsError) {
+    console.error("Failed to fetch hashtags:", hashtagsError);
+  }
+
+  // 해시태그 집계 및 정렬
+  const hashtagCounts = new Map<string, number>();
+  const previousHashtagCounts = new Map<string, number>();
+
+  const sevenDaysAgo = new Date(now);
+  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 1);
+
+  hashtagsData?.forEach((hashtag) => {
+    const hashtagDate = new Date(hashtag.created_at);
+
+    // 최근 1일 데이터 추출
+    const isRecent = hashtagDate >= sevenDaysAgo;
+
+    // 개별 해시태그 추출
+    const tags = hashtag.content
+      .split(",")
+      .map((tag) => tag.trim())
+      .filter((tag) => tag.length > 0);
+
+    tags.forEach((tag) => {
+      if (isRecent) {
+        hashtagCounts.set(tag, (hashtagCounts.get(tag) || 0) + 1);
+      } else {
+        previousHashtagCounts.set(tag, (previousHashtagCounts.get(tag) || 0) + 1);
+      }
+    });
+  });
+
+  // 모든 해시태그를 포함하여 증가율 계산 
+  const allTags = new Set([
+    ...hashtagCounts.keys(),
+    ...previousHashtagCounts.keys(),
+  ]);
+
+  const hashtagTrends = Array.from(allTags).map((tag) => {
+    const currentCount = hashtagCounts.get(tag) || 0;
+    const previousCount = previousHashtagCounts.get(tag) || 0;
+
+    let increaseRate: number;
+
+    if (previousCount === 0) {
+      // 어제는 없었지만 오늘 생긴 경우: 새로 생긴 해시태그
+      increaseRate = currentCount > 0 ? currentCount * 100 : 0;
+    } else if (currentCount === 0) {
+      // 어제는 있었지만 오늘 사라진 경우: -100% 감소
+      increaseRate = -100;
+    } else {
+      // 두 기간 모두 있는 경우: 표준 증가율 계산
+      // 예: 어제 2회, 오늘 3회 → ((3-2)/2) * 100 = +50%
+      increaseRate = ((currentCount - previousCount) / previousCount) * 100;
+    }
+
+    return {
+      name: `#${tag}`,
+      change: `${increaseRate >= 0 ? "+" : ""}${increaseRate.toFixed(1)}%`,
+      currentCount,
+      previousCount,
+      trend: increaseRate, // 증가율 기준으로 정렬
+    };
+  });
+
+  // 증가율 기준으로 정렬
+  const sortedTrends = hashtagTrends.sort((a, b) => b.trend - a.trend);
+  console.log("sortedTrends", sortedTrends);
+
+  // 상위 3개
+  const topRising = sortedTrends
+    .filter((item) => item.trend > 0)
+    .slice(0, 3)
+    .map(({ name, change }) => ({ name, change }));
+
+  // 하위 3개 - 절댓값이 큰 순서
+  const topFalling = sortedTrends
+    .filter((item) => item.trend < 0)
+    .slice(0, 3)
+    .map(({ name, change }) => ({ name, change }));
+
+  // 데이터가 부족한 경우 기본값 사용
+  const finalTopRising = topRising.length > 0
+    ? topRising
+    : [
+      { name: "#설렘", change: "+15.2%" },
+      { name: "#기쁨", change: "+15.2%" },
+      { name: "#행복", change: "+15.2%" },
+    ];
+
+  const finalTopFalling = topFalling.length > 0
+    ? topFalling
+    : [
+      { name: "#피곤", change: "-15.2%" },
+      { name: "#슬픔", change: "-15.2%" },
+      { name: "#분노", change: "-15.2%" },
+    ];
+
   const lastUpdated = `${now.getFullYear()}년 ${now.getMonth() + 1}월 ${now.getDate()}일 ${now.getHours() >= 12 ? "오후" : "오전"} ${now.getHours() % 12 || 12}:${String(now.getMinutes()).padStart(2, "0")}`;
   const weekdays = ["일", "월", "화", "수", "목", "금", "토"];
 
@@ -55,16 +162,8 @@ export async function fetchDashboardData(): Promise<DashboardData> {
 
   return {
     chartData,
-    topRising: [
-      { name: "#설렘", change: "+15.2%" },
-      { name: "#기쁨", change: "+15.2%" },
-      { name: "#행복", change: "+15.2%" },
-    ],
-    topFalling: [
-      { name: "#피곤", change: "+15.2%" },
-      { name: "#슬픔", change: "+15.2%" },
-      { name: "#분노", change: "+15.2%" },
-    ],
+    topRising: finalTopRising,
+    topFalling: finalTopFalling,
     communityStats: {
       newPosts: `${postsCount || 0}개`,
       comments: `${commentsCount || 0}개`,

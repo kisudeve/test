@@ -20,10 +20,10 @@ const DashboardCards = memo(function DashboardCards({
 }: DashboardCardsProps) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
-      {/* 상승 주식 */}
+      {/* 상승 감정 */}
       <div className="bg-white rounded-lg shadow-sm p-4 md:p-6">
         <div className="flex items-center justify-between gap-2 mb-4 select-none">
-          <span className="text-lg font-bold text-gray-800">상승 주식 TOP 3</span>
+          <span className="text-lg font-bold text-gray-800">상승 감정 TOP 3</span>
           <TrendingUp className="w-5 h-5 text-green-600" />
         </div>
         <ul className="space-y-3">
@@ -39,10 +39,10 @@ const DashboardCards = memo(function DashboardCards({
         </ul>
       </div>
 
-      {/* 하락 주식 */}
+      {/* 하락 감정 */}
       <div className="bg-white rounded-lg shadow-sm p-4 md:p-6 ">
         <div className="flex items-center justify-between gap-2 mb-4 select-none">
-          <span className="text-lg font-bold text-gray-800">하락 주식 TOP 3</span>
+          <span className="text-lg font-bold text-gray-800">하락 감정 TOP 3</span>
           <TrendingDown className="w-5 h-5 text-red-600" />
         </div>
         <ul className="space-y-3">
