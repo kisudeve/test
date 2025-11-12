@@ -4,7 +4,7 @@ import Button from "@/components/common/Button";
 import { twMerge } from "tailwind-merge";
 import { Heart } from "lucide-react";
 import { CommunityComment } from "@/types/community";
-import ConfirmDialog from "../common/ConfirmDialog";
+import ConfirmDialog from "@/components/common/ConfirmDialog";
 import { deleteComment } from "@/utils/actions/comment";
 import Link from "next/link";
 

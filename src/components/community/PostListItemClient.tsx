@@ -1,7 +1,7 @@
 "use client";
 
 import { Heart, MessageCircle } from "lucide-react";
-import { formatRelativeTime } from "@/utils/helpers";
+import { formatRelativeTime, getHashtagArray } from "@/utils/helpers";
 import { createClient } from "@/utils/supabase/client";
 import Link from "next/link";
 import { CommunityPost } from "@/types/community";
@@ -27,6 +27,7 @@ export default function PostListItemClient({
     post.likes?.some((like) => like.user_id === userId) ?? false,
   );
   const [likeCount, setLikeCount] = useState<number>(post.likes.length as number);
+  const hashtags = getHashtagArray(post.hashtags);
 
   const navigateToProfile = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     e.stopPropagation();
@@ -92,14 +93,18 @@ export default function PostListItemClient({
               <h3 className="text-xl font-bold">{post.title}</h3>
               <p className="line-clamp-1 font-medium text-slate-700">{post.content}</p>
             </div>
-            <div className="flex gap-2">
-              <span className="px-2 py-1 rounded-2xl bg-slate-200 text-xs text-slate-600">
-                #해시
-              </span>
-              <span className="px-2 py-1 rounded-2xl bg-slate-200 text-xs text-slate-600">
-                #해시
-              </span>
-            </div>
+            {hashtags && (
+              <div className="flex gap-2">
+                {hashtags.map((tag) => (
+                  <span
+                    key={tag}
+                    className="px-2 py-1 rounded-2xl bg-slate-200 text-xs text-slate-600"
+                  >
+                    #{tag}
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
         </div>
         <div className="flex gap-5 border-t border-slate-200 pt-5">

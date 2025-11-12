@@ -1,4 +1,4 @@
-import { formatRelativeTime } from "@/utils/helpers";
+import { formatRelativeTime, getHashtagArray } from "@/utils/helpers";
 import { FeelType } from "@/types/community";
 import ProfileImage from "@/components/common/ProfileImage";
 import FeelBadge from "@/components/common/FeelBadge";
@@ -13,15 +13,19 @@ export default async function PostDetail({ postId }: { postId: string }) {
 
   const { data: post, error: postError } = await supabase
     .from("posts")
-    .select("*, users(display_name, image_url), feels(type), likes(post_id, user_id)")
+    .select(
+      "*, users(display_name, image_url), feels(type), likes(post_id, user_id), hashtags(content)",
+    )
     .eq("id", postId)
     .single();
   if (!post || postError) {
     notFound();
   }
 
+  const hashtags = getHashtagArray(post.hashtags);
+
   return (
-    <section className="my-6 mx-4 p-10 rounded-2xl shadow-[0_4px_12px_rgba(0,0,0,0.06)] bg-white border border-slate-200">
+    <section className="p-10 rounded-2xl shadow-[0_4px_12px_rgba(0,0,0,0.06)] bg-white border border-slate-200">
       <div className="flex flex-col gap-6">
         <div className="flex gap-4">
           {/* 사용자 프로필 사진 */}
@@ -66,10 +70,18 @@ export default async function PostDetail({ postId }: { postId: string }) {
             )}
           </div>
           {/* 해시태그 */}
-          <div className="flex gap-2">
-            <span className="px-2 py-1 rounded-2xl bg-slate-200 text-xs text-slate-600">#해시</span>
-            <span className="px-2 py-1 rounded-2xl bg-slate-200 text-xs text-slate-600">#해시</span>
-          </div>
+          {hashtags && (
+            <div className="flex gap-2">
+              {hashtags.map((tag) => (
+                <span
+                  key={tag}
+                  className="px-2 py-1 rounded-2xl bg-slate-200 text-xs text-slate-600"
+                >
+                  #{tag}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
         {/* 좋아요, 댓글 버튼 */}
         <PostDetailActionsClient
