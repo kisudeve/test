@@ -4,7 +4,20 @@ import Link from "next/link";
 
 export default async function TrendTags() {
   const supabase = await createClient();
-  const { data: tags, error: tagsError } = await supabase.from("hashtags").select("content");
+
+  // 지난 7일간 날짜 범위
+  const end = new Date();
+  end.setHours(23, 59, 59, 999);
+
+  const start = new Date(end);
+  start.setDate(start.getDate() - 7);
+  start.setHours(0, 0, 0, 0);
+
+  const { data: tags, error: tagsError } = await supabase
+    .from("hashtags")
+    .select("content")
+    .gte("created_at", start.toISOString())
+    .lte("created_at", end.toISOString());
 
   if (tagsError) {
     return (
