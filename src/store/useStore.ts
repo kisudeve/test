@@ -96,10 +96,10 @@ export const useUserStore = create<UserStore>()(
 
 // 유저 프로필
 export const useProfile = () => useUserStore((state) => state.profile);
-// 유저 이름 (display_name 참조이기에 참고해둘 것)
-export const useUserName = () => useUserStore((state) => state.profile?.display_name);
+// 유저 이름 (display_name 참조, string | undefined 반환)
+export const useUserName = (): string | undefined => useUserStore((state) => state.profile?.display_name);
 // 유저 로그인 상태 여부 
-export const useIsLoggedIn = () => useUserStore((state) => !!state.profile);
+export const useIsLoggedIn = () => useUserStore((state) => !!state.profile && !state.loading);
 // 유저 아이디
 export const useUserId = () => useUserStore((state) => state.profile?.id);
 
