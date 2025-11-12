@@ -7,6 +7,7 @@ import type { DashboardData } from "@/components/dashboard/type/dashboard";
 import DashboardChart from "@/components/dashboard/ui/DashboardChart";
 import DashboardStats from "@/components/dashboard/ui/DashboardStats";
 import { usePresenceContext } from "@/contexts/PresenceContext";
+import { useUserName, useIsLoggedIn } from "@/store/useStore";
 
 const POLLING_INTERVAL = 5 * 60 * 1000; // (1000ms = 1 second) | 초기값 5분
 
@@ -20,6 +21,10 @@ export default function DashboardContentWrapper({ initialData }: DashboardConten
 
   // 실시간 접속자 수 (전역 Context에서 가져옴)
   const { currentUsers } = usePresenceContext();
+
+  // 사용자 정보 (Store에서 가져옴)
+  const userName = useUserName();
+  const isLoggedIn = useIsLoggedIn();
 
   const loadData = useCallback(
     async (showLoading = false) => {
@@ -77,9 +82,13 @@ export default function DashboardContentWrapper({ initialData }: DashboardConten
       <div className="w-full space-y-6">
         {/* 상단 섹션 */}
         <div className="bg-white rounded-lg shadow-sm p-4 md:p-6">
-          <h1 className="text-2xl md:text-3xl font-bold text-gray-800 mb-16 p-4">
-            안녕하세요, OOO님
-          </h1>
+          <span className="text-2xl md:text-3xl font-bold text-gray-800 mb-16 p-4 block">
+            {!isLoggedIn
+              ? "안녕하세요, 로그인을 해주세요."
+              : userName
+                ? `안녕하세요, ${userName}님`
+                : "안녕하세요!"}
+          </span>
           <DashboardChart chartData={data.chartData} />
         </div>
         {/* 하단 부분*/}
