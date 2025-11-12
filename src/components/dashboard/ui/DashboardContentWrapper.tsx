@@ -7,7 +7,7 @@ import type { DashboardData } from "@/components/dashboard/type/dashboard";
 import DashboardChart from "@/components/dashboard/ui/DashboardChart";
 import DashboardStats from "@/components/dashboard/ui/DashboardStats";
 import { usePresenceContext } from "@/contexts/PresenceContext";
-import { createClient } from "@/utils/supabase/client";
+import { useUserName, useIsLoggedIn } from "@/store/useStore";
 
 const POLLING_INTERVAL = 5 * 60 * 1000; // (1000ms = 1 second) | 초기값 5분
 
@@ -19,52 +19,12 @@ export default function DashboardContentWrapper({ initialData }: DashboardConten
   const [data, setData] = useState<DashboardData>(initialData);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
-  const [userName, setUserName] = useState<string | null>(null);
-  const [isLoadingUser, setIsLoadingUser] = useState(true);
-
   // 실시간 접속자 수 (전역 Context에서 가져옴)
   const { currentUsers } = usePresenceContext();
 
-  // 사용자 정보
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        setIsLoadingUser(true);
-        const supabase = createClient();
-
-        const {
-          data: { user },
-          error: userError,
-        } = await supabase.auth.getUser();
-
-        if (userError || !user) {
-          setUserName(null);
-          return;
-        }
-
-        // users 테이블에서 프로필 정보 가져오기
-        const { data: profile, error: profileError } = await supabase
-          .from("users")
-          .select("display_name")
-          .eq("id", user.id)
-          .single();
-
-        if (profileError || !profile) {
-          setUserName(null);
-          return;
-        }
-
-        setUserName(profile.display_name);
-      } catch (error) {
-        console.error("사용자 정보 가져오기 실패:", error);
-        setUserName(null);
-      } finally {
-        setIsLoadingUser(false);
-      }
-    };
-
-    fetchUser();
-  }, []);
+  // 사용자 정보 (Store에서 가져옴)
+  const userName = useUserName();
+  const isLoggedIn = useIsLoggedIn();
 
   const loadData = useCallback(
     async (showLoading = false) => {
@@ -123,7 +83,11 @@ export default function DashboardContentWrapper({ initialData }: DashboardConten
         {/* 상단 섹션 */}
         <div className="bg-white rounded-lg shadow-sm p-4 md:p-6">
           <span className="text-2xl md:text-3xl font-bold text-gray-800 mb-16 p-4 block">
-            {isLoadingUser ? "안녕하세요!" : userName ? `안녕하세요, ${userName}님` : "안녕하세요!"}
+            {!isLoggedIn
+              ? "안녕하세요, 로그인을 해주세요."
+              : userName
+                ? `안녕하세요, ${userName}님`
+                : "안녕하세요!"}
           </span>
           <DashboardChart chartData={data.chartData} />
         </div>
