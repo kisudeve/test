@@ -17,10 +17,5 @@ export default async function Page() {
     return null;
   }
 
-  // 사용자 아이디 확인
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  return <PostListClient initialPosts={posts} userId={user?.id} />;
+  return <PostListClient initialPosts={posts} />;
 }

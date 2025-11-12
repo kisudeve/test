@@ -8,24 +8,27 @@ import { twMerge } from "tailwind-merge";
 import { useRouter } from "next/navigation";
 import ConfirmDialog from "@/components/common/ConfirmDialog";
 import { toast } from "sonner";
+import { useUserId } from "@/store/useStore";
+import { Like } from "@/types/database";
 
 export default function PostDetailActionsClient({
   postId,
-  userId,
-  initialLiked,
+  initialLike,
   initialLikeCount,
   commentsCount,
 }: {
   postId: string;
-  userId: string | undefined;
-  initialLiked: boolean;
+  initialLike: Pick<Like, "post_id" | "user_id">[];
   initialLikeCount: number;
   commentsCount: number;
 }) {
   const supabase = createClient();
   const router = useRouter();
+  const userId = useUserId();
 
-  const [liked, setLiked] = useState<boolean>(initialLiked);
+  const [liked, setLiked] = useState<boolean>(
+    initialLike.some((like) => like.user_id === userId) ?? false,
+  );
   const [likeCount, setLikeCount] = useState<number>(initialLikeCount);
 
   const likeHandler = async (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {

@@ -11,26 +11,13 @@ import Link from "next/link";
 export default async function PostDetail({ postId }: { postId: string }) {
   const supabase = await createClient();
 
-  const [
-    { data: post, error: postError },
-    {
-      data: { user },
-      error: userError,
-    },
-  ] = await Promise.all([
-    supabase
-      .from("posts")
-      .select("*, users(display_name, image_url), feels(type), likes(post_id, user_id)")
-      .eq("id", postId)
-      .single(),
-    supabase.auth.getUser(),
-  ]);
-
+  const { data: post, error: postError } = await supabase
+    .from("posts")
+    .select("*, users(display_name, image_url), feels(type), likes(post_id, user_id)")
+    .eq("id", postId)
+    .single();
   if (!post || postError) {
     notFound();
-  }
-  if (userError) {
-    console.error(userError);
   }
 
   return (
@@ -84,8 +71,7 @@ export default async function PostDetail({ postId }: { postId: string }) {
         {/* 좋아요, 댓글 버튼 */}
         <PostDetailActionsClient
           postId={post.id}
-          userId={user?.id}
-          initialLiked={post.likes?.some((like) => like.user_id === user?.id) ?? false}
+          initialLike={post.likes}
           initialLikeCount={post.likes.length}
           commentsCount={Number(post.comments_count)}
         />
