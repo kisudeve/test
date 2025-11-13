@@ -168,6 +168,61 @@ export default function DashboardChart({ chartData }: DashboardChartProps) {
     return processedData.map((point) => point.index);
   }, [processedData]);
 
+  // Y축 동적 할당
+  const yAxisConfig = useMemo(() => {
+    if (processedData.length === 0) {
+      return {
+        domain: [0, 10] as [number, number],
+        ticks: [0, 5, 10],
+      };
+    }
+
+    // 최대값 검색
+    const maxValue = Math.max(
+      ...processedData.map((point) => Math.max(point.up, point.down, point.hold)),
+    );
+
+    // 최대값 없을 경우 기본 값 할당
+    if (maxValue === 0) {
+      return {
+        domain: [0, 10] as [number, number],
+        ticks: [0, 5, 10],
+      };
+    }
+
+    // 최대값 설정
+    const maxDomain = Math.ceil(maxValue * 1.2);
+
+    // 적절한 간격 계산 (최대값에 따라)
+    let tickInterval: number;
+    if (maxDomain <= 10) {
+      tickInterval = 2;
+    } else if (maxDomain <= 20) {
+      tickInterval = 5;
+    } else if (maxDomain <= 50) {
+      tickInterval = 10;
+    } else if (maxDomain <= 100) {
+      tickInterval = 20;
+    } else if (maxDomain <= 200) {
+      tickInterval = 50;
+    } else {
+      tickInterval = Math.ceil(maxDomain / 5);
+    }
+
+    const roundedMax = Math.ceil(maxDomain / tickInterval) * tickInterval;
+
+    // 눈금 생성
+    const ticks: number[] = [];
+    for (let i = 0; i <= roundedMax; i += tickInterval) {
+      ticks.push(i);
+    }
+
+    return {
+      domain: [0, roundedMax] as [number, number],
+      ticks,
+    };
+  }, [processedData]);
+
   return (
     <div className="w-full">
       <div className="flex items-center justify-between mb-4">
@@ -262,8 +317,8 @@ export default function DashboardChart({ chartData }: DashboardChartProps) {
               );
             })}
             <YAxis
-              domain={[50, 300]} // Y축 범위 : 50 ~ 300
-              ticks={[50, 100, 150, 200, 250, 300]} // 눈금 위치
+              domain={yAxisConfig.domain} // Y축 범위를 데이터에 맞게 동적으로 설정
+              ticks={yAxisConfig.ticks} // 눈금 위치를 데이터에 맞게 동적으로 설정
               stroke="#6b7280" // 선 색상
               tick={{ fontSize: 12, fill: "#6b7280" }} // 눈금 텍스트 스타일
               axisLine={{ stroke: "#e5e7eb" }} // 기본 스타일
