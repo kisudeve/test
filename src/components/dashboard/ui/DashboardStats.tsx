@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo, useEffect, useRef } from "react";
 import { Lightbulb } from "lucide-react";
 import type { DashboardData } from "@/components/dashboard/type/dashboard";
 import DashboardCards from "@/components/dashboard/ui/DashboardCards";
@@ -24,15 +25,26 @@ export default function DashboardStats({ data }: DashboardStatsProps) {
     };
   };
 
-  // chartData를 기반으로 오늘의 감정 상태 메시지 생성
-  const getMarketMessage = () => {
+  // 가장 최근 데이터 추출 및 메모이제이션 (참조 변경 방지)
+  const latestData = useMemo(() => {
     if (!data.chartData || data.chartData.length === 0) {
+      return null;
+    }
+    return data.chartData[data.chartData.length - 1];
+  }, [data.chartData]);
+
+  // 최근 데이터의 값들을 문자열로 직렬화하여 의존성으로 사용 (실제 값 변경 감지)
+  const latestDataKey = useMemo(() => {
+    if (!latestData) return "";
+    return `${latestData.up}-${latestData.down}-${latestData.hold}-${latestData.day}`;
+  }, [latestData]);
+
+  // chartData를 기반으로 오늘의 감정 상태 메시지 생성 (메모이제이션)
+  const marketMessage = useMemo(() => {
+    if (!latestData) {
       return "데이터를 분석 중입니다. 잠시만 기다려주세요!";
     }
 
-    // 가장 최근 데이터 (오늘 또는 가장 최근 날짜)
-    const latestData = data.chartData[data.chartData.length - 1];
-    // console.log("latestData:", latestData);
     const { up, down, hold, day } = latestData;
     const total = day;
 
@@ -45,11 +57,6 @@ export default function DashboardStats({ data }: DashboardStatsProps) {
     const holdRatio = hold / total;
 
     const maxValue = Math.max(up, down, hold);
-
-    console.log("upRatio:", upRatio);
-    console.log("downRatio:", downRatio);
-    console.log("holdRatio:", holdRatio);
-    console.log("maxValue:", maxValue);
 
     // UP이 가장 많은 경우
     if (up === maxValue && upRatio >= 0.4) {
@@ -91,10 +98,33 @@ export default function DashboardStats({ data }: DashboardStatsProps) {
         return "개미들은 오늘 다양한 감정을 경험하고 있으며, 대체로 안정적인 상태입니다!";
       }
     }
-  };
+  }, [latestData]);
 
-  const { date, time } = formatLastUpdated(data.lastUpdated);
-  const marketMessage = getMarketMessage();
+  // 디버깅용 로그 (추후 삭제 예정)
+  useEffect(() => {
+    if (latestDataKey && latestDataKey) {
+      if (latestData && process.env.NODE_ENV === "development") {
+        const { up, down, hold, day } = latestData;
+        const total = day;
+        if (total > 0) {
+          const upRatio = up / total;
+          const downRatio = down / total;
+          const holdRatio = hold / total;
+          const maxValue = Math.max(up, down, hold);
+
+          console.log("감정 비율 분석:", {
+            upRatio: upRatio.toFixed(2),
+            downRatio: downRatio.toFixed(2),
+            holdRatio: holdRatio.toFixed(2),
+            maxValue,
+          });
+        }
+      }
+    }
+  }, [latestDataKey, latestData]);
+
+  // 날짜 포맷팅도 메모이제이션
+  const { date, time } = useMemo(() => formatLastUpdated(data.lastUpdated), [data.lastUpdated]);
 
   return (
     <>
