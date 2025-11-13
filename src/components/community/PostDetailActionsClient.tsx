@@ -13,11 +13,13 @@ import { Like } from "@/types/database";
 
 export default function PostDetailActionsClient({
   postId,
+  writerId,
   initialLike,
   initialLikeCount,
   commentsCount,
 }: {
   postId: string;
+  writerId: string;
   initialLike: Pick<Like, "post_id" | "user_id">[];
   initialLikeCount: number;
   commentsCount: number;
@@ -81,7 +83,7 @@ export default function PostDetailActionsClient({
           {commentsCount}
         </Button>
       </div>
-      {userId && (
+      {userId === writerId && (
         <div className="flex gap-2">
           <Button variant="edit" onClick={() => router.push(`/write?post_id=${postId}`)}>
             수정
