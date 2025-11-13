@@ -93,10 +93,6 @@ export async function fetchDashboardData(currentUsers?: number): Promise<Dashboa
 
   console.log("hashtags 데이터 개수:", hashtagsData?.length || 0);
 
-  // 디버깅 (추후 삭제 예정)
-  let downHashtagsProcessed = 0;
-  let downHashtagsSkipped = 0;
-
   hashtagsData?.forEach((hashtag) => {
     const hashtagDate = new Date(hashtag.created_at);
     const postType = resultTypeMap.get(hashtag.post_id);
@@ -115,21 +111,6 @@ export async function fetchDashboardData(currentUsers?: number): Promise<Dashboa
     // 오늘 데이터인지 어제 데이터인지 판단
     const isToday = hashtagDate >= todayStart;
     const isYesterday = hashtagDate >= oneDayAgo && hashtagDate < todayStart;
-
-    // 디버깅: down 타입 해시태그 확인
-    if (postType === "down") {
-      downHashtagsProcessed++;
-      if (!isToday && !isYesterday) {
-        downHashtagsSkipped++;
-        console.log("하락 해시태그 날짜 범위 밖:", {
-          post_id: hashtag.post_id,
-          hashtagDate: hashtagDate.toISOString(),
-          isToday,
-          isYesterday,
-          tags,
-        });
-      }
-    }
 
     tags.forEach((tag) => {
       if (postType === "up") {
@@ -252,36 +233,79 @@ export async function fetchDashboardData(currentUsers?: number): Promise<Dashboa
       .map(({ name, change }) => ({ name, change }));
   }
 
-  // 데이터가 부족한 경우 기본값 사용
+  // 데이터가 부족한 경우 기본값 사용 = []
   const finalTopRising = topRising.length > 0 ? topRising : [];
   const finalTopFalling = topFalling.length > 0 ? topFalling : [];
 
   const lastUpdated = `${now.getFullYear()}년 ${now.getMonth() + 1}월 ${now.getDate()}일 ${now.getHours() >= 12 ? "오후" : "오전"} ${now.getHours() % 12 || 12}:${String(now.getMinutes()).padStart(2, "0")}`;
   const weekdays = ["일", "월", "화", "수", "목", "금", "토"];
 
-  const chartData: ChartDataPoint[] = Array.from({ length: 30 }, (_, idx) => {
-    const dayOffset = 29 - idx; // 1개월 → 오늘
-    const current = new Date(now);
-    current.setHours(0, 0, 0, 0);
-    current.setDate(current.getDate() - dayOffset);
+  // feels 테이블 데이터 집계
+  const feelsByDate = new Map<string, { up: number; down: number; hold: number }>();
 
-    const trend = 100 + idx * 4;
-    const wave = Math.round(15 * Math.sin((idx / 5) * Math.PI));
-    const up = trend + wave;
-    const down = 18 + ((idx * 7) % 28);
-    const hold = 6 + ((idx * 4) % 14);
+  feelsData?.forEach((feel) => {
+    const feelDate = new Date(feel.created_at);
+    feelDate.setHours(0, 0, 0, 0);
+    const dateKey = feelDate.toISOString().split("T")[0];
 
-    return {
-      date: current.toISOString(), // timestampz 형식
-      day: current.getDate(),
-      weekday: weekdays[current.getDay()],
-      up,
-      down,
-      hold,
-    };
+    if (!feelsByDate.has(dateKey)) {
+      feelsByDate.set(dateKey, { up: 0, down: 0, hold: 0 });
+    }
+
+    const counts = feelsByDate.get(dateKey)!;
+    const feelType = feel.type.toLowerCase();
+
+    if (feelType === "up") {
+      counts.up++;
+    } else if (feelType === "down") {
+      counts.down++;
+    } else if (feelType === "hold") {
+      counts.hold++;
+    }
   });
 
-  // 대시보드 데이터 반환
+  // 데이터가 있는 날짜들 정렬 (실제 데이터 기준 있는 날짜 추출 역할?)
+  const datesWithData = Array.from(feelsByDate.keys())
+    .map((dateStr) => new Date(dateStr))
+    .sort((a, b) => a.getTime() - b.getTime());
+
+  // 30일전까지
+  const thirtyDays = new Date(todayStart);
+  thirtyDays.setDate(thirtyDays.getDate() - 29);
+
+  // console.log(datesWithData.map((date) => date.toISOString().split("T")[0]));
+  // console.log(thirtyDays.toISOString().split("T")[0]);
+
+  let startDate: Date;
+  if (datesWithData.length > 0) {
+    const oldestDataDate = datesWithData[0];
+    startDate = oldestDataDate > thirtyDays ? thirtyDays : oldestDataDate;
+  } else {
+    // 시작날짜 30일전 초기화
+    startDate = thirtyDays;
+  }
+
+  const chartData: ChartDataPoint[] = [];
+  const currentDate = new Date(startDate);
+
+  while (currentDate <= todayStart && chartData.length < 30) {
+    const dateKey = currentDate.toISOString().split("T")[0];
+    const counts = feelsByDate.get(dateKey) || { up: 0, down: 0, hold: 0 };
+
+    chartData.push({
+      date: currentDate.toISOString(),
+      day: currentDate.getDate(),
+      weekday: weekdays[currentDate.getDay()],
+      up: counts.up,
+      down: counts.down,
+      hold: counts.hold,
+    });
+
+    currentDate.setDate(currentDate.getDate() + 1);
+  }
+
+  console.log("chartData:", chartData);
+
   return {
     chartData,
     topRising: finalTopRising,
