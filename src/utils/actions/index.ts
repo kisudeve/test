@@ -55,6 +55,7 @@ export async function signOut() {
   revalidatePath("/");
 }
 
+
 export async function save(userId: string, displayName: string, bio: string) {
   "use server";
 
@@ -70,4 +71,37 @@ export async function save(userId: string, displayName: string, bio: string) {
     .eq("id", userId);
 
   redirect(`/profile/${userId}`);
+}
+
+// 서버에서 사용자 프로필 가져오기
+export async function getUserProfile() {
+  const supabase = await createClient();
+
+  try {
+    // 현재 사용자 확인
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
+
+    if (userError || !user) {
+      return null;
+    }
+
+    // 프로필 정보 가져오기
+    const { data: profile, error: profileError } = await supabase
+      .from("users")
+      .select("*")
+      .eq("id", user.id)
+      .single();
+
+    if (profileError || !profile) {
+      return null;
+    }
+
+    return profile;
+  } catch (error) {
+    console.error("프로필 데이터 로딩 오류:", error);
+    return null;
+  }
 }
