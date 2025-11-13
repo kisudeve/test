@@ -2,6 +2,8 @@ import { setTrendTagsRank } from "@/utils/helpers";
 import { createClient } from "@/utils/supabase/server";
 import Link from "next/link";
 
+export const revalidate = 3600; // 1시간마다 재검증
+
 export default async function TrendTags() {
   const supabase = await createClient();
 

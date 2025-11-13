@@ -3,6 +3,8 @@ import { createClient } from "@/utils/supabase/server";
 import { toast } from "sonner";
 import { EmotionBadge } from "@/components/community/EmotionIcon";
 
+export const revalidate = 3600;
+
 export default async function TodayFeels() {
   // 오늘 날짜 범위
   const todayStart = new Date();
