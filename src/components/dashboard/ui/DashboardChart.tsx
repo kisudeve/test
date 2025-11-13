@@ -227,8 +227,8 @@ export default function DashboardChart({ chartData }: DashboardChartProps) {
     <div className="w-full">
       <div className="flex items-center justify-between mb-4">
         {/* 기간 선택 버튼 */}
-        <div className="flex flex-wrap gap-2">
-          {(["1일", "1주", "1개월", "All"] as Period[]).map((period) => (
+        <div className="flex flex-wrap gap-2 select-none">
+          {(["1주", "1개월", "All"] as Period[]).map((period) => (
             <button
               key={period}
               onClick={() => {
@@ -247,7 +247,7 @@ export default function DashboardChart({ chartData }: DashboardChartProps) {
           ))}
         </div>
         {/* 차트 색상 표시 영역 */}
-        <div className="flex gap-4 pr-2">
+        <div className="flex gap-4 pr-2 select-none">
           <div className="flex items-center gap-2">
             <div className="w-3 h-3 rounded-full bg-red-500"></div>
             <span className="text-sm text-gray-600 font-medium">UP</span>

@@ -105,3 +105,72 @@ export async function getUserProfile() {
     return null;
   }
 }
+
+// 오늘의 감정 지수 계산
+export async function getTodayScore() {
+  const supabase = await createClient();
+
+  try {
+    const now = new Date();
+    const todayStart = new Date(now);
+    todayStart.setHours(0, 0, 0, 0);
+
+    const oneDayAgo = new Date(todayStart);
+    oneDayAgo.setDate(oneDayAgo.getDate() - 1);
+
+    // 오늘 감정 지수
+    const { data: todayFeels, error: todayError } = await supabase
+      .from("feels")
+      .select("amount, type")
+      .in("type", ["up", "down"])
+      .gte("created_at", todayStart.toISOString())
+      .lt("created_at", new Date(todayStart.getTime() + 24 * 60 * 60 * 1000).toISOString());
+
+    if (todayError) {
+      console.error("오늘의 감정지수 데이터 가져오기 실패:", todayError);
+      return { value: 0, finalResult: 0 };
+    }
+
+    // 어제 감정 지수
+    const { data: yesterdayFeels, error: yesterdayError } = await supabase
+      .from("feels")
+      .select("amount, type")
+      .in("type", ["up", "down"])
+      .gte("created_at", oneDayAgo.toISOString())
+      .lt("created_at", todayStart.toISOString());
+
+    if (yesterdayError) {
+      console.error("어제의 감정지수 데이터 가져오기 실패:", yesterdayError);
+    }
+
+    // 오늘의 감정 지수 계산
+    const todayResult =
+      todayFeels?.reduce((sum, feel) => {
+        return sum + feel.amount; // amount 값 그대로 더하기 (up은 양수, down은 이미 음수)
+      }, 0) || 0;
+
+    // 어제의 감정 지수 계산
+    const yesterdayResult =
+      yesterdayFeels?.reduce((sum, feel) => {
+        return sum + feel.amount; // amount 값 그대로 더하기 (up은 양수, down은 이미 음수)
+      }, 0) || 0;
+
+
+    let finalResult = 0;
+    if (yesterdayResult !== 0) {
+      finalResult = ((todayResult - yesterdayResult) / Math.abs(yesterdayResult)) * 100;
+    } else if (todayResult !== 0) {
+      finalResult = todayResult > 0 ? 100 : -100;
+    }
+
+    console.log("감정지수", todayResult, yesterdayResult, finalResult);
+
+    return {
+      value: todayResult,
+      finalResult: Math.round(finalResult * 100) / 100, // 소수점 둘째 자리까지
+    };
+  } catch (error) {
+    console.error("감정 지수 계산 오류:", error);
+    return { value: 0, finalResult: 0 };
+  }
+}
