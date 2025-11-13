@@ -21,15 +21,25 @@ export const insertComment = async (
   // 데이터 가져오기
   const postId = formData.get("postId")?.toString() ?? "";
   const content = formData.get("comment")?.toString() ?? "";
+  const parentId = formData.get("parentId")?.toString() ?? "";
 
   if (!postId) return { success: false, error: "게시글 ID가 없습니다." };
   if (!content || content.trim() === "") return { success: false, error: "댓글을 입력해주세요." };
 
-  const { error: commentError } = await supabase
-    .from("comments")
-    .insert([{ post_id: postId, user_id: user.id, content }]);
+  if (!parentId) {
+    const { error: commentError } = await supabase
+      .from("comments")
+      .insert([{ post_id: postId, user_id: user.id, content }]);
 
-  if (commentError) return { success: false, error: "댓글 등록 중 문제가 발생했습니다." };
+    if (commentError) return { success: false, error: "댓글 등록 중 문제가 발생했습니다." };
+  }
+  if (parentId) {
+    const { error: replyError } = await supabase
+      .from("comments")
+      .insert([{ post_id: postId, user_id: user.id, content, parent_id: parentId }]);
+
+    if (replyError) return { success: false, error: "대댓글 등록 중 문제가 발생했습니다." };
+  }
 
   // 작성자 정보 가져오기
   const { data: post, error: postError } = await supabase
@@ -41,7 +51,7 @@ export const insertComment = async (
   if (postError) return { success: false, error: "게시글 정보를 가져오는 중 문제가 발생했습니다." };
 
   // 본인이 작성한 글이 아닐 때만 댓글 알림
-  if (post.user_id !== user.id) {
+  if (post.user_id !== user.id && !parentId) {
     await supabase.from("notifications").insert([
       {
         receiver_id: post.user_id,
@@ -81,6 +91,7 @@ export const updateComment = async (
   if (!commentId) return { success: false, error: "댓글 ID가 없습니다." };
   if (!content || content.trim() === "") return { success: false, error: "댓글을 입력해주세요." };
 
+  // 댓글 또는 대댓글 수정
   const { error: commentError } = await supabase
     .from("comments")
     .update({ content: content.trim() })
