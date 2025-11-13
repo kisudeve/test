@@ -8,7 +8,9 @@ export default async function Page() {
   // 초기 포스트 목록
   const { data: posts, error: listError } = await supabase
     .from("posts")
-    .select("*, users(display_name, image_url), feels(type), likes(post_id, user_id)")
+    .select(
+      "*, users(display_name, image_url), feels(type), likes(post_id, user_id), hashtags(content)",
+    )
     .order("created_at", { ascending: false })
     .order("id", { ascending: false })
     .range(0, PAGE_SIZE - 1);
@@ -17,5 +19,9 @@ export default async function Page() {
     return null;
   }
 
-  return <PostListClient initialPosts={posts} />;
+  return (
+    <>
+      <PostListClient initialPosts={posts} />
+    </>
+  );
 }

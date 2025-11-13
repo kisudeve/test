@@ -4,8 +4,9 @@ import Button from "@/components/common/Button";
 import { twMerge } from "tailwind-merge";
 import { Heart } from "lucide-react";
 import { CommunityComment } from "@/types/community";
-import ConfirmDialog from "../common/ConfirmDialog";
+import ConfirmDialog from "@/components/common/ConfirmDialog";
 import { deleteComment } from "@/utils/actions/comment";
+import Link from "next/link";
 
 export default function CommentListItemClient({
   comment,
@@ -24,11 +25,13 @@ export default function CommentListItemClient({
     <>
       <article key={comment.id}>
         <div className="flex gap-4">
-          <ProfileImage
-            displayName={comment.users.display_name}
-            imageUrl={comment.users.image_url}
-            size="md"
-          />
+          <Link href={`/profile/${comment.user_id}`}>
+            <ProfileImage
+              displayName={comment.users.display_name}
+              imageUrl={comment.users.image_url}
+              size="md"
+            />
+          </Link>
           <div className="flex-1 flex flex-col gap-2">
             <div className="flex justify-between items-baseline">
               <div className="flex items-center gap-2">

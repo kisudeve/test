@@ -25,7 +25,9 @@ export default function PostListClient({ initialPosts }: { initialPosts: Communi
 
     const { data: posts, error: postsError } = await supabase
       .from("posts")
-      .select("*, users(display_name, image_url), feels(type), likes(post_id, user_id)")
+      .select(
+        "*, users(display_name, image_url), feels(type), likes(post_id, user_id), hashtags(content)",
+      )
       .order("created_at", { ascending: false })
       .order("id", { ascending: false })
       .range(page.current, page.current + PAGE_SIZE - 1);
@@ -67,7 +69,7 @@ export default function PostListClient({ initialPosts }: { initialPosts: Communi
   }, [hasMore, loading, loadMorePosts]);
 
   return (
-    <section className="flex flex-col gap-4 py-6 px-4">
+    <section className="flex-1 flex flex-col gap-4">
       {posts.map((post) => (
         <PostListItemClient key={post.id} post={post} userId={userId} />
       ))}
