@@ -1,7 +1,7 @@
 import { setTrendTagsRank } from "@/utils/helpers";
 import { createClient } from "@/utils/supabase/server";
-import { toast } from "sonner";
 import { EmotionBadge } from "@/components/community/EmotionIcon";
+import Link from "next/link";
 
 export const revalidate = 3600;
 
@@ -35,7 +35,7 @@ export default async function TodayFeels() {
     .lte("created_at", yesterdayEnd.toISOString());
 
   if (todayError || yesterdayError) {
-    toast.error("오늘의 감정을 불러오기 실패했습니다.");
+    console.error("오늘의 감정을 불러오기 실패했습니다.");
     return null;
   }
 
@@ -60,13 +60,17 @@ export default async function TodayFeels() {
     ...rank,
     percentageChange: calculatePercentageChange(rank.tag, rank.count),
   }));
-  
+
   return (
     <section className="flex flex-col gap-3 p-6 bg-white border border-slate-200 rounded-2xl shadow-[0_4px_12px_rgba(0,0,0,0.06)]">
       <h2 className="text-lg font-bold text-slate-900">오늘의 감정 TOP3</h2>
       <div className="flex flex-col gap-4">
         {ranksWithPercentage.map((rank, index) => (
-          <div key={rank.tag} className="flex items-center gap-4 hover:opacity-70 cursor-pointer">
+          <Link
+            key={rank.tag}
+            className="flex items-center gap-4 hover:opacity-70 cursor-pointer"
+            href={"/"} // Todo: 감정별 검색링크
+          >
             <span className="w-3 text-slate-500 text-lg">{index + 1}</span>
             <EmotionBadge emotion={rank.tag} />
             <div className="flex flex-col">
@@ -83,7 +87,7 @@ export default async function TodayFeels() {
                 {rank.percentageChange}
               </span>
             </div>
-          </div>
+          </Link>
         ))}
       </div>
     </section>
