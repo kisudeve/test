@@ -4,9 +4,8 @@ import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useProfile } from "@/store/useStore";
+import { TrendingUp, TrendingDown } from "lucide-react";
 import type { Database } from "@/utils/supabase/supabase";
-
 type Profile = Database["public"]["Tables"]["users"]["Row"];
 
 const Icon = {
@@ -111,7 +110,7 @@ interface HeaderProps {
   // 사용자 정보 (하단 프로필 영역): 이름과 프로필 이미지
   userProfile?: { display_name: string; image_url: string };
   // 오늘의 감정 지수 카드에 보여줄 값
-  todayScore?: { value: number; changePct: number };
+  todayScore?: { value: number; finalResult: number };
   initialProfile?: Profile | null;
   className?: string;
 }
@@ -123,7 +122,7 @@ interface HeaderProps {
 // initialProfile: SSR에서 가져온 초기 프로필
 export default function Header({
   activeKey = "dashboard",
-  todayScore = { value: 1240, changePct: 1.8 },
+  todayScore = { value: 1240, finalResult: 1.8 },
   initialProfile,
   className,
 }: HeaderProps) {
@@ -176,41 +175,15 @@ export default function Header({
             </span>
             <span
               className={`inline-flex shrink-0 items-center gap-1 rounded-lg font-semibold backdrop-blur bg-transparent px-0 py-0 text-[14px] ${
-                todayScore.changePct >= 0 ? "text-emerald-500" : "text-rose-500"
+                todayScore.finalResult >= 0 ? "text-emerald-500" : "text-rose-500"
               }`}
             >
-              {todayScore.changePct >= 0 ? "+" : "-"}
-              {todayScore.changePct.toFixed(2)}%
-              {todayScore.changePct >= 0 ? (
-                <svg
-                  viewBox="0 0 24 24"
-                  aria-hidden
-                  className="h-5 w-5 sm:h-7 sm:w-7"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  {/* trending up arrow */}
-                  <path d="M3 17l6-6 4 4 7-7" />
-                  <path d="M17 8h4v4" />
-                </svg>
+              {todayScore.finalResult >= 0 ? "+" : ""}
+              {Math.abs(todayScore.finalResult).toFixed(2)}%
+              {todayScore.finalResult >= 0 ? (
+                <TrendingUp className="h-5 w-5 sm:h-7 sm:w-7" />
               ) : (
-                <svg
-                  viewBox="0 0 24 24"
-                  aria-hidden
-                  className="h-5 w-5 sm:h-7 sm:w-7"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  {/* trending down arrow */}
-                  <path d="M3 7l6 6 4-4 7 7" />
-                  <path d="M17 16h4v-4" />
-                </svg>
+                <TrendingDown className="h-5 w-5 sm:h-7 sm:w-7" />
               )}
             </span>
           </div>
