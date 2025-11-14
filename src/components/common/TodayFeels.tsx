@@ -65,30 +65,34 @@ export default async function TodayFeels() {
     <section className="flex flex-col gap-3 p-6 bg-white border border-slate-200 rounded-2xl shadow-[0_4px_12px_rgba(0,0,0,0.06)]">
       <h2 className="text-lg font-bold text-slate-900">오늘의 감정 TOP3</h2>
       <div className="flex flex-col gap-4">
-        {ranksWithPercentage.map((rank, index) => (
-          <Link
-            key={rank.tag}
-            className="flex items-center gap-4 hover:opacity-70 cursor-pointer"
-            href={"/"} // Todo: 감정별 검색링크
-          >
-            <span className="w-3 text-slate-500 text-lg">{index + 1}</span>
-            <EmotionBadge emotion={rank.tag} />
-            <div className="flex flex-col">
-              <strong className="font-medium">{rank.tag}</strong>
-              <span
-                className={`text-xs ${
-                  rank.percentageChange.startsWith("+")
-                    ? "text-green-500"
-                    : rank.percentageChange.startsWith("-")
-                      ? "text-red-500"
-                      : "text-blue-500"
-                }`}
-              >
-                {rank.percentageChange}
-              </span>
-            </div>
-          </Link>
-        ))}
+        {ranksWithPercentage.length === 0 && (
+          <p className="text-slate-500">오늘 기록된 감정이 없습니다.</p>
+        )}
+        {ranksWithPercentage.length > 0 &&
+          ranksWithPercentage.map((rank, index) => (
+            <Link
+              key={rank.tag}
+              className="flex items-center gap-4 hover:opacity-70 cursor-pointer"
+              href={`/search?query=${rank.tag}`}
+            >
+              <span className="w-3 text-slate-500 text-lg">{index + 1}</span>
+              <EmotionBadge emotion={rank.tag} />
+              <div className="flex flex-col">
+                <strong className="font-medium">{rank.tag}</strong>
+                <span
+                  className={`text-xs ${
+                    rank.percentageChange.startsWith("+")
+                      ? "text-green-500"
+                      : rank.percentageChange.startsWith("-")
+                        ? "text-red-500"
+                        : "text-blue-500"
+                  }`}
+                >
+                  {rank.percentageChange}
+                </span>
+              </div>
+            </Link>
+          ))}
       </div>
     </section>
   );
