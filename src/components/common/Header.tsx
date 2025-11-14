@@ -4,6 +4,9 @@ import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { TrendingUp, TrendingDown } from "lucide-react";
+import type { Database } from "@/utils/supabase/supabase";
+type Profile = Database["public"]["Tables"]["users"]["Row"];
 
 const Icon = {
   logo: ({ className }: { className?: string }) => (
@@ -105,9 +108,10 @@ interface HeaderProps {
   // 현재 활성화된 메뉴 키 (예: 'search')
   activeKey?: string;
   // 사용자 정보 (하단 프로필 영역): 이름과 프로필 이미지
-  userInfo?: { name: string; profileImg: string };
+  userProfile?: { display_name: string; image_url: string };
   // 오늘의 감정 지수 카드에 보여줄 값
-  todayScore?: { value: number; changePct: number };
+  todayScore?: { value: number; finalResult: number };
+  initialProfile?: Profile | null;
   className?: string;
 }
 
@@ -115,23 +119,29 @@ interface HeaderProps {
 // activeKey: 현재 활성화된 메뉴 키
 // userName: 사용자 이름
 // todayScore: 오늘의 감정 지수 정보
+// initialProfile: SSR에서 가져온 초기 프로필
 export default function Header({
   activeKey = "dashboard",
-  userInfo = { name: "김민준", profileImg: "" },
-  todayScore = { value: 1240, changePct: 1.8 },
+  todayScore = { value: 1240, finalResult: 1.8 },
+  initialProfile,
   className,
 }: HeaderProps) {
   const pathname = usePathname();
+
+  // SSR 프로필을 우선 사용하고, 클라이언트 사이드에서 업데이트되면 그것을 사용
+  const userProfile = initialProfile || null;
+
   const computedActiveKey = React.useMemo(() => {
-  for (const n of NAV) {
-    if (n.href === "/") {
-      if (pathname === "/") return n.key;
-    } else {
-      if (pathname === n.href || pathname.startsWith(n.href + "/")) return n.key;
+    for (const n of NAV) {
+      if (n.href === "/") {
+        if (pathname === "/") return n.key;
+      } else {
+        if (pathname === n.href || pathname.startsWith(n.href + "/")) return n.key;
+      }
     }
-  }
-  return activeKey; 
-}, [pathname, activeKey]);
+    return activeKey;
+  }, [pathname, activeKey]);
+
   return (
     <aside
       className={[
@@ -165,41 +175,15 @@ export default function Header({
             </span>
             <span
               className={`inline-flex shrink-0 items-center gap-1 rounded-lg font-semibold backdrop-blur bg-transparent px-0 py-0 text-[14px] ${
-                todayScore.changePct >= 0 ? "text-emerald-500" : "text-rose-500"
+                todayScore.finalResult >= 0 ? "text-emerald-500" : "text-rose-500"
               }`}
             >
-              {todayScore.changePct >= 0 ? "+" : "-"}
-              {todayScore.changePct.toFixed(2)}%
-              {todayScore.changePct >= 0 ? (
-                <svg
-                  viewBox="0 0 24 24"
-                  aria-hidden
-                  className="h-5 w-5 sm:h-7 sm:w-7"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  {/* trending up arrow */}
-                  <path d="M3 17l6-6 4 4 7-7" />
-                  <path d="M17 8h4v4" />
-                </svg>
+              {todayScore.finalResult >= 0 ? "+" : ""}
+              {Math.abs(todayScore.finalResult).toFixed(2)}%
+              {todayScore.finalResult >= 0 ? (
+                <TrendingUp className="h-5 w-5 sm:h-7 sm:w-7" />
               ) : (
-                <svg
-                  viewBox="0 0 24 24"
-                  aria-hidden
-                  className="h-5 w-5 sm:h-7 sm:w-7"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  {/* trending down arrow */}
-                  <path d="M3 7l6 6 4-4 7 7" />
-                  <path d="M17 16h4v-4" />
-                </svg>
+                <TrendingDown className="h-5 w-5 sm:h-7 sm:w-7" />
               )}
             </span>
           </div>
@@ -255,10 +239,10 @@ export default function Header({
         <Link href="/profile">
           <div className="flex items-center gap-3 px-1 py-2 rounded-2xl transition-colors duration-200 hover:bg-gray-100">
             <div className="h-10 w-10 shrink-0 rounded-full bg-gray-300 overflow-hidden">
-              {userInfo?.profileImg ? (
+              {userProfile ? (
                 <Image
-                  src={userInfo.profileImg}
-                  alt={`${userInfo.name} 프로필`}
+                  src={userProfile?.image_url || ""}
+                  alt={`${userProfile.display_name} 프로필`}
                   width={40}
                   height={40}
                   className="h-full w-full object-cover"
@@ -266,7 +250,9 @@ export default function Header({
               ) : null}
             </div>
             <div className="flex flex-col justify-center">
-              <p className="text-[14px] font-bold text-black leading-tight">{userInfo.name}</p>
+              <p className="text-[14px] font-bold text-black leading-tight">
+                {userProfile ? userProfile.display_name : "Unknown"}
+              </p>
             </div>
           </div>
         </Link>
