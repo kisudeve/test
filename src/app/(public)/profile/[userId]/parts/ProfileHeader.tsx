@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useTransition } from "react";
 import Button from "@/components/common/Button";
 import ProfileImage from "@/components/common/ProfileImage";
@@ -23,6 +24,8 @@ type Props = {
 export default function ProfileHeader({ isMe, profile }: Props) {
   const [pending, start] = useTransition();
 
+  const router = useRouter();
+  
   const handleSignOut = () => {
     start(async () => {
       await signOut();
@@ -71,9 +74,9 @@ export default function ProfileHeader({ isMe, profile }: Props) {
         <div className="flex flex-col items-end gap-2">
           {isMe ? (
             <>
-              <Button variant="edit" className="px-3 py-1">
-                수정
-              </Button>
+              <Button variant="edit" className="px-3 py-1" onClick={() => router.push(`/profile/edit?mode=edit&return=/profile/${profile.id}`)}>
+              수정
+             </Button>
               <Button
                 variant="common"
                 className="px-3 py-1"
