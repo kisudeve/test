@@ -11,6 +11,7 @@ import closeButton from "@/assets/write/closeButton.svg";
 import { createClient } from "@/utils/supabase/client";
 import { useRouter, useSearchParams } from "next/navigation";
 import { badWords } from "./badWords";
+import { toast } from "sonner";
 
 // 감정 버튼 설정
 const emotions = [
@@ -99,21 +100,21 @@ export default function WriteDetail() {
 
   const handlePublish = async () => {
     if (hasBadContent || hasBadTitle) {
-      alert("적절하지 못한 내용을 포함하고 있습니다.");
+      toast.error("적절하지 못한 내용을 포함하고 있습니다");
       return;
     }
     if (pick === "") {
-      alert("감정을 선택해주세요.");
+      toast.error("감정을 선택해주세요");
       return;
     }
 
     if (title.trim() === "") {
-      alert("제목을 입력해주세요.");
+      toast.error("제목을 입력해주세요");
       return;
     }
 
     if (content.trim() === "") {
-      alert("내용을 입력해주세요.");
+      toast.error("내용을 입력해주세요");
       return;
     }
 
@@ -124,7 +125,7 @@ export default function WriteDetail() {
       } = await supabase.auth.getUser();
 
       if (userError || !user) {
-        alert("로그인이 필요합니다.");
+        toast.error("로그인이 필요합니다");
         return;
       }
 
@@ -138,7 +139,7 @@ export default function WriteDetail() {
 
         if (uploadError) {
           console.error("Image upload failed:", uploadError.message);
-          alert("이미지 업로드 중 오류가 발생했습니다.");
+          toast.error("이미지 업로드 중 오류가 발생했습니다");
           return;
         }
 
@@ -189,7 +190,7 @@ export default function WriteDetail() {
 
         if (tagError) throw tagError;
 
-        alert("글이 성공적으로 등록되었습니다!");
+        toast.success("글이 성공적으로 등록되었습니다!");
         router.push("/community");
       } else {
         let insertImage = null;
@@ -238,12 +239,12 @@ export default function WriteDetail() {
 
         if (tagError) throw tagError;
 
-        alert("글이 성공적으로 수정되었습니다!");
+        toast.success("글이 성공적으로 수정되었습니다!");
         router.push(`/community/${pageId}`);
       }
     } catch (e) {
       console.error(e);
-      alert("글 작성 중 오류가 발생했습니다.");
+      toast.error("글 작성 중 오류가 발생했습니다");
     }
   };
 
@@ -256,7 +257,7 @@ export default function WriteDetail() {
       } = await supabase.auth.getUser();
 
       if (!user || userError) {
-        alert("로그인 후 수정이 가능합니다.");
+        toast.error("로그인 후 수정이 가능합니다");
         router.replace("/auth/sign-in");
         return;
       }
@@ -279,7 +280,7 @@ export default function WriteDetail() {
         .single();
 
       if (!data || error) {
-        alert("내 게시글만 수정 가능합니다.");
+        toast.error("내 게시글만 수정 가능합니다");
         router.replace("/");
         return;
       }
@@ -313,7 +314,7 @@ export default function WriteDetail() {
     })();
   }, [pageId, router, supabase]);
   return (
-    <div className="ml-7 flex justify center items-center flex-col w-[752px] h-full rounded-2xl shadow-[0_4px_12px_rgba(0,0,0,0.06)] bg-white">
+    <div className="ml-10 flex justify center items-center flex-col w-[752px] h-full rounded-2xl shadow-[0_4px_12px_rgba(0,0,0,0.06)] bg-white">
       <p className="font-bold pt-7 text-[24px] text-[#1A2035]">오늘의 감정 기록</p>
 
       {/* 감정 선택 영역 */}
@@ -420,7 +421,7 @@ export default function WriteDetail() {
                   ${
                     selectedTags.includes(tag)
                       ? pick === "up"
-                        ? "bg-[#FF6467] text-white border-[#FF6467]"
+                        ? "bg-[#FF6467] text-white border-[#ff6467]"
                         : pick === "down"
                           ? "bg-[#51A2FF] text-white border-[#51A2FF]"
                           : "bg-[#99A1AF] text-white border-[#99A1AF]"
@@ -436,7 +437,7 @@ export default function WriteDetail() {
       {/* 제목 */}
       <div className="relative">
         <input
-          className=" bg-[#F9FAFB] border rounded-xl border-[#E5E7EB] w-[688px] h-14 mt-7 resize-none outline-none focus:scale-102 transform transition-transform duration-200"
+          className="p-3 bg-[#F9FAFB] border rounded-xl border-[#E5E7EB] w-[688px] h-14 mt-7 resize-none outline-none focus:scale-102 transform transition-transform duration-200"
           placeholder="오늘의 메모를 남겨보세요..."
           value={title}
           onChange={handleChangeTitle}
@@ -454,7 +455,7 @@ export default function WriteDetail() {
       {/* 메모 */}
       <div className="relative">
         <textarea
-          className=" bg-[#F9FAFB] border rounded-xl border-[#E5E7EB] w-[688px] h-[340px] mt-12 resize-none outline-none focus:scale-102 transform transition-transform duration-200"
+          className="p-3 bg-[#F9FAFB] border rounded-xl border-[#E5E7EB] w-[688px] h-[340px] mt-12 resize-none outline-none focus:scale-102 transform transition-transform duration-200"
           placeholder="오늘의 메모를 남겨보세요..."
           value={content}
           onChange={handleChangeContent}
