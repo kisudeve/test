@@ -8,45 +8,49 @@ type Hashtag = Database["public"]["Tables"]["hashtags"]["Row"];
 
 // 대시보드 데이터 페칭 함수
 export async function fetchDashboardData(currentUsers?: number): Promise<DashboardData> {
-  await new Promise((resolve) => setTimeout(resolve, 1000)); // 스켈레톤 디자인 확인
-
   const now = new Date(); // 오늘 날짜 담는 변수
   const supabase = await createClient();
 
-  // 게시글 갯수
-  const { count: postsCount, error: postsError } = await supabase
-    .from("posts")
-    .select<"*", Post>("*", { count: "exact", head: true });
+  // 포스트, 댓글, 해시태그, 감정
+  const [
+    postsResult,
+    commentsResult,
+    hashtagsResult,
+    feelsResult,
+  ] = await Promise.all([
+    supabase
+      .from("posts")
+      .select<"*", Post>("*", { count: "exact", head: true }),
+    supabase
+      .from("comments")
+      .select<"*", Comment>("*", { count: "exact", head: true }),
+    supabase
+      .from("hashtags")
+      .select<"*", Hashtag>("*"),
+    supabase
+      .from("feels")
+      .select("post_id, type, created_at"),
+  ]);
+
+  const { count: postsCount, error: postsError } = postsResult;
+  const { count: commentsCount, error: commentsError } = commentsResult;
+  const { data: hashtagsData, error: hashtagsError } = hashtagsResult;
+  const { data: feelsData, error: feelsError } = feelsResult;
 
   if (postsError) {
-    console.error("Failed to fetch posts count:", postsError);
+    console.error("포스트 데이터 가져오기 실패:", postsError);
   }
-
-  // 댓글 갯수
-  const { count: commentsCount, error: commentsError } = await supabase
-    .from("comments")
-    .select<"*", Comment>("*", { count: "exact", head: true });
 
   if (commentsError) {
-    console.error("Failed to fetch comments count:", commentsError);
+    console.error("댓글 데이터 가져오기 실패:", commentsError);
   }
-
-  // 해시태그 데이터와 feels 데이터 가져오기
-  const { data: hashtagsData, error: hashtagsError } = await supabase
-    .from("hashtags")
-    .select<"*", Hashtag>("*");
 
   if (hashtagsError) {
-    console.error("Failed to fetch hashtags:", hashtagsError);
+    console.error("해시태그 데이터 가져오기 실패:", hashtagsError);
   }
 
-  // feels 테이블에서 post_id와 type 정보 가져오기
-  const { data: feelsData, error: feelsError } = await supabase
-    .from("feels")
-    .select("post_id, type, created_at");
-
   if (feelsError) {
-    console.error("Failed to fetch feels:", feelsError);
+    console.error("감정 데이터 가져오기 실패:", feelsError);
   }
 
 
@@ -69,10 +73,12 @@ export async function fetchDashboardData(currentUsers?: number): Promise<Dashboa
   });
 
   // 디버깅: feels 데이터 확인
-  console.log("feels 데이터 개수:", feelsData?.length || 0);
-  console.log("up 타입 feels 개수:", feelsData?.filter((f) => f.type === "up").length || 0);
-  console.log("hold 타입 feels 개수:", feelsData?.filter((f) => f.type === "hold").length || 0);
-  console.log("down 타입 feels 개수:", feelsData?.filter((f) => f.type === "down").length || 0);
+  if (process.env.NODE_ENV === 'development') {
+    console.log("feels 데이터 개수:", feelsData?.length || 0);
+    console.log("up 타입 feels 개수:", feelsData?.filter((f) => f.type === "up").length || 0);
+    console.log("hold 타입 feels 개수:", feelsData?.filter((f) => f.type === "hold").length || 0);
+    console.log("down 타입 feels 개수:", feelsData?.filter((f) => f.type === "down").length || 0);
+  }
 
   // 상승 태그 관련
   const risingHashtagCounts = new Map<string, number>();
@@ -91,7 +97,9 @@ export async function fetchDashboardData(currentUsers?: number): Promise<Dashboa
   const todayStart = new Date(now);
   todayStart.setHours(0, 0, 0, 0);
 
-  console.log("hashtags 데이터 개수:", hashtagsData?.length || 0);
+  if (process.env.NODE_ENV === 'development') {
+    console.log("hashtags 데이터 개수:", hashtagsData?.length || 0);
+  }
 
   hashtagsData?.forEach((hashtag) => {
     const hashtagDate = new Date(hashtag.created_at);
@@ -131,19 +139,21 @@ export async function fetchDashboardData(currentUsers?: number): Promise<Dashboa
     });
   });
 
-  // 디버깅 (추후 삭제 예정)
-  // console.log("오늘 상승 해시태그 개수:", risingHashtagCounts.size);
-  // console.log("어제 상승 해시태그 개수:", previousRisingHashtagCounts.size);
-  console.log("오늘 상승 해시태그:", Array.from(risingHashtagCounts.entries()));
-  console.log("어제 상승 해시태그:", Array.from(previousRisingHashtagCounts.entries()));
+  if (process.env.NODE_ENV === 'development') {
+    // 디버깅 (추후 삭제 예정)
+    // console.log("오늘 상승 해시태그 개수:", risingHashtagCounts.size);
+    // console.log("어제 상승 해시태그 개수:", previousRisingHashtagCounts.size);
+    console.log("오늘 상승 해시태그:", Array.from(risingHashtagCounts.entries()));
+    console.log("어제 상승 해시태그:", Array.from(previousRisingHashtagCounts.entries()));
 
-  // 디버깅 (추후 삭제 예정)
-  // console.log("하락 해시태그 처리됨:", downHashtagsProcessed);
-  // console.log("하락 해시태그 스킵됨 (날짜 범위 밖):", downHashtagsSkipped);
-  // console.log("오늘 하락 해시태그 개수:", fallingHashtagCounts.size);
-  // console.log("어제 하락 해시태그 개수:", previousFallingHashtagCounts.size);
-  console.log("오늘 하락 해시태그:", Array.from(fallingHashtagCounts.entries()));
-  console.log("어제 하락 해시태그:", Array.from(previousFallingHashtagCounts.entries()));
+    // 디버깅 (추후 삭제 예정)
+    // console.log("하락 해시태그 처리됨:", downHashtagsProcessed);
+    // console.log("하락 해시태그 스킵됨 (날짜 범위 밖):", downHashtagsSkipped);
+    // console.log("오늘 하락 해시태그 개수:", fallingHashtagCounts.size);
+    // console.log("어제 하락 해시태그 개수:", previousFallingHashtagCounts.size);
+    console.log("오늘 하락 해시태그:", Array.from(fallingHashtagCounts.entries()));
+    console.log("어제 하락 해시태그:", Array.from(previousFallingHashtagCounts.entries()));
+  }
 
   // 오늘과 어제의 모든 태그를 포함 (오늘만 있는 태그도 포함)
   const allRisingTags = new Set([
