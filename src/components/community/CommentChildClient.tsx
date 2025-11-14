@@ -29,7 +29,6 @@ export default function CommentChildClient({
 }) {
   const supabase = createClient();
 
-  console.log(initialLikeC);
   const [liked, setLiked] = useState<boolean>(
     initialLikeC.some((like) => like.user_id === profile?.id) ?? false,
   );
@@ -135,7 +134,7 @@ export default function CommentChildClient({
                 size={18}
                 className={twMerge(
                   "transition-transform active:scale-125 stroke-slate-300 fill-slate-300",
-                  initialLikeC && "stroke-red-500 fill-red-500",
+                  liked && "stroke-red-500 fill-red-500",
                 )}
               />
               {likeCount}
