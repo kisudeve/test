@@ -4,18 +4,26 @@ import top from "@/assets/notfound/404.svg";
 import middle from "@/assets/notfound/404check.svg";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+
 export default function Notfound() {
   const router = useRouter();
+
   return (
     <>
-      <div className="flex justify-center items-center flex-col h-screen h-full w-full">
-        <Image src={top} alt="404에러" />
+      <div className="flex justify-center items-center flex-col h-screen w-full bg-[#f9fafb]">
+        <Image src={top} alt="404에러" className="w-[500px] h-[250px]" priority unoptimized />
         <h1 className="font-bold mt-7 text-[32px] text-[#101828]">길 잃은 개미!</h1>
-        <div className="mt-7 text-[18px] text-[#4A5565] flex flex-col justify-center items-center">
+        <div className="mt-7 text-[18px] text-[#4A5565] flex flex-col justify-center items-center select-none">
           <p>요청하신 페이지가 존재하지 않거나 이동되었습니다.</p>
           <p>주소를 다시 확인하시거나 홈으로 돌아가세요</p>
         </div>
-        <Image src={middle} alt="404확인" className="mt-5" />
+        <Image
+          src={middle}
+          alt="404확인"
+          className="w-[640px] h-[300px] mt-5"
+          priority
+          unoptimized
+        />
         <div className="flex flex-row w-[600px] justify-between mt-5">
           <button
             onClick={() => router.push("/")}
