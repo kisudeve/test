@@ -1,20 +1,30 @@
+"use client";
+
 import { CommunityComment } from "@/types/community";
 import { User } from "@/types/database";
 import CommentListItemClient from "@/components/community/CommentListItemClient";
+import { useState } from "react";
 
 export default function CommentListClient({
   comments,
-  profile,
+  allComments,
+  commentChildsMap,
+  profile, // 현재 로그인한 사용자 프로필
   editingCommentId,
   onEdit,
 }: {
   comments: CommunityComment[] | null;
+  allComments: CommunityComment[] | null;
+  commentChildsMap: Map<string, CommunityComment[]>;
   profile: User | null;
   editingCommentId: string | null;
   onEdit: (commentId: string) => void;
 }) {
+  const [replyingCommentId, setReplyingCommentId] = useState<string | null>(null);
+  const [editingReplyCommentId, setEditingReplyCommentId] = useState<string | null>(null);
+
   if (!comments) {
-    return <p>등록된 댓글이 없습니다.</p>;
+    return <p className="mt-14 mb-7 text-center text-slate-500">등록된 댓글이 없습니다.</p>;
   }
 
   const visibleComments = comments?.filter((comment) => comment.id !== editingCommentId);
@@ -27,8 +37,6 @@ export default function CommentListClient({
     );
   }
 
-  console.log(visibleComments);
-
   return (
     <>
       <div className="flex flex-col gap-6 mt-6">
@@ -36,8 +44,17 @@ export default function CommentListClient({
           <CommentListItemClient
             key={comment.id}
             comment={comment}
-            profileId={profile?.id}
+            childComments={commentChildsMap.get(comment.id) || []}
+            profile={profile}
             onEdit={onEdit}
+            isReplying={replyingCommentId === comment.id}
+            setIsReplying={() =>
+              setReplyingCommentId(replyingCommentId === comment.id ? null : comment.id)
+            }
+            editingReplyCommentId={editingReplyCommentId}
+            editingReplyComment={allComments?.find((c) => c.id === editingReplyCommentId)?.content}
+            cancelEditing={() => setEditingReplyCommentId(null)}
+            onEditReply={(replyId) => setEditingReplyCommentId(replyId)}
           />
         ))}
       </div>
