@@ -118,26 +118,31 @@ export async function getTodayScore() {
     const oneDayAgo = new Date(todayStart);
     oneDayAgo.setDate(oneDayAgo.getDate() - 1);
 
-    // 오늘 감정 지수
-    const { data: todayFeels, error: todayError } = await supabase
-      .from("feels")
-      .select("amount, type")
-      .in("type", ["up", "down"])
-      .gte("created_at", todayStart.toISOString())
-      .lt("created_at", new Date(todayStart.getTime() + 24 * 60 * 60 * 1000).toISOString());
+    const tomorrowStart = new Date(todayStart.getTime() + 24 * 60 * 60 * 1000);
+
+    // 오늘, 어제 감정 지수
+    const [todayQuery, yesterdayQuery] = await Promise.all([
+      supabase
+        .from("feels")
+        .select("amount, type")
+        .in("type", ["up", "down"])
+        .gte("created_at", todayStart.toISOString())
+        .lt("created_at", tomorrowStart.toISOString()),
+      supabase
+        .from("feels")
+        .select("amount, type")
+        .in("type", ["up", "down"])
+        .gte("created_at", oneDayAgo.toISOString())
+        .lt("created_at", todayStart.toISOString()),
+    ]);
+
+    const { data: todayFeels, error: todayError } = todayQuery;
+    const { data: yesterdayFeels, error: yesterdayError } = yesterdayQuery;
 
     if (todayError) {
       console.error("오늘의 감정지수 데이터 가져오기 실패:", todayError);
       return { value: 0, finalResult: 0 };
     }
-
-    // 어제 감정 지수
-    const { data: yesterdayFeels, error: yesterdayError } = await supabase
-      .from("feels")
-      .select("amount, type")
-      .in("type", ["up", "down"])
-      .gte("created_at", oneDayAgo.toISOString())
-      .lt("created_at", todayStart.toISOString());
 
     if (yesterdayError) {
       console.error("어제의 감정지수 데이터 가져오기 실패:", yesterdayError);

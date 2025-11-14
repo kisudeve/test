@@ -73,7 +73,7 @@ export default function DashboardContentWrapper({ initialData }: DashboardConten
   }, [loadData]);
 
   return (
-    <div className="w-full h-full bg-gray-50 p-6 relative">
+    <div className="w-full h-full bg-[#f9fafb] p-6 relative">
       <div className="w-full space-y-6">
         {/* 상단 섹션 */}
         <div className="bg-white rounded-lg shadow-sm p-4 md:p-6">

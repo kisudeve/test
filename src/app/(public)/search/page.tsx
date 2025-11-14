@@ -46,8 +46,12 @@ export default function Page() {
         setPosts(p.map(mapRowToCommunityPost));
         setUsers(u.map(mapRowToSearchUser));
         setTags(t.map(mapRowToSearchTag));
-      } catch (e: any) {
-        setErr(e?.message ?? "알 수 없는 오류");
+      } catch (e) {
+        if (e instanceof Error) {
+          setErr(e.message ?? "알 수 없는 오류");
+        } else {
+          setErr("알 수 없는 오류");
+        }
       } finally {
         setLoading(false);
       }
