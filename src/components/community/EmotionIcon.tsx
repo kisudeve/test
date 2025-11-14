@@ -34,17 +34,16 @@ export function EmotionBadge({
 
   return (
     <>
-      <Link
+      <div
         className={twMerge(
           "flex items-center justify-center w-10 h-10 rounded-xl",
           bgColor,
           strokeColor,
           className,
         )}
-        href={"/"} // Todo: 감정별 검색링크
       >
         <EmotionIcon emotion={emotion} size={iconSize} />
-      </Link>
+      </div>
       {children}
     </>
   );

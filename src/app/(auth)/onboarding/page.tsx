@@ -1,59 +1,36 @@
-import { redirect } from 'next/navigation'
-import { createClient } from '@/utils/supabase/server'
-
-
+import SignUpClient from "@/components/auth/SignUpClient";
+import { createClient } from "@/utils/supabase/server";
+import Image from "next/image";
+import { redirect } from "next/navigation";
 
 export default async function OnboardingPage() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/auth/sign-in')
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  async function save(formData: FormData) {
-    'use server'
-    const supabase = await createClient()
-
-    const display_name = String(formData.get('display_name') ?? '').trim()
-    const bio = String(formData.get('bio') ?? '').trim()
-    if (!display_name || !bio) {
-      throw new Error('닉네임과 자기소개를 모두 입력해주세요.')
-    }
-
-
-    await supabase
-      .from('users')
-      .update({ display_name, bio })
-      .eq('id', user!.id)
-
-    redirect(`/profile/${user!.id}`)
+  if (!user) {
+    redirect("/auth/login");
   }
 
   return (
-    <form action={save} className="max-w-md mx-auto pt-16 space-y-4">
-      <h1 className="text-2xl font-bold">프로필 설정</h1>
-
-      <label className="block">
-        <span className="mb-1 block text-sm text-gray-600">닉네임</span>
-        <input
-          name="display_name"
-          maxLength={20}
-          required
-          className="w-full h-10 rounded border px-3"
-          placeholder="닉네임을 적어주세요"
+    <main className="min-h-screen flex items-center justify-center py-10 ">
+      <section className="w-150 flex flex-col gap-8">
+        
+        <SignUpClient
+          userId={user.id}
+          userName={user.user_metadata?.name}
+          userImage={user.user_metadata?.avatar_url}
         />
-      </label>
-
-      <label className="block">
-        <span className="mb-1 block text-sm text-gray-600">자기소개</span>
-        <textarea
-          name="bio"
-          rows={4}
-          required
-          className="w-full rounded border px-3 py-2"
-          placeholder="간단한 소개를 적어주세요"
-        />
-      </label>
-
-      <button className="h-10 rounded bg-black px-4 text-white">저장</button>
-    </form>
-  )
+        <div className="p-8 space-y-3 border border-slate-200 bg-linear-to-r from-blue-50 to-violet-100 rounded-2xl">
+          <h3 className="text-md font-semibold text-slate-900">💡 시작하기 전에 알아두세요</h3>
+          <ul className="space-y-1 text-sm text-slate-700">
+            <li>• 매일 감정을 기록하고 다른 개미들과 공유하세요</li>
+            <li>• UP, DOWN, HOLD로 오늘의 기분을 표현하세요</li>
+            <li>• 프로필은 언제든지 수정할 수 있습니다</li>
+          </ul>
+        </div>
+      </section>
+    </main>
+  );
 }

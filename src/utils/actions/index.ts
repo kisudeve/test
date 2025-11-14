@@ -54,3 +54,20 @@ export async function signOut() {
   await supabase.auth.signOut();
   revalidatePath("/");
 }
+
+export async function save(userId: string, displayName: string, bio: string) {
+  "use server";
+
+  const supabase = await createClient();
+
+  if (!displayName || !bio) {
+    throw new Error("닉네임과 자기소개를 모두 입력해주세요.");
+  }
+
+  await supabase
+    .from("users")
+    .update({ display_name: displayName.trim(), bio: bio.trim() })
+    .eq("id", userId);
+
+  redirect(`/profile/${userId}`);
+}

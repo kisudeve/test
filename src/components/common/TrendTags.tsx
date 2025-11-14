@@ -24,8 +24,8 @@ export default async function TrendTags() {
   if (tagsError) {
     return (
       <section className="flex flex-col gap-3 p-6 bg-white border border-slate-200 rounded-2xl shadow-[0_4px_12px_rgba(0,0,0,0.06)]">
-        <h2 className="text-lg font-bold text-slate-900">실시간 트랜드 태그</h2>
-        <p>트랜드 태그가 존재하지 않습니다.</p>
+        <h2 className="text-lg font-bold text-slate-900">실시간 트렌드 태그</h2>
+        <p>트렌드 태그가 존재하지 않습니다.</p>
       </section>
     );
   }
@@ -34,7 +34,7 @@ export default async function TrendTags() {
 
   return (
     <section className="flex flex-col gap-3 p-6 bg-white border border-slate-200 rounded-2xl shadow-[0_4px_12px_rgba(0,0,0,0.06)]">
-      <h2 className="text-lg font-bold text-slate-900">실시간 트랜드 태그</h2>
+      <h2 className="text-lg font-bold text-slate-900">실시간 트렌드 태그</h2>
       <div className="flex flex-wrap gap-2">
         {tagRanks.map(({ tag }) => (
           <Link

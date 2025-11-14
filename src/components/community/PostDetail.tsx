@@ -86,6 +86,7 @@ export default async function PostDetail({ postId }: { postId: string }) {
         {/* 좋아요, 댓글 버튼 */}
         <PostDetailActionsClient
           postId={post.id}
+          writerId={post.user_id}
           initialLike={post.likes}
           initialLikeCount={post.likes.length}
           commentsCount={Number(post.comments_count)}
