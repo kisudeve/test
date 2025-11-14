@@ -16,7 +16,7 @@ export function UserInitializer({ initialProfile }: UserInitializerProps) {
 
   useEffect(() => {
     fetchUser();
-  }, [fetchUser, , initialProfile]);
+  }, [fetchUser, initialProfile]);
 
   return null;
 }

@@ -163,7 +163,9 @@ export async function getTodayScore() {
       finalResult = todayResult > 0 ? 100 : -100;
     }
 
-    console.log("감정지수", todayResult, yesterdayResult, finalResult);
+    if (process.env.NODE_ENV === 'development') {
+      console.log("감정지수", todayResult, yesterdayResult, finalResult);
+    }
 
     return {
       value: todayResult,

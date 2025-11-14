@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useEffect, useRef } from "react";
+import { useMemo, useEffect } from "react";
 import { Lightbulb } from "lucide-react";
 import type { DashboardData } from "@/components/dashboard/type/dashboard";
 import DashboardCards from "@/components/dashboard/ui/DashboardCards";
@@ -102,7 +102,7 @@ export default function DashboardStats({ data }: DashboardStatsProps) {
 
   // 디버깅용 로그 (추후 삭제 예정)
   useEffect(() => {
-    if (latestDataKey && latestDataKey) {
+    if (latestDataKey) {
       if (latestData && process.env.NODE_ENV === "development") {
         const { up, down, hold, day } = latestData;
         const total = day;
