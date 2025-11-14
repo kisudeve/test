@@ -3,7 +3,6 @@ import Image from "next/image";
 import UP from "@/assets/write/up.svg";
 import DOWN from "@/assets/write/down.svg";
 import HOLD from "@/assets/write/hold.svg";
-import uploadPicture from "@/assets/write/uploadPicture.svg";
 import { up, down, hold } from "./hashtags";
 import { useEffect, useRef, useState } from "react";
 import * as Slider from "@radix-ui/react-slider";
@@ -11,6 +10,7 @@ import closeButton from "@/assets/write/closeButton.svg";
 import { createClient } from "@/utils/supabase/client";
 import { useRouter, useSearchParams } from "next/navigation";
 import { badWords } from "./badWords";
+import { ImagePlus } from "lucide-react";
 
 // 감정 버튼 설정
 const emotions = [
@@ -313,14 +313,14 @@ export default function WriteDetail() {
     })();
   }, [pageId, router, supabase]);
   return (
-    <div className="ml-7 flex justify center items-center flex-col w-[752px] h-full rounded-2xl shadow-[0_4px_12px_rgba(0,0,0,0.06)] bg-white">
-      <p className="font-bold pt-7 text-[24px] text-[#1A2035]">오늘의 감정 기록</p>
+    <div className="flex justify-center items-center flex-col w-full h-full rounded-2xl shadow-[0_4px_12px_rgba(0,0,0,0.06)] bg-white p-8 overflow-y-auto">
+      <p className="font-bold pt-4 text-2xl text-[#1A2035]">오늘의 감정 기록</p>
 
       {/* 감정 선택 영역 */}
-      <div className="flex justify-start items-center flex-col text-base">
-        <p className="text-[#4B5563] mr-auto ml-1 pb-4 mt-7">오늘의 감정은 어떠신가요?</p>
+      <div className="flex justify-start items-center flex-col text-base w-full">
+        <p className="text-[#4B5563] mr-auto ml-1 pb-4 mt-4">오늘의 감정은 어떠신가요?</p>
 
-        <div className="flex justify-between items-center w-[700px] text-base">
+        <div className="flex flex-col sm:flex-row justify-between items-center gap-3 w-full text-base">
           {emotions.map((e) => (
             <button
               key={e.key}
@@ -328,7 +328,7 @@ export default function WriteDetail() {
                 setPick(e.key);
                 setSelectedTags([]);
               }}
-              className={`flex justify-center items-center flex-col w-[216px] h-[91px] rounded-xl cursor-pointer transition-transform duration-200 transform hover:scale-102 
+              className={`flex justify-center items-center flex-col flex-1 w-full sm:w-auto min-h-20 rounded-xl cursor-pointer transition-transform duration-200 transform hover:scale-102 py-4
                   ${
                     pick === e.key
                       ? `border-2 border-[${e.color}] bg-[${e.bg}]`
@@ -343,18 +343,18 @@ export default function WriteDetail() {
       </div>
 
       <div
-        className={`transition-all duration-200 ${
-          pick ? "translate-y-11 opacity-100" : "translate-y-0 opacity-0"
+        className={`transition-all duration-200 w-full ${
+          pick ? "translate-y-6 opacity-100" : "translate-y-0 opacity-0"
         }`}
       >
         {pick ? (
-          <div className="relative w-[688px] flex justify-center mb-3">
+          <div className="relative w-full flex justify-center mb-3 px-2">
             {/* 숫자 말풍선 */}
             <div
-              className={` absolute -top-9 flex justify-center items-center w-7 h-7 ${pick === "up" ? "bg-[#FF6467]" : pick === "down" ? "bg-[#51A2FF]" : pick === "hold" ? "bg-[#99A1AF]" : ""} text-white text-sm rounded-full shadow-md transition-all duration-100`}
+              className={`absolute -top-9 flex justify-center items-center w-7 h-7 ${pick === "up" ? "bg-[#FF6467]" : pick === "down" ? "bg-[#51A2FF]" : pick === "hold" ? "bg-[#99A1AF]" : ""} text-white text-sm rounded-full shadow-md transition-all duration-100`}
               style={{
                 left: `${(sliderValue[0] / (totalSteps - 1)) * 100}%`,
-                transform: "translateX(-50%)", // ✅ 손잡이 중앙 정렬
+                transform: "translateX(-50%)",
               }}
             >
               {sliderValue[0] + 1}
@@ -401,7 +401,7 @@ export default function WriteDetail() {
                 className={`relative z-10 block w-5 h-5 border-[3px] ${pick === "up" ? "border-[#FF6467]" : pick === "down" ? "border-[#51A2FF]" : pick === "hold" ? "border-[#99A1AF]" : ""} cursor-pointer bg-white rounded-full shadow-md hover:scale-110 transition-transform outline-none`}
                 style={{
                   left: `${(sliderValue[0] / (totalSteps - 1)) * 100}%`,
-                  transform: "translateX(-50%)", // ✅ 손잡이 중앙 정렬
+                  transform: "translateX(-50%)",
                 }}
                 aria-label="Emotion level"
               />
@@ -411,12 +411,12 @@ export default function WriteDetail() {
           ""
         )}
         {/* 해시태그 영역 */}
-        <div className=" w-[688px] flex flex-row justify-between text-[#4A5565] mb-10">
+        <div className="w-full flex flex-row flex-wrap justify-between gap-2 text-[#4A5565] mb-6 px-2">
           {hashtags.map((tag) => (
             <button
               key={tag}
               onClick={() => toggleTag(tag)}
-              className={`cursor-pointer w-[53px] h-7 text-[12px] border rounded-[9999px] transition-colors duration-150 
+              className={`cursor-pointer px-3 py-1 text-xs border rounded-full transition-colors duration-150 
                   ${
                     selectedTags.includes(tag)
                       ? pick === "up"
@@ -434,36 +434,36 @@ export default function WriteDetail() {
       </div>
 
       {/* 제목 */}
-      <div className="relative">
+      <div className="relative w-full">
         <input
-          className=" bg-[#F9FAFB] border rounded-xl border-[#E5E7EB] w-[688px] h-14 mt-7 resize-none outline-none focus:scale-102 transform transition-transform duration-200"
+          className="bg-[#F9FAFB] border rounded-xl border-[#E5E7EB] w-full h-12 mt-4 resize-none outline-none focus:scale-102 transform transition-transform duration-200 px-4"
           placeholder="오늘의 메모를 남겨보세요..."
           value={title}
           onChange={handleChangeTitle}
         />
-        <span className="absolute bottom-2 right-4 font-normal text-[#AAAAAA] text-[14px]">
+        <span className="absolute bottom-2 right-4 font-normal text-[#AAAAAA] text-sm">
           {title.length} / 40
         </span>
         {hasBadTitle ? (
-          <p className="mt-0.5 ml-2 absolute text-[#c85c5c]">적절하지 못한 제목입니다</p>
+          <p className="mt-0.5 ml-2 absolute text-[#c85c5c] text-sm">적절하지 못한 제목입니다</p>
         ) : (
           ""
         )}
       </div>
 
       {/* 메모 */}
-      <div className="relative">
+      <div className="relative w-full flex-1 min-h-0">
         <textarea
-          className=" bg-[#F9FAFB] border rounded-xl border-[#E5E7EB] w-[688px] h-[340px] mt-12 resize-none outline-none focus:scale-102 transform transition-transform duration-200"
+          className="bg-[#F9FAFB] border rounded-xl border-[#E5E7EB] w-full h-full min-h-60 mt-4 resize-none outline-none focus:scale-102 transform transition-transform duration-200 px-4 py-3"
           placeholder="오늘의 메모를 남겨보세요..."
           value={content}
           onChange={handleChangeContent}
         />
-        <span className="absolute bottom-2 right-4 font-normal text-[#AAAAAA] text-[14px]">
+        <span className="absolute bottom-0 right-4 font-normal text-[#AAAAAA] text-sm">
           {content.length} / 500
         </span>
         {hasBadContent ? (
-          <p className="absolute ml-2 text-[#c85c5c]">적절하지 못한 내용입니다</p>
+          <p className="absolute ml-2 text-[#c85c5c] text-sm">적절하지 못한 내용입니다</p>
         ) : (
           ""
         )}
@@ -479,43 +479,50 @@ export default function WriteDetail() {
           imageUploadHandler(e);
         }}
       />
-      <div className="relative group/image mt-10 w-[700px] h-[115px] rounded-2xl flex justify-center items-center">
-        <Image
-          src={imageUploadPreview || uploadPicture}
-          alt="업로드 이미지"
-          width={688}
-          height={108}
-          className={`w-[688px] h-[108px] object-cover rounded-2xl hover:scale-102 transition-all duration-200
-      ${imageUploadPreview ? "hover:brightness-60 cursor-default" : "cursor-pointer"}
-    `}
-          onClick={() => {
-            if (!imageUploadPreview) imageUploadInput.current?.click();
-          }}
-        />
-        {/* hover 시 나타나는 X버튼 */}
-        {imageUploadPreview && (
-          <div
-            className={`
-        opacity-0 group-hover/image:opacity-100 transition-opacity duration-200
-        absolute inset-0 flex justify-center items-center pointer-events-none
-      `}
-          >
-            <button
-              type="button"
-              className="pointer-events-auto cursor-pointer close-btn hover:scale-110"
-              onClick={(e) => {
-                e.stopPropagation();
-                setImageUploadPreview(null);
-                setImageUpload(null);
-              }}
-            >
-              <Image src={closeButton} alt="이미지 삭제" width={36} height={36} draggable={false} />
-            </button>
+      <div
+        className="relative group/image mt-10 w-full min-h-[250px] max-h-[250px] rounded-2xl flex justify-center items-center border-2 border-dashed border-gray-300 bg-gray-50 cursor-pointer hover:bg-gray-100 transition-colors overflow-hidden"
+        onClick={() => {
+          if (!imageUploadPreview) imageUploadInput.current?.click();
+        }}
+      >
+        {imageUploadPreview ? (
+          <>
+            <Image
+              src={imageUploadPreview}
+              alt="업로드 이미지"
+              fill
+              className="object-contain select-none"
+            />
+            {/* hover 시 나타나는 X버튼 */}
+            <div className="opacity-0 group-hover/image:opacity-100 transition-opacity duration-200 absolute inset-0 flex justify-center items-center pointer-events-none bg-black/20 rounded-2xl">
+              <button
+                type="button"
+                className="pointer-events-auto cursor-pointer close-btn hover:scale-110"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setImageUploadPreview(null);
+                  setImageUpload(null);
+                }}
+              >
+                <Image
+                  src={closeButton}
+                  alt="이미지 삭제"
+                  width={36}
+                  height={36}
+                  draggable={false}
+                />
+              </button>
+            </div>
+          </>
+        ) : (
+          <div className="flex flex-col items-center justify-center gap-2">
+            <ImagePlus className="w-12 h-12 text-gray-400" />
+            <p className="text-gray-500 text-xl">업로드할 이미지를 선택하세요</p>
           </div>
         )}
       </div>
       <button
-        className="mt-7 flex justify-center items-center text-[#ffffff] w-[688px] h-[42px] shadow-[0_2px_4px_rgba(0,0,0,0.1),0_4px_6px_rgba(0,0,0,0.1)] rounded-xl bg-linear-to-r from-[#A8E0FF] to-[#C5C8FF] cursor-pointer hover:scale-101 transform transition-transform duration-150 active:scale-[.99]"
+        className="mt-4 mb-4 flex justify-center items-center text-[#ffffff] w-full h-14 shadow-[0_2px_4px_rgba(0,0,0,0.1),0_4px_6px_rgba(0,0,0,0.1)] rounded-xl bg-linear-to-r from-[#A8E0FF] to-[#C5C8FF] cursor-pointer hover:scale-101 transform transition-transform duration-150 active:scale-[.99] px-2"
         onClick={handlePublish}
       >
         기록 완료
