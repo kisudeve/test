@@ -283,9 +283,6 @@ export async function fetchDashboardData(currentUsers?: number): Promise<Dashboa
   const thirtyDays = new Date(todayStart);
   thirtyDays.setDate(thirtyDays.getDate() - 29);
 
-  // console.log(datesWithData.map((date) => date.toISOString().split("T")[0]));
-  // console.log(thirtyDays.toISOString().split("T")[0]);
-
   let startDate: Date;
   if (datesWithData.length > 0) {
     const oldestDataDate = datesWithData[0];
@@ -313,8 +310,6 @@ export async function fetchDashboardData(currentUsers?: number): Promise<Dashboa
 
     currentDate.setDate(currentDate.getDate() + 1);
   }
-
-  console.log("chartData:", chartData);
 
   return {
     chartData,
