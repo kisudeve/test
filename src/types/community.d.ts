@@ -9,6 +9,7 @@ export type CommunityPost = Post & {
 
 export type CommunityComment = Comment & {
   users: Pick<User, "display_name" | "image_url">;
+  likes: Array<Pick<Like, "post_id" | "user_id" | "comment_id">>;
 };
 
 export type FeelType = "up" | "down" | "hold";

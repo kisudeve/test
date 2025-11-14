@@ -13,7 +13,7 @@ export default async function PostComment({ postId }: { postId: string }) {
   ] = await Promise.all([
     supabase
       .from("comments")
-      .select("*, users(display_name, image_url)")
+      .select("*, users(display_name, image_url), likes(post_id, user_id, comment_id)")
       .eq("post_id", postId)
       .order("created_at", { ascending: false }),
     supabase.auth.getUser(),

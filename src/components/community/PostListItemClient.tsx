@@ -12,6 +12,7 @@ import Button from "@/components/common/Button";
 import ProfileImage from "@/components/common/ProfileImage";
 import FeelBadge from "@/components/common/FeelBadge";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 export default function PostListItemClient({
   post,
@@ -39,7 +40,7 @@ export default function PostListItemClient({
     e.preventDefault();
 
     if (!userId) {
-      alert("로그인 후 사용하세요.");
+      toast.warning("로그인 후에 좋아요를 남기실 수 있습니다.");
       return;
     }
 
