@@ -1,6 +1,7 @@
 import Header from "@/components/common/Header";
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
+import { getUserProfile, getTodayScore } from "@/utils/actions";
 
 export const metadata = {
   title: "Next.js",
@@ -8,6 +9,11 @@ export const metadata = {
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  // 프로필 데이터 가져오기
+  const userProfile = await getUserProfile();
+  // 오늘의 감정 지수 가져오기
+  const todayScore = await getTodayScore();
+
   const supabase = await createClient();
 
   const {
@@ -25,7 +31,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     <>
       <div className="flex min-h-screen">
         <div className="py-6 pl-4 w-[18%] min-w-[180px] shrink-0 sticky top-0 h-screen overflow-y-auto overflow-x-hidden">
-          <Header />
+          <Header initialProfile={userProfile} todayScore={todayScore} />
         </div>
         <main className="flex-1 min-w-0">{children}</main>
       </div>
