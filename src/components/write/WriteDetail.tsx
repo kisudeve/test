@@ -159,21 +159,16 @@ export default function WriteDetail() {
         const fileExt = imageUpload.name.split(".").pop();
         // 날짜 형식: YYYYMMDD-hhmmss-랜덤5자리
         const now = new Date();
-        const year = now.getFullYear();
-        const month = String(now.getMonth() + 1).padStart(2, "0");
-        const day = String(now.getDate()).padStart(2, "0");
-        const hours = String(now.getHours()).padStart(2, "0");
-        const minutes = String(now.getMinutes()).padStart(2, "0");
-        const seconds = String(now.getSeconds()).padStart(2, "0");
+        const timestamp = now.toISOString().replace(/[-:]/g, "").replace("T", "-").substring(0, 15); // YYYYMMDD-hhmmss
         const randomId = crypto.randomUUID().replace(/-/g, "").substring(0, 5);
-        const fileName = `${year}${month}${day}-${hours}${minutes}${seconds}-${randomId}.${fileExt}`;
+        const fileName = `${timestamp}-${randomId}.${fileExt}`;
         const filePath = `${postId}/${fileName}`;
 
         const { error: uploadError } = await supabase.storage
           .from("post_image")
           .upload(filePath, imageUpload, {
             upsert: false,
-            contentType: imageUpload.type || "image/jpeg",
+            contentType: imageUpload.type,
           });
 
         if (uploadError) {
@@ -190,6 +185,17 @@ export default function WriteDetail() {
             });
           }
           alert(`이미지 업로드 중 오류가 발생했습니다: ${uploadError.message}`);
+
+          // 이미지 첨부 발생 중 오류가 생겼을 시 생성되었던 post 삭제
+          const { error: deletePostError } = await supabase.from("posts").delete().eq("id", postId);
+
+          if (deletePostError && process.env.NODE_ENV === "development") {
+            console.error(
+              "Failed to delete orphaned post after image upload failure:",
+              deletePostError,
+            );
+          }
+
           return;
         }
 
@@ -241,7 +247,7 @@ export default function WriteDetail() {
         let insertImage: string | null;
 
         if (imageUpload) {
-          // 새 이미지 업로드 (이미지가 첨부가 없었다가 새로 생긴 경우)
+          // 새 이미지 업로드 or 기존 이미지 첨부가 없었다가 새로 생긴 경우
           insertImage = imageUrl;
         } else if (hadInitialImage && existingImage === null) {
           // 초기 이미지가 있었는데 삭제한 경우
