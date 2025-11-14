@@ -2,25 +2,18 @@ import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
 import ProfileHeader from "./parts/ProfileHeader";
 import ProfileChart from "./parts/ProfileChart";
-import ProfilePosts from "./parts/ProfilePosts"; 
+import ProfilePosts from "./parts/ProfilePosts";
 import type { ChartDataPoint } from "@/components/dashboard/type/dashboard";
 import type { Tables } from "@/utils/supabase/supabase";
-
 
 type PostRow = Tables<"posts">;
 type HashtagRow = Tables<"hashtags">;
 export type PostWithTags = PostRow & { hashtags?: Pick<HashtagRow, "content">[] };
 
-
-export default async function ProfilePage({
-  params,
-}: {
-  params: Promise<{ userId: string }>;
-}) {
+export default async function ProfilePage({ params }: { params: Promise<{ userId: string }> }) {
   const { userId: profileUserId } = await params;
   const supabase = await createClient();
 
-  
   const {
     data: { user: me },
   } = await supabase.auth.getUser();
@@ -37,7 +30,6 @@ export default async function ProfilePage({
     notFound();
   }
 
-  
   const [
     { count: followerCount },
     { count: followingCount },
@@ -45,10 +37,8 @@ export default async function ProfilePage({
     { data: followRel },
     { data: feels },
 
-    
     { data: writtenPostsRaw, error: writtenErr },
 
-    
     { data: viewedRowsRaw, error: viewedErr },
   ] = await Promise.all([
     supabase
@@ -75,27 +65,29 @@ export default async function ProfilePage({
       .eq("user_id", profileUserId)
       .order("created_at", { ascending: true }),
 
-   
     supabase
       .from("posts")
-      .select(`
+      .select(
+        `
         id, user_id, title, image_url, content, created_at, likes_count, comments_count,
         hashtags(content)
-      `)
+      `,
+      )
       .eq("user_id", profileUserId)
       .order("created_at", { ascending: false })
       .limit(20),
 
-    
     supabase
       .from("feels")
-      .select(`
+      .select(
+        `
         created_at,
         posts:posts (
           id, user_id, title, image_url, content, created_at, likes_count, comments_count,
           hashtags(content)
         )
-      `)
+      `,
+      )
       .eq("user_id", profileUserId)
       .order("created_at", { ascending: false })
       .limit(20),
@@ -107,10 +99,8 @@ export default async function ProfilePage({
   const isMe = me.id === profileUserId;
   const isFollowing = !!followRel;
 
- 
   const chartRaw: ChartDataPoint[] = aggregateFeelsToChartData(feels ?? []);
 
- 
   const preview: ChartDataPoint[] = Array.from({ length: 7 }).map((_, i) => {
     const d = new Date();
     d.setDate(d.getDate() - (6 - i));
@@ -125,7 +115,6 @@ export default async function ProfilePage({
   });
   const chartData = chartRaw.length ? chartRaw : preview;
 
- 
   const viewedPosts: PostWithTags[] =
     (viewedRowsRaw ?? [])
       .map((r: { posts: PostWithTags | null }) => r.posts)
@@ -134,7 +123,6 @@ export default async function ProfilePage({
   const writtenPosts: PostWithTags[] = (writtenPostsRaw ?? []) as PostWithTags[];
 
   return (
-   
     <div className="w-full px-6 py-6 space-y-6">
       <section className="rounded-2xl bg-white p-6 shadow-sm">
         <ProfileHeader
@@ -157,7 +145,6 @@ export default async function ProfilePage({
         <ProfileChart chartData={chartData} />
       </section>
 
-      
       <ProfilePosts written={writtenPosts} viewed={viewedPosts} />
     </div>
   );
