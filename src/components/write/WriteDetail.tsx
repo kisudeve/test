@@ -37,6 +37,7 @@ export default function WriteDetail() {
   const [pick, setPick] = useState<"up" | "down" | "hold" | "">("");
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [sliderValue, setSliderValue] = useState([4]); // 현재 단계 (0~9)
+  const [hadInitialImage, setHadInitialImage] = useState(false); // 초기 로드 시 이미지가 있었는지 추적
   const totalSteps = 10;
 
   // 의미 있는 특수문자들
@@ -128,17 +129,73 @@ export default function WriteDetail() {
         return;
       }
 
+      // postId 먼저 확인 또는 생성
+      let postId: string;
+      if (!pageId) {
+        // 새 포스트: postId 먼저 생성
+        const { data: postData, error: postError } = await supabase
+          .from("posts")
+          .insert([
+            {
+              user_id: user.id,
+              title,
+              content,
+              image_url: null, // 이미지는 나중에 업데이트
+            },
+          ])
+          .select("id")
+          .single();
+
+        if (postError) throw postError;
+        postId = postData.id;
+      } else {
+        // 수정: 기존 postId 사용
+        postId = pageId;
+      }
+
+      // 이미지 업로드
       let imageUrl = null;
       if (imageUpload) {
-        const filePath = `user-${user.id}/${Date.now()}-${imageUpload.name}`;
+        const fileExt = imageUpload.name.split(".").pop();
+        // 날짜 형식: YYYYMMDD-hhmmss-랜덤5자리
+        const now = new Date();
+        const timestamp = now.toISOString().replace(/[-:]/g, "").replace("T", "-").substring(0, 15); // YYYYMMDD-hhmmss
+        const randomId = crypto.randomUUID().replace(/-/g, "").substring(0, 5);
+        const fileName = `${timestamp}-${randomId}.${fileExt}`;
+        const filePath = `${postId}/${fileName}`;
 
         const { error: uploadError } = await supabase.storage
           .from("post_image")
-          .upload(filePath, imageUpload);
+          .upload(filePath, imageUpload, {
+            upsert: false,
+            contentType: imageUpload.type,
+          });
 
         if (uploadError) {
-          console.error("Image upload failed:", uploadError.message);
-          alert("이미지 업로드 중 오류가 발생했습니다.");
+          if (process.env.NODE_ENV === "development") {
+            // 개발환경 디버깅용
+            console.error("Image upload failed:", uploadError);
+            console.error("Error details:", {
+              message: uploadError.message,
+              name: uploadError.name,
+              filePath,
+              fileName: imageUpload.name,
+              fileSize: imageUpload.size,
+              fileType: imageUpload.type,
+            });
+          }
+          alert(`이미지 업로드 중 오류가 발생했습니다: ${uploadError.message}`);
+
+          // 이미지 첨부 발생 중 오류가 생겼을 시 생성되었던 post 삭제
+          const { error: deletePostError } = await supabase.from("posts").delete().eq("id", postId);
+
+          if (deletePostError && process.env.NODE_ENV === "development") {
+            console.error(
+              "Failed to delete orphaned post after image upload failure:",
+              deletePostError,
+            );
+          }
+
           return;
         }
 
@@ -148,23 +205,17 @@ export default function WriteDetail() {
 
         imageUrl = publicUrl;
       }
+
       if (!pageId) {
-        const { data: postData, error: postError } = await supabase
-          .from("posts")
-          .insert([
-            {
-              user_id: user.id,
-              title,
-              content,
-              image_url: imageUrl,
-            },
-          ])
-          .select("id")
-          .single();
+        // 이미지 URL 업데이트
+        if (imageUrl) {
+          const { error: updateError } = await supabase
+            .from("posts")
+            .update({ image_url: imageUrl })
+            .eq("id", postId);
 
-        if (postError) throw postError;
-
-        const postId = postData.id;
+          if (updateError) throw updateError;
+        }
 
         let insertAmount = 0;
         if (pick === "down") insertAmount = (sliderValue[0] + 1) * -1;
@@ -192,10 +243,20 @@ export default function WriteDetail() {
         alert("글이 성공적으로 등록되었습니다!");
         router.push("/community");
       } else {
-        let insertImage = null;
-        if (!imageUpload) insertImage = existingImage;
-        else insertImage = imageUrl;
-        const { data: postData, error: postError } = await supabase
+        // 수정
+        let insertImage: string | null;
+
+        if (imageUpload) {
+          // 새 이미지 업로드 or 기존 이미지 첨부가 없었다가 새로 생긴 경우
+          insertImage = imageUrl;
+        } else if (hadInitialImage && existingImage === null) {
+          // 초기 이미지가 있었는데 삭제한 경우
+          insertImage = null;
+        } else {
+          // 기존 이미지 그대로 유지하는 경우
+          insertImage = existingImage;
+        }
+        const { error: postError } = await supabase
           .from("posts")
           .update({
             user_id: user.id,
@@ -204,13 +265,9 @@ export default function WriteDetail() {
             image_url: insertImage,
           })
           .eq("id", pageId)
-          .eq("user_id", user.id)
-          .select("id")
-          .single();
+          .eq("user_id", user.id);
 
         if (postError) throw postError;
-
-        const postId = postData.id;
 
         let insertAmount = 0;
         if (pick === "down") insertAmount = (sliderValue[0] + 1) * -1;
@@ -289,6 +346,7 @@ export default function WriteDetail() {
 
       setImageUploadPreview(data.image_url);
       setExistingImage(data.image_url);
+      setHadInitialImage(data.image_url !== null); // 초기 이미지 존재 여부 저장
       setTitle(data.title ?? "");
       setContent(data.content ?? "");
       setPick(feels.type);
@@ -312,6 +370,7 @@ export default function WriteDetail() {
       }
     })();
   }, [pageId, router, supabase]);
+
   return (
     <div className="flex justify-center items-center flex-col w-full h-full rounded-2xl shadow-[0_4px_12px_rgba(0,0,0,0.06)] bg-white p-8 overflow-y-auto">
       <p className="font-bold pt-4 text-2xl text-[#1A2035]">오늘의 감정 기록</p>
@@ -502,6 +561,10 @@ export default function WriteDetail() {
                   e.stopPropagation();
                   setImageUploadPreview(null);
                   setImageUpload(null);
+                  // 수정 모드에서 기존 이미지 삭제 시 existingImage도 null로 설정
+                  if (pageId) {
+                    setExistingImage(null);
+                  }
                 }}
               >
                 <Image
