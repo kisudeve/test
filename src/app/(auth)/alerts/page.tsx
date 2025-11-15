@@ -28,12 +28,12 @@ export default async function AlertsPage() {
     image_url
   ),
   post:post_id (
-      id,
-      comments (
-        id,
-        content
-      )
-    )
+  id
+),
+comment:comment_id (
+  id,
+  content
+)
 `,
     )
     .eq("receiver_id", user.id)

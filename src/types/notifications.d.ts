@@ -6,6 +6,7 @@ interface Notification {
   created_at: string;
   sender: Sender;
   post: Post | null;
+  comment: Comment | null;
 }
 
 interface Sender {
@@ -16,10 +17,9 @@ interface Sender {
 
 interface Post {
   id: string;
-  comments: Comments[] | null;
 }
 
-interface Comments {
+interface Comment {
   id: string;
   content: string;
 }

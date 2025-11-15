@@ -57,11 +57,11 @@ export default function AlertsPageClient({
               image_url
               ),
               post:post_id (
-                id,
-                comments (
-                  id,
-                  content
-                )
+              id
+              ),
+              comment:comment_id (
+              id,
+              content
               )
             `,
               )
@@ -109,7 +109,7 @@ export default function AlertsPageClient({
       case "like":
         return `${name}님이 회원님의 게시글을 좋아합니다`;
       case "comment":
-        return `${name}님이 회원님의 게시글에 댓글을 남겼습니다:"${n.post?.comments?.[0]?.content}"`;
+        return `${name}님이 회원님의 게시글에 댓글을 남겼습니다:"${n.comment?.content}"`;
       case "follow":
         return `${name}님이 회원님을 팔로우하기 시작했습니다`;
     }
