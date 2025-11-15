@@ -4,13 +4,22 @@ interface Notification {
   post_id: string | null;
   is_read: boolean;
   created_at: string;
-
-  // sender_id로 JOIN된 sender는 하나의 객체임
   sender: Sender;
+  post: Post | null;
 }
 
 interface Sender {
   id: string;
   display_name: string;
   image_url: string | null;
+}
+
+interface Post {
+  id: string;
+  comments: Comments[] | null;
+}
+
+interface Comments {
+  id: string;
+  content: string;
 }

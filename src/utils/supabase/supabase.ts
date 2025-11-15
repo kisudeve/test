@@ -56,26 +56,26 @@ export type Database = {
       };
       comments: {
         Row: {
-          parent_id: string | null;
           content: string;
           created_at: string;
           id: string;
+          parent_id: string | null;
           post_id: string;
           user_id: string;
         };
         Insert: {
-          parent_id?: string | null;
           content: string;
           created_at?: string;
           id?: string;
+          parent_id?: string | null;
           post_id?: string;
           user_id?: string;
         };
         Update: {
-          parent_id?: string | null;
           content?: string;
           created_at?: string;
           id?: string;
+          parent_id?: string | null;
           post_id?: string;
           user_id?: string;
         };
@@ -212,24 +212,34 @@ export type Database = {
       };
       likes: {
         Row: {
+          comment_id: string | null;
           created_at: string;
           id: string;
           post_id: string;
           user_id: string;
         };
         Insert: {
+          comment_id?: string | null;
           created_at?: string;
           id?: string;
-          post_id?: string;
-          user_id?: string;
+          post_id: string;
+          user_id: string;
         };
         Update: {
+          comment_id?: string | null;
           created_at?: string;
           id?: string;
           post_id?: string;
           user_id?: string;
         };
         Relationships: [
+          {
+            foreignKeyName: "likes_comment_id_fkey";
+            columns: ["comment_id"];
+            isOneToOne: false;
+            referencedRelation: "comments";
+            referencedColumns: ["id"];
+          },
           {
             foreignKeyName: "likes_post_id_fkey";
             columns: ["post_id"];
@@ -248,6 +258,7 @@ export type Database = {
       };
       notifications: {
         Row: {
+          comment_id: string | null;
           created_at: string;
           id: string;
           is_read: boolean;
@@ -257,6 +268,7 @@ export type Database = {
           type: string;
         };
         Insert: {
+          comment_id?: string | null;
           created_at?: string;
           id?: string;
           is_read: boolean;
@@ -266,6 +278,7 @@ export type Database = {
           type: string;
         };
         Update: {
+          comment_id?: string | null;
           created_at?: string;
           id?: string;
           is_read?: boolean;
@@ -275,6 +288,13 @@ export type Database = {
           type?: string;
         };
         Relationships: [
+          {
+            foreignKeyName: "notifications_comment_id_fkey";
+            columns: ["comment_id"];
+            isOneToOne: false;
+            referencedRelation: "comments";
+            referencedColumns: ["id"];
+          },
           {
             foreignKeyName: "notifications_post_id_fkey";
             columns: ["post_id"];
@@ -293,7 +313,7 @@ export type Database = {
             foreignKeyName: "notifications_sender_id_fkey";
             columns: ["sender_id"];
             isOneToOne: false;
-            referencedRelation: "posts";
+            referencedRelation: "users";
             referencedColumns: ["id"];
           },
         ];
@@ -332,6 +352,42 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "posts_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      recent_views: {
+        Row: {
+          created_at: string;
+          id: string;
+          post_id: string;
+          user_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          id?: string;
+          post_id?: string;
+          user_id?: string;
+        };
+        Update: {
+          created_at?: string;
+          id?: string;
+          post_id?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "recent_views_post_id_fkey";
+            columns: ["post_id"];
+            isOneToOne: false;
+            referencedRelation: "posts";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "recent_views_user_id_fkey";
             columns: ["user_id"];
             isOneToOne: false;
             referencedRelation: "users";

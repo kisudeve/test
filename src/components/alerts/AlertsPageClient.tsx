@@ -40,12 +40,39 @@ export default function AlertsPageClient({
             table: "notifications",
             filter: `receiver_id=eq.${user.id}`,
           },
-          (payload) => {
-            const newN = payload.new as Notification;
+          async (payload) => {
+            const inserted = payload.new as Notification;
+            const { data: rows } = await supabase
+              .from("notifications")
+              .select(
+                `
+              id,
+              type,
+              post_id,
+              is_read,
+              created_at,
+              sender: sender_id (
+              id,
+              display_name,
+              image_url
+              ),
+              post:post_id (
+                id,
+                comments (
+                  id,
+                  content
+                )
+              )
+            `,
+              )
+              .eq("id", inserted.id)
+              .single();
+            if (!rows) return;
+            const newN = rows as unknown as Notification;
             setNotifications((prev) => [newN, ...prev]);
           },
         )
-        .subscribe();
+        .subscribe((state) => console.log(state));
       return () => {
         supabase.removeChannel(channel);
       };
@@ -75,6 +102,17 @@ export default function AlertsPageClient({
     await fetch("/api/notifications/read-all", {
       method: "POST",
     });
+  };
+  const getMessage = (n: Notification) => {
+    const name = n.sender.display_name;
+    switch (n.type) {
+      case "like":
+        return `${name}님이 회원님의 게시글을 좋아합니다`;
+      case "comment":
+        return `${name}님이 회원님의 게시글에 댓글을 남겼습니다:"${n.post?.comments?.[0]?.content}"`;
+      case "follow":
+        return `${name}님이 회원님을 팔로우하기 시작했습니다`;
+    }
   };
 
   return (
@@ -107,7 +145,7 @@ export default function AlertsPageClient({
               key={n.id}
               onClick={() => handleClick(n)}
               className={`
-                flex justify-between items-center w-full px-6 py-4 text-left transition
+                flex justify-between items-center w-full px-6 py-4 text-left transition cursor-pointer hover:opacity-80 active:scale-[.99]
                 ${n.is_read ? "bg-white" : "bg-[#EFF6FF]"}
               `}
             >
@@ -129,7 +167,7 @@ export default function AlertsPageClient({
                 />
 
                 <div className="flex flex-col">
-                  {/* <p className="text-[15px] text-[#1A1A1A]">{getMessage(n)}</p> */}
+                  <p className="text-[15px] text-[#1A1A1A]">{getMessage(n)}</p>
                   <p className="text-[13px] text-[#6A7282]">{timeAgo(n.created_at)}</p>
                 </div>
               </div>
