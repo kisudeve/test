@@ -93,7 +93,7 @@ export default function AlertsPageClient({
     if (n.type === "follow") {
       router.push(`/profile/${n.sender.id}`);
     } else {
-      router.push(`community/${n.post_id}`);
+      router.push(`/community/${n.post_id}`);
     }
   };
 
@@ -116,7 +116,7 @@ export default function AlertsPageClient({
   };
 
   return (
-    <div className="flex flex-col ml-30 mt-10 w-[800px]">
+    <div className="mx-auto p-6 flex flex-col">
       <p className="font-bold text-[28px]">알림</p>
 
       {/* 상단 버튼 */}
