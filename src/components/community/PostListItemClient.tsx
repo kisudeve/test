@@ -103,7 +103,7 @@ export default function PostListItemClient({
                 {hashtags.map((tag) => (
                   <span
                     key={tag}
-                    className="px-2 py-1 rounded-2xl bg-slate-200 text-xs text-slate-600"
+                    className="px-2 py-1 rounded-2xl dark:bg-gray-700 dark:text-gray-300 bg-slate-200 text-xs text-slate-600"
                   >
                     #{tag}
                   </span>

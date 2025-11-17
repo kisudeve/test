@@ -72,7 +72,7 @@ export default function PostCard({
                 return splitTags.map((tag, j) => (
                   <span
                     key={typeof t === "string" ? `${t}-${i}-${j}` : `${t.id ?? i}-${j}`}
-                    className="rounded-md bg-slate-50 px-2 py-1 text-xs text-slate-600 dark:bg-gray-700 dark:text-gray-400"
+                    className="rounded-md  px-2 py-1 text-xs bg-slate-50 text-slate-600 dark:bg-gray-700 dark:text-gray-400"
                   >
                     #{tag}
                   </span>
