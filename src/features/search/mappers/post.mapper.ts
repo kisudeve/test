@@ -1,6 +1,7 @@
+// src/features/search/mappers/post.mapper.ts
 import type { DBPostRow } from "../types/db";
-import type { CommunityPost } from "@/components/search/types";
-import type { FeelType } from "@/components/search/types";
+import type { CommunityPost, FeelType } from "@/components/search/types";
+import type { PostLikeRow } from "../api/fetchPosts";
 
 const toFeelType = (v: string | null | undefined): FeelType => {
   const u = (v ?? "HOLD").toUpperCase();
@@ -8,18 +9,31 @@ const toFeelType = (v: string | null | undefined): FeelType => {
   return "HOLD";
 };
 
-export const mapRowToCommunityPost = (r: DBPostRow): CommunityPost => ({
-  id: r.id,
-  created_at: r.created_at,
-  title: r.title ?? "",
-  content: r.content ?? "",
-  likes_count: r.likes_count ?? 0,
-  comments_count: r.comments_count ?? 0,
-  users: {
-    display_name: r.users?.display_name ?? "알 수 없음",
-    image_url: r.users?.image_url ?? null,
-  },
-  feels: (r.feels ?? []).map((f) => ({ type: toFeelType(f.type) })),
-  tags: (r.hashtags ?? []).map((h) => h.content),
-  likes: [],
-});
+export const mapRowToCommunityPost = (
+  r: DBPostRow,
+  likes: PostLikeRow[],
+  currentUserId: string | null,
+): CommunityPost => {
+  // 이 게시글에 달린 좋아요만 필터
+  const postLikes = likes.filter((l) => l.post_id === r.id);
+  const likeCount = postLikes.length;
+  const isLikedByMe = !!currentUserId && postLikes.some((l) => l.user_id === currentUserId);
+
+  return {
+    id: r.id,
+    created_at: r.created_at,
+    title: r.title ?? "",
+    content: r.content ?? "",
+    // DB 컬럼 대신 계산된 값을 사용 (DB likes_count 안 맞아도 UI는 항상 정확)
+    likes_count: likeCount,
+    comments_count: r.comments_count ?? 0,
+    users: {
+      display_name: r.users?.display_name ?? "알 수 없음",
+      image_url: r.users?.image_url ?? null,
+    },
+    feels: (r.feels ?? []).map((f) => ({ type: toFeelType(f.type) })),
+    tags: (r.hashtags ?? []).map((h) => h.content),
+    likes: postLikes,
+    is_liked_by_me: isLikedByMe,
+  };
+};
