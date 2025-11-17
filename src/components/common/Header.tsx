@@ -145,7 +145,7 @@ export default function Header({
   return (
     <aside
       className={[
-        "bg-white/85 backdrop-blur shadow-md shadow-gray-200/70 rounded-lg",
+        "bg-white/85 backdrop-blur shadow-sm rounded-lg",
         "w-full",
         "min-w-[180px]",
         "h-full flex flex-col p-4 gap-4",
