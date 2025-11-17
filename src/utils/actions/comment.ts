@@ -26,19 +26,26 @@ export const insertComment = async (
   if (!postId) return { success: false, error: "게시글 ID가 없습니다." };
   if (!content || content.trim() === "") return { success: false, error: "댓글을 입력해주세요." };
 
+  let data;
   if (!parentId) {
-    const { error: commentError } = await supabase
+    const { data: comment, error: commentError } = await supabase
       .from("comments")
-      .insert([{ post_id: postId, user_id: user.id, content }]);
+      .insert([{ post_id: postId, user_id: user.id, content }])
+      .select("*")
+      .single();
 
     if (commentError) return { success: false, error: "댓글 등록 중 문제가 발생했습니다." };
+    data = comment;
   }
   if (parentId) {
-    const { error: replyError } = await supabase
+    const { data: replyComment, error: replyError } = await supabase
       .from("comments")
-      .insert([{ post_id: postId, user_id: user.id, content, parent_id: parentId }]);
+      .insert([{ post_id: postId, user_id: user.id, content, parent_id: parentId }])
+      .select("*")
+      .single();
 
     if (replyError) return { success: false, error: "대댓글 등록 중 문제가 발생했습니다." };
+    data = replyComment;
   }
 
   // 작성자 정보 가져오기
@@ -52,15 +59,31 @@ export const insertComment = async (
 
   // 본인이 작성한 글이 아닐 때만 댓글 알림
   if (post.user_id !== user.id && !parentId) {
-    await supabase.from("notifications").insert([
-      {
-        receiver_id: post.user_id,
-        sender_id: user.id,
-        post_id: postId,
-        type: "comment",
-        is_read: false,
-      },
-    ]);
+    // 댓글 알림
+    if (!data?.parent_id) {
+      await supabase.from("notifications").insert([
+        {
+          receiver_id: post.user_id,
+          sender_id: user.id,
+          post_id: postId,
+          type: "comment",
+          is_read: false,
+          comment_id: data?.id,
+        },
+      ]);
+    } else {
+      // 대댓글 알림
+      await supabase.from("notifications").insert([
+        {
+          receiver_id: post.user_id,
+          sender_id: user.id,
+          post_id: postId,
+          type: "comment",
+          is_read: false,
+          comment_id: data.parent_id,
+        },
+      ]);
+    }
   }
 
   revalidatePath(`/community/${postId}`);
