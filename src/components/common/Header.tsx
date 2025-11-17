@@ -239,9 +239,9 @@ export default function Header({
         <Link href="/profile">
           <div className="flex items-center gap-3 px-1 py-2 rounded-2xl transition-colors duration-200 hover:bg-gray-100">
             <div className="h-10 w-10 shrink-0 rounded-full bg-gray-300 overflow-hidden flex items-center justify-center">
-              {userProfile && userProfile.image_url ? (
+              {userProfile?.image_url && userProfile.image_url.trim() !== "" ? (
                 <Image
-                  src={userProfile?.image_url}
+                  src={userProfile.image_url}
                   alt={`${userProfile.display_name} 프로필`}
                   width={40}
                   height={40}

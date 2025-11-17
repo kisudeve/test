@@ -42,8 +42,7 @@ export default function EditClient({
     if (!e.target.files || e.target.files.length === 0) return;
 
     const file = e.target.files[0];
-
-    const fileExt = file.name.split(".").pop();
+    const fileExt = file.name.includes(".") ? file.name.split(".").pop() : "jpg";
     const now = new Date();
     const timestamp = now.toISOString().replace(/[-:]/g, "").replace("T", "-").substring(0, 15); // YYYYMMDD-hhmmss
     const randomId = crypto.randomUUID().replace(/-/g, "").substring(0, 5);
@@ -63,8 +62,7 @@ export default function EditClient({
 
       if (!res.ok) {
         console.error(res.message);
-        alert(res.message);
-
+        toast.error(res.message);
         setAvatarUrl(avatarInit ?? null);
         return;
       }
@@ -117,7 +115,7 @@ export default function EditClient({
 
       if (!res.ok) {
         console.error(res.message);
-        alert(res.message);
+        toast.error(res.message);
         return;
       }
 
