@@ -29,7 +29,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 
   return (
     <>
-      <div className="flex min-h-screen">
+      <div className="flex min-h-screen bg-[#f9fafb]">
         <div className="py-6 pl-4 w-[18%] min-w-[180px] shrink-0 sticky top-0 h-screen overflow-y-auto overflow-x-hidden">
           <Header initialProfile={userProfile} todayScore={todayScore} />
         </div>
