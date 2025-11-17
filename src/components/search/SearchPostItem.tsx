@@ -1,3 +1,4 @@
+// src/components/search/SearchPostItem.tsx
 "use client";
 
 import Link from "next/link";
@@ -20,8 +21,9 @@ function formatRelativeTime(iso: string) {
 }
 
 export default function SearchPostItem({ post }: { post: CommunityPost }) {
-  const [liked, setLiked] = useState<boolean>(post.likes.length > 0);
-  const [likeCount, setLikeCount] = useState<number>(post.likes_count);
+  // ✅ 서버에서 계산해 온 is_liked_by_me로 초기 상태 설정
+  const [liked, setLiked] = useState<boolean>(post.is_liked_by_me);
+  const [likeCount, setLikeCount] = useState<number>(post.likes_count ?? 0);
   const [pending, setPending] = useState(false);
 
   const likeHandler = async (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -91,7 +93,7 @@ export default function SearchPostItem({ post }: { post: CommunityPost }) {
         </div>
 
         <div className="flex gap-5 border-t border-slate-200 pt-5">
-          <Button onClick={likeHandler}>
+          <Button onClick={likeHandler} disabled={pending}>
             <Heart
               size={18}
               className={twMerge(
