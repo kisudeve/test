@@ -4,11 +4,12 @@ import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { TrendingUp, TrendingDown, User, Menu, X } from "lucide-react";
+import { TrendingUp, TrendingDown, Menu, X, UserIcon, LogIn } from "lucide-react";
 import type { Database } from "@/utils/supabase/supabase";
 import { twMerge } from "tailwind-merge";
 import { useBreakpoint } from "@/hooks/useBreakPoint";
 import Button from "./Button";
+import { User } from "@/types/database";
 type Profile = Database["public"]["Tables"]["users"]["Row"];
 
 const Icon = {
@@ -68,7 +69,7 @@ const Icon = {
     </div>
   ),
   write: ({ className }: { className?: string }) => (
-    <div className={" w-6 h-6 flex items-center justify-center " + (className || "")}>
+    <div className={"w-6 h-6 flex items-center justify-center " + (className || "")}>
       <Image
         src="/header/write.svg"
         alt="write-icon"
@@ -301,28 +302,40 @@ export default function Header({
             <hr className="border-t border-gray-200" />
 
             {/* 프로필 영역 */}
-            <Link href="/profile" onClick={handleLinkClick}>
-              <div className="flex items-center gap-3 px-1 py-2 rounded-2xl transition-colors duration-200 hover:bg-gray-100">
-                <div className="h-10 w-10 shrink-0 rounded-full bg-gray-300 overflow-hidden flex items-center justify-center">
-                  {userProfile?.image_url && userProfile.image_url.trim() !== "" ? (
-                    <Image
-                      src={userProfile.image_url}
-                      alt={`${userProfile.display_name} 프로필`}
-                      width={40}
-                      height={40}
-                      className="h-full w-full object-cover"
-                    />
-                  ) : (
-                    <User className="h-6 w-6 text-gray-500" />
-                  )}
+            {userProfile && (
+              <Link href="/profile" onClick={handleLinkClick}>
+                <div className="flex items-center gap-3 px-1 py-2 rounded-2xl transition-colors duration-200 hover:bg-gray-100">
+                  <div className="h-10 w-10 shrink-0 rounded-full bg-gray-300 overflow-hidden flex items-center justify-center">
+                    {userProfile?.image_url && userProfile.image_url.trim() !== "" ? (
+                      <Image
+                        src={userProfile.image_url}
+                        alt={`${userProfile.display_name} 프로필`}
+                        width={40}
+                        height={40}
+                        className="h-full w-full object-cover"
+                      />
+                    ) : (
+                      <UserIcon className="h-6 w-6 text-gray-500" />
+                    )}
+                  </div>
+                  <div className="flex flex-col justify-center">
+                    <p className="text-[14px] font-bold text-black leading-tight">
+                      {userProfile.display_name}
+                    </p>
+                  </div>
                 </div>
-                <div className="flex flex-col justify-center">
-                  <p className="text-[14px] font-bold text-black leading-tight">
-                    {userProfile ? userProfile.display_name : "Unknown"}
-                  </p>
-                </div>
-              </div>
-            </Link>
+              </Link>
+            )}
+            {!userProfile && (
+              <Link
+                href="/profile"
+                onClick={handleLinkClick}
+                className="flex justify-center items-center gap-3 h-14 rounded-2xl transition-colors duration-200 hover:bg-gray-100 border border-slate-200 text-slate-700 font-bold text-sm"
+              >
+                <LogIn size={16} />
+                로그인
+              </Link>
+            )}
           </div>
         </aside>
       </div>
