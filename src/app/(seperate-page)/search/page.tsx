@@ -137,7 +137,7 @@ export default function Page() {
   };
 
   return (
-    <section className="mx-auto p-6 flex flex-col gap-6">
+    <section className="flex flex-col gap-6">
       <div className="rounded-2xl bg-white border border-slate-200 shadow-[0_4px_16px_rgba(15,23,42,0.06)] px-6 py-5 flex flex-col gap-4">
         <SearchBar value={input} onChange={setInput} onSubmit={onSubmit} />
         <SearchTabs active={active} counts={counts} onChange={onChangeTab} />

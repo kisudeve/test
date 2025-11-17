@@ -78,7 +78,7 @@ export default function SearchPostItem({ post }: { post: CommunityPost }) {
             </div>
 
             {post.tags && post.tags.length > 0 && (
-              <div className="flex gap-2">
+              <div className="flex gap-2 flex-wrap">
                 {post.tags.map((t) => (
                   <span
                     key={t}
