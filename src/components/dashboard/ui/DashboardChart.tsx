@@ -14,7 +14,7 @@ import {
 } from "recharts";
 import type { ChartDataPoint } from "@/components/dashboard/type/dashboard";
 
-type Period = "1일" | "1주" | "1개월" | "All";
+type Period = "3일" | "1주" | "2주" | "All";
 
 interface DashboardChartProps {
   chartData: ChartDataPoint[];
@@ -134,7 +134,14 @@ export default function DashboardChart({ chartData }: DashboardChartProps) {
     const lastDate = new Date(last.date);
     lastDate.setHours(0, 0, 0, 0);
 
-    const days = selectedPeriod === "1일" ? 1 : selectedPeriod === "1주" ? 7 : 30;
+    const days =
+      selectedPeriod === "3일"
+        ? 3
+        : selectedPeriod === "1주"
+          ? 7
+          : selectedPeriod === "2주"
+            ? 14
+            : 30;
     const threshold = new Date(lastDate);
     threshold.setDate(threshold.getDate() - (days - 1));
 
@@ -228,7 +235,7 @@ export default function DashboardChart({ chartData }: DashboardChartProps) {
       <div className="flex items-center justify-between mb-4">
         {/* 기간 선택 버튼 */}
         <div className="flex flex-wrap gap-2 select-none">
-          {(["1주", "1개월", "All"] as Period[]).map((period) => (
+          {(["3일", "1주", "2주", "All"] as Period[]).map((period) => (
             <button
               key={period}
               onClick={() => {
