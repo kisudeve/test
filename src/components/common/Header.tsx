@@ -138,7 +138,7 @@ export default function Header({
 
       {/* 오늘의 감정 지수 카드 */}
       <section>
-        <div className="w-full rounded-2xl bg-black text-white p-4 shadow-sm dark:bg-[#1e2939]">
+        <div className="w-full rounded-2xl bg-black text-white p-4 shadow-sm dark:bg-[#141d2b]">
           <p className="text-[14px] text-gray-300">오늘의 감정 지수</p>
           <div className="mt-3 flex flex-col gap-3 max-[1215px]:flex-wrap min-[1216px]:flex-nowrap">
             <span className="text-[26px] font-extrabold tabular-nums tracking-tight max-[1215px]:text-[28px] min-[1216px]:text-[34px]">
@@ -171,10 +171,10 @@ export default function Header({
                 <Link
                   href={href}
                   className={[
-                    "group flex items-center justify-between rounded-xl px-3 py-2",
+                    "group flex items-center justify-between rounded-xl px-3 py-2 mb-2",
                     active
-                      ? "bg-gray-200 text-gray-900 dark:bg-gray-500 dark:text-gray-200"
-                      : "text-gray-400 transition-colors duration-200 hover:text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200",
+                      ? "bg-gray-200 text-gray-900 dark:bg-gray-800 dark:text-gray-200"
+                      : "text-gray-400 transition-colors duration-200 hover:text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-gray-200",
                   ].join(" ")}
                   aria-current={active ? "page" : undefined}
                 >
@@ -197,10 +197,10 @@ export default function Header({
         {/* CTA 버튼 */}
         <Link
           href="/write"
-          className="h-12 flex items-center justify-center gap-2 rounded-2xl bg-linear-to-r from-[#A8E0FF] to-[#C5C8FF] text-white px-4 py-4 font-semibold  hover:opacity-90 active:scale-[.99] transition"
+          className="h-12 flex items-center justify-center gap-2 rounded-2xl bg-linear-to-r from-[#A8E0FF] to-[#C5C8FF] dark:from-[#6B8FA3] dark:to-[#7A8FB8] text-white px-4 py-4 font-semibold hover:opacity-90 active:scale-[.99] transition"
         >
           <Icon.write />
-          <span className="text-[14px] ">오늘의 감정 작성</span>
+          <span className="text-[14px]">오늘의 감정 작성</span>
         </Link>
 
         {/* 구분선 */}
