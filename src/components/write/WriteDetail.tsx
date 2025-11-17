@@ -10,6 +10,7 @@ import closeButton from "@/assets/write/closeButton.svg";
 import { createClient } from "@/utils/supabase/client";
 import { useRouter, useSearchParams } from "next/navigation";
 import { badWords } from "./badWords";
+import { toast } from "sonner";
 import { ImagePlus } from "lucide-react";
 
 // 감정 버튼 설정
@@ -100,21 +101,21 @@ export default function WriteDetail() {
 
   const handlePublish = async () => {
     if (hasBadContent || hasBadTitle) {
-      alert("적절하지 못한 내용을 포함하고 있습니다.");
+      toast.error("적절하지 못한 내용을 포함하고 있습니다");
       return;
     }
     if (pick === "") {
-      alert("감정을 선택해주세요.");
+      toast.error("감정을 선택해주세요");
       return;
     }
 
     if (title.trim() === "") {
-      alert("제목을 입력해주세요.");
+      toast.error("제목을 입력해주세요");
       return;
     }
 
     if (content.trim() === "") {
-      alert("내용을 입력해주세요.");
+      toast.error("내용을 입력해주세요");
       return;
     }
 
@@ -125,7 +126,7 @@ export default function WriteDetail() {
       } = await supabase.auth.getUser();
 
       if (userError || !user) {
-        alert("로그인이 필요합니다.");
+        toast.error("로그인이 필요합니다");
         return;
       }
 
@@ -240,7 +241,7 @@ export default function WriteDetail() {
 
         if (tagError) throw tagError;
 
-        alert("글이 성공적으로 등록되었습니다!");
+        toast.success("글이 성공적으로 등록되었습니다!");
         router.push("/community");
       } else {
         // 수정
@@ -295,12 +296,12 @@ export default function WriteDetail() {
 
         if (tagError) throw tagError;
 
-        alert("글이 성공적으로 수정되었습니다!");
+        toast.success("글이 성공적으로 수정되었습니다!");
         router.push(`/community/${pageId}`);
       }
     } catch (e) {
       console.error(e);
-      alert("글 작성 중 오류가 발생했습니다.");
+      toast.error("글 작성 중 오류가 발생했습니다");
     }
   };
 
@@ -313,7 +314,7 @@ export default function WriteDetail() {
       } = await supabase.auth.getUser();
 
       if (!user || userError) {
-        alert("로그인 후 수정이 가능합니다.");
+        toast.error("로그인 후 수정이 가능합니다");
         router.replace("/auth/sign-in");
         return;
       }
@@ -336,7 +337,7 @@ export default function WriteDetail() {
         .single();
 
       if (!data || error) {
-        alert("내 게시글만 수정 가능합니다.");
+        toast.error("내 게시글만 수정 가능합니다");
         router.replace("/");
         return;
       }
@@ -479,7 +480,7 @@ export default function WriteDetail() {
                   ${
                     selectedTags.includes(tag)
                       ? pick === "up"
-                        ? "bg-[#FF6467] text-white border-[#FF6467]"
+                        ? "bg-[#FF6467] text-white border-[#ff6467]"
                         : pick === "down"
                           ? "bg-[#51A2FF] text-white border-[#51A2FF]"
                           : "bg-[#99A1AF] text-white border-[#99A1AF]"
