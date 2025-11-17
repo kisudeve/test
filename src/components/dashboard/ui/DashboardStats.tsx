@@ -136,15 +136,15 @@ export default function DashboardStats({ data }: DashboardStatsProps) {
               <Lightbulb className="w-10 h-10 text-blue-600" />
             </div>
             <div>
-              <h2 className="text-2xl md:text-2xl font-bold text-gray-800 mb-1">
+              <h2 className="text-xl md:text-2xl font-bold text-gray-800 mb-1">
                 오늘의 감정 시장지수 요약
               </h2>
-              <p className="text-gray-600 text-lg md:text-lg">{marketMessage}</p>
+              <p className="text-gray-600 text-md md:text-lg">{marketMessage}</p>
             </div>
           </div>
           <div className="text-right">
-            <p className="text-lg md:text-lg text-gray-500 mb-1">최근 업데이트</p>
-            <div className="text-lg md:text-lg font-medium text-gray-700">
+            <p className="text-sm sm:text-md md:text-lg text-gray-500 mb-1">최근 업데이트</p>
+            <div className="text-sm sm:text-md md:text-lg font-medium text-gray-700">
               <p>{date}</p>
               {time && <p>{time}</p>}
             </div>

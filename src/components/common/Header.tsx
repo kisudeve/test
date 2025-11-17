@@ -140,12 +140,18 @@ export default function Header({
   const headerHandler = (e: React.MouseEvent) => {
     e.preventDefault();
     setVisible(!visible);
+    if (visible) {
+      document.body.style.overflow = "auto";
+    } else {
+      document.body.style.overflow = "hidden";
+    }
   };
 
   // 링크 클릭 시 메뉴 닫기
   const handleLinkClick = () => {
     if (visible) {
       setVisible(false);
+      document.body.style.overflow = "auto";
     }
   };
 

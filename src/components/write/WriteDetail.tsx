@@ -471,7 +471,7 @@ export default function WriteDetail() {
           ""
         )}
         {/* 해시태그 영역 */}
-        <div className="w-full flex flex-row flex-wrap justify-between gap-2 text-[#4A5565] mb-6 px-2">
+        <div className="w-full flex flex-row flex-wrap lg:justify-between gap-2 text-[#4A5565] mb-6 px-2">
           {hashtags.map((tag) => (
             <button
               key={tag}

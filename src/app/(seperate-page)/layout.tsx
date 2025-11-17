@@ -8,7 +8,7 @@ export default async function SeperateLayout({ children }: { children: React.Rea
   return (
     <div className="flex min-w-full min-h-full">
       <Header initialProfile={userProfile} todayScore={todayScore} />
-      <main className="flex-1 p-6 pt-25 xl:pt-6 min-h-screen">{children}</main>
+      <main className="flex-1 p-6 pt-25 xl:pt-6 w-full min-h-screen">{children}</main>
     </div>
   );
 }
