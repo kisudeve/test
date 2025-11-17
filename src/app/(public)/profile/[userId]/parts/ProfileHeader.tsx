@@ -1,10 +1,11 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useTransition } from "react";
+import { useTransition, useState } from "react";
+import type { ReactNode } from "react";
 import Button from "@/components/common/Button";
 import ProfileImage from "@/components/common/ProfileImage";
-import { signOut } from "./actions";
+import { signOut, followToggle } from "./actions";
 import { Users, UserCheck, PenSquare } from "lucide-react";
 
 type Props = {
@@ -22,13 +23,35 @@ type Props = {
 };
 
 export default function ProfileHeader({ isMe, profile }: Props) {
-  const [pending, start] = useTransition();
-
   const router = useRouter();
+
   
+  const [signOutPending, startSignOut] = useTransition();
+
+  const [followPending, startFollow] = useTransition();
+  const [following, setFollowing] = useState(profile.isFollowing);
+
   const handleSignOut = () => {
-    start(async () => {
+    startSignOut(async () => {
       await signOut();
+    });
+  };
+
+  const handleFollowToggle = () => {
+    if (followPending) return;
+
+    startFollow(async () => {
+     
+      setFollowing((prev) => !prev);
+      try {
+        await followToggle(profile.id);
+      } catch (e) {
+        console.error("followToggle failed:", e);
+        
+        setFollowing((prev) => !prev);
+      } finally {
+        router.refresh();
+      }
     });
   };
 
@@ -44,25 +67,39 @@ export default function ProfileHeader({ isMe, profile }: Props) {
           />
 
           <div className="pt-1">
-            <h1 className="text-[22px] font-bold text-slate-900">{profile.name}</h1>
+            <h1 className="text-[22px] font-bold text-slate-900">
+              {profile.name}
+            </h1>
             <p className="mt-1 text-[13px] leading-5 text-slate-500">
               {profile.bio || " "}
             </p>
 
-            
+         
             <div className="mt-3 flex items-center gap-6 text-[13px]">
               <Stat
-                icon={<Users className="h-4 w-4 text-slate-500" aria-hidden />}
+                icon={
+                  <Users className="h-4 w-4 text-slate-500" aria-hidden />
+                }
                 label="팔로워"
                 value={profile.followerCount}
+                onClick={() =>
+                  router.push(`/profile/${profile.id}/followers`)
+                }
               />
               <Stat
-                icon={<UserCheck className="h-4 w-4 text-slate-500" aria-hidden />}
+                icon={
+                  <UserCheck className="h-4 w-4 text-slate-500" aria-hidden />
+                }
                 label="팔로잉"
                 value={profile.followingCount}
+                onClick={() =>
+                  router.push(`/profile/${profile.id}/following`)
+                }
               />
               <Stat
-                icon={<PenSquare className="h-4 w-4 text-slate-500" aria-hidden />}
+                icon={
+                  <PenSquare className="h-4 w-4 text-slate-500" aria-hidden />
+                }
                 label="작성글"
                 value={profile.postCount}
               />
@@ -70,24 +107,43 @@ export default function ProfileHeader({ isMe, profile }: Props) {
           </div>
         </div>
 
-      
+     
         <div className="flex flex-col items-end gap-2">
           {isMe ? (
             <>
-              <Button variant="edit" className="px-3 py-1" onClick={() => router.push(`/profile/edit?mode=edit&return=/profile/${profile.id}`)}>
-              수정
-             </Button>
+              <Button
+                variant="edit"
+                className="px-3 py-1"
+                onClick={() =>
+                  router.push(
+                    `/profile/edit?mode=edit&return=/profile/${profile.id}`,
+                  )
+                }
+              >
+                수정
+              </Button>
               <Button
                 variant="common"
                 className="px-3 py-1"
                 onClick={handleSignOut}
-                disabled={pending}
+                disabled={signOutPending}
               >
-                {pending ? "로그아웃 중…" : "로그아웃"}
+                {signOutPending ? "로그아웃 중…" : "로그아웃"}
               </Button>
             </>
           ) : (
-            <div className="h-0" />
+            <Button
+              variant={following ? "common" : "edit"} 
+              className="px-4 py-1.5 text-sm"
+              onClick={handleFollowToggle}
+              disabled={followPending}
+            >
+              {followPending
+                ? "처리 중..."
+                : following
+                ? "언팔로우"
+                : "팔로우"}
+            </Button>
           )}
         </div>
       </div>
@@ -99,20 +155,40 @@ function Stat({
   icon,
   label,
   value,
+  onClick,
 }: {
-  icon: React.ReactNode;
+  icon: ReactNode;
   label: string;
   value: number | null | undefined;
+  onClick?: () => void;
 }) {
-  return (
-    <div className="flex items-center gap-2">
+  const clickable = !!onClick;
+
+  const inner = (
+    <>
       <div className="flex items-center gap-1.5 text-slate-600">
         {icon}
         <span>{label}</span>
       </div>
-      <b className="tabular-nums ml-0.5 text-slate-900">
+      <b className="ml-0.5 tabular-nums text-slate-900">
         {typeof value === "number" ? value : 0}
       </b>
-    </div>
+    </>
   );
+
+  
+  if (clickable) {
+    return (
+      <button
+        type="button"
+        onClick={onClick}
+        className="flex items-center gap-2 rounded-full px-2 py-1 text-left text-[13px] text-slate-700 hover:bg-slate-100"
+      >
+        {inner}
+      </button>
+    );
+  }
+
+  
+  return <div className="flex items-center gap-2">{inner}</div>;
 }

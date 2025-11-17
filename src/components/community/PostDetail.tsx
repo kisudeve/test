@@ -11,6 +11,9 @@ import Link from "next/link";
 export default async function PostDetail({ postId }: { postId: string }) {
   const supabase = await createClient();
 
+  const { data: { user }}
+  = await supabase.auth.getUser();
+
   const { data: post, error: postError } = await supabase
     .from("posts")
     .select(
@@ -20,6 +23,17 @@ export default async function PostDetail({ postId }: { postId: string }) {
     .single();
   if (!post || postError) {
     notFound();
+  }
+
+  if (user) {
+    await supabase
+     .from("recent_views")
+     .upsert(
+       {
+        user_id: user.id,
+        post_id: postId,
+       },
+     )
   }
 
   const hashtags = getHashtagArray(post.hashtags);
