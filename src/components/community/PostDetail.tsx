@@ -86,7 +86,7 @@ export default async function PostDetail({ postId }: { postId: string }) {
               {hashtags.map((tag) => (
                 <span
                   key={tag}
-                  className="px-2 py-1 rounded-2xl bg-slate-200 text-xs text-slate-600"
+                  className="px-2 py-1 rounded-2xl bg-slate-200 text-sm text-slate-600 dark:bg-gray-700 dark:text-gray-300"
                 >
                   #{tag}
                 </span>
