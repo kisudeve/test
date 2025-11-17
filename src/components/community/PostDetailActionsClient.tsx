@@ -93,14 +93,17 @@ export default function PostDetailActionsClient({
           <Heart
             size={18}
             className={twMerge(
-              "transition-transform active:scale-125 stroke-slate-300 fill-slate-300",
+              "transition-transform active:scale-125 stroke-slate-300 fill-slate-300 dark:stroke-[#b2b7c2] dark:fill-[#b2b7c2]",
               liked && "stroke-red-500 fill-red-500",
             )}
           />
           {likeCount}
         </Button>
         <Button>
-          <MessageCircle size={16} className="stroke-slate-300 fill-slate-300" />
+          <MessageCircle
+            size={16}
+            className="stroke-slate-300 fill-slate-300 dark:stroke-[#b2b7c2] dark:fill-[#b2b7c2]"
+          />
           {commentsCount}
         </Button>
       </div>

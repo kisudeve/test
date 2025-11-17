@@ -68,7 +68,7 @@ export default function PostListItemClient({
   }, 500);
 
   return (
-    <article className="p-5 rounded-2xl shadow-[0_4px_12px_rgba(0,0,0,0.06)] bg-white border border-slate-200">
+    <article className="p-5 rounded-2xl shadow-[0_4px_12px_rgba(0,0,0,0.06)] bg-white border border-slate-200 dark:bg-[#141d2b] dark:border-[#364153]">
       <Link href={`/community/${post.id}`}>
         <div className="flex gap-4 pb-5">
           {/* 사용자 프로필 사진 */}
@@ -83,7 +83,9 @@ export default function PostListItemClient({
             {/* 사용자 닉네임, 작성시간, 글 타입 */}
             <div className="flex justify-between items-center">
               <div className="flex flex-col gap-0.5">
-                <strong className="font-semibold text-slate-800">{post.users.display_name}</strong>
+                <strong className="font-semibold text-slate-800 dark:text-gray-300">
+                  {post.users.display_name}
+                </strong>
                 <span className="text-slate-400 text-xs">
                   {formatRelativeTime(post.created_at)}
                 </span>
@@ -91,8 +93,10 @@ export default function PostListItemClient({
               <FeelBadge type={post.feels.length > 0 ? post.feels[0].type : "hold"} />
             </div>
             <div className="flex flex-col gap-2">
-              <h3 className="text-xl font-bold">{post.title}</h3>
-              <p className="line-clamp-1 font-medium text-slate-700">{post.content}</p>
+              <h3 className="text-xl font-bold dark:text-gray-300">{post.title}</h3>
+              <p className="line-clamp-1 font-medium text-slate-700 dark:text-gray-400">
+                {post.content}
+              </p>
             </div>
             {hashtags && (
               <div className="flex gap-2">
@@ -108,19 +112,24 @@ export default function PostListItemClient({
             )}
           </div>
         </div>
-        <div className="flex gap-5 border-t border-slate-200 pt-5">
+        <div className="flex gap-5 border-t border-slate-200 pt-5 dark:border-[#364153]">
           <Button onClick={likeHandler}>
             <Heart
               size={18}
               className={twMerge(
                 "transition-transform active:scale-125",
-                liked ? "stroke-red-500 fill-red-500" : "stroke-slate-300 fill-slate-300",
+                liked
+                  ? "stroke-red-500 fill-red-500"
+                  : "stroke-slate-300 fill-slate-300 dark:stroke-[#b2b7c2] dark:fill-[#b2b7c2]",
               )}
             />
             {likeCount ?? "0"}
           </Button>
           <Button>
-            <MessageCircle size={16} className="stroke-slate-300 fill-slate-300" />
+            <MessageCircle
+              size={16}
+              className="stroke-slate-300 fill-slate-300 dark:stroke-[#b2b7c2] dark:fill-[#b2b7c2]"
+            />
             {post.comments_count ?? "0"}
           </Button>
         </div>

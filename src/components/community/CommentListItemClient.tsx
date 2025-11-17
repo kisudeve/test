@@ -11,7 +11,7 @@ import { deleteComment } from "@/utils/actions/comment";
 import Link from "next/link";
 import { Like, User } from "@/types/database";
 import CommentReplyFormClient from "./CommentReplyFormClient";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import CommentChildClient from "./CommentChildClient";
 import { toast } from "sonner";
 import { useDebouncedCallback } from "@/hooks/useDebouncedCallback";
@@ -49,6 +49,26 @@ export default function CommentListItemClient({
   );
   const [likeCount, setLikeCount] = useState<number>(comment.likes.length);
   const [showChildren, setShowChildren] = useState<boolean>(false);
+  const [isDarkMode, setIsDarkMode] = useState(false);
+
+  // 다크 모드 감지
+  useEffect(() => {
+    const checkDarkMode = () => {
+      setIsDarkMode(document.documentElement.classList.contains("dark"));
+    };
+
+    // 초기 체크
+    checkDarkMode();
+
+    // MutationObserver로 다크 모드 변경 감지
+    const observer = new MutationObserver(checkDarkMode);
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["class"],
+    });
+
+    return () => observer.disconnect();
+  }, []);
 
   const visibleComments = useMemo(
     () => childComments?.filter((c) => c.id !== editingReplyCommentId),
@@ -130,7 +150,7 @@ export default function CommentListItemClient({
           "relative",
           childComments.length > 0 &&
             showChildren &&
-            "before:w-px before:h-full before:bg-slate-200 before:absolute before:left-6",
+            "before:w-px before:h-full before:bg-slate-200 dark:before:bg-[#364153] before:absolute before:left-6",
         )}
       >
         <div className="flex gap-4 relative">
@@ -144,17 +164,23 @@ export default function CommentListItemClient({
           <div className="flex-1 flex flex-col gap-2">
             <div className="flex justify-between items-baseline">
               <div className="flex items-center gap-2">
-                <strong className="text-md font-semibold text-slate-800">
+                <strong className="text-md font-semibold text-slate-800 dark:text-gray-300">
                   {comment.users.display_name}
                 </strong>
-                <span className="text-slate-400 text-xs">
+                <span className="text-slate-400 text-xs dark:text-gray-400">
                   {formatRelativeTime(comment.created_at)}
                 </span>
               </div>
               {comment.user_id === profile?.id && (
                 <>
                   <div className="flex gap-1">
-                    <Button variant="edit" onClick={() => onEdit(comment.id)}>
+                    <Button
+                      variant="edit"
+                      style={
+                        isDarkMode ? { backgroundColor: "#f1f5f9", color: "#1e2939" } : undefined
+                      }
+                      onClick={() => onEdit(comment.id)}
+                    >
                       수정
                     </Button>
                     <ConfirmDialog
@@ -173,7 +199,7 @@ export default function CommentListItemClient({
                 <Heart
                   size={18}
                   className={twMerge(
-                    "transition-transform active:scale-125 stroke-slate-300 fill-slate-300",
+                    "transition-transform active:scale-125 stroke-slate-300 fill-slate-300 dark:stroke-[#b2b7c2] dark:fill-[#b2b7c2]",
                     liked && "stroke-red-500 fill-red-500",
                   )}
                 />

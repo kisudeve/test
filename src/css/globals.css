@@ -117,5 +117,27 @@
   body {
     @apply bg-background text-foreground;
   }
-}
 
+  /* 다크 모드 textarea 스크롤바 스타일 */
+  .dark textarea::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  .dark textarea::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .dark textarea::-webkit-scrollbar-thumb {
+    background-color: #4b5563;
+    border-radius: 4px;
+  }
+
+  .dark textarea::-webkit-scrollbar-thumb:hover {
+    background-color: #6b7280;
+  }
+
+  .dark textarea {
+    scrollbar-width: thin;
+    scrollbar-color: #4b5563 transparent;
+  }
+}
