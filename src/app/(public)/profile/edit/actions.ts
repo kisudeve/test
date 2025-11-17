@@ -1,6 +1,6 @@
 'use server';
 
-
+import { revalidatePath } from 'next/cache';
 import { createClient } from '../../../../utils/supabase/server';
 
 export type ActionResult = { ok: boolean; message: string; url?: string };
@@ -26,7 +26,7 @@ export async function uploadAvatar(formData: FormData): Promise<ActionResult> {
     const filePath = `user-${userId}/${Date.now()}-${file.name}`;
 
     const { error: upErr } = await supabase.storage
-      .from('avatars') 
+      .from('avatars')
       .upload(filePath, file, {
         upsert: true,
         cacheControl: '3600',
@@ -51,14 +51,17 @@ export async function uploadAvatar(formData: FormData): Promise<ActionResult> {
       return { ok: false, message: `프로필 갱신 실패: ${upUserErr.message}` };
     }
 
+    revalidatePath('/profile');
+    revalidatePath(`/profile/${userId}`);
+
     return { ok: true, message: '업로드 성공', url: publicUrl };
   } catch (e: unknown) {
     const message =
       e instanceof Error
         ? e.message
         : typeof e === 'string'
-        ? e
-        : '알 수 없는 오류';
+          ? e
+          : '알 수 없는 오류';
     return { ok: false, message };
   }
 }
@@ -86,14 +89,17 @@ export async function resetAvatar(formData: FormData): Promise<ActionResult> {
       return { ok: false, message: `초기화 실패: ${upErr.message}` };
     }
 
+    revalidatePath('/profile');
+    revalidatePath(`/profile/${userId}`);
+
     return { ok: true, message: '기본 이미지로 되돌렸습니다.' };
   } catch (e: unknown) {
     const message =
       e instanceof Error
         ? e.message
         : typeof e === 'string'
-        ? e
-        : '알 수 없는 오류';
+          ? e
+          : '알 수 없는 오류';
     return { ok: false, message };
   }
 }
@@ -129,8 +135,8 @@ export async function saveProfile(formData: FormData): Promise<ActionResult> {
       e instanceof Error
         ? e.message
         : typeof e === 'string'
-        ? e
-        : '알 수 없는 오류';
+          ? e
+          : '알 수 없는 오류';
     return { ok: false, message };
   }
 }
