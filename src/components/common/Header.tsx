@@ -1,11 +1,12 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { TrendingUp, TrendingDown, User } from "lucide-react";
+import { TrendingUp, TrendingDown, User, Moon, Sun } from "lucide-react";
 import type { Database } from "@/utils/supabase/supabase";
+
 type Profile = Database["public"]["Tables"]["users"]["Row"];
 
 const Icon = {
@@ -142,6 +143,12 @@ export default function Header({
     return activeKey;
   }, [pathname, activeKey]);
 
+  const [isDark, setIsDark] = useState(false);
+
+  useEffect(() => {
+    document.documentElement.classList.toggle("dark", isDark);
+  }, [isDark]);
+
   return (
     <aside
       className={[
@@ -235,29 +242,39 @@ export default function Header({
         {/* 구분선 */}
         <hr className="border-t border-gray-200" />
 
-        {/* 프로필 영역 */}
-        <Link href="/profile">
-          <div className="flex items-center gap-3 px-1 py-2 rounded-2xl transition-colors duration-200 hover:bg-gray-100">
-            <div className="h-10 w-10 shrink-0 rounded-full bg-gray-300 overflow-hidden flex items-center justify-center">
-              {userProfile?.image_url && userProfile.image_url.trim() !== "" ? (
-                <Image
-                  src={userProfile.image_url}
-                  alt={`${userProfile.display_name} 프로필`}
-                  width={40}
-                  height={40}
-                  className="h-full w-full object-cover"
-                />
-              ) : (
-                <User className="h-6 w-6 text-gray-500" />
-              )}
+        {/* 프로필 영역 & 테마 토글 */}
+        <div className="flex items-center gap-3">
+          <Link href="/profile" className="flex-1">
+            <div className="flex items-center gap-3 px-1 py-2 rounded-2xl transition-colors duration-200 hover:bg-gray-100">
+              <div className="h-10 w-10 shrink-0 rounded-full bg-gray-300 overflow-hidden flex items-center justify-center">
+                {userProfile?.image_url && userProfile.image_url.trim() !== "" ? (
+                  <Image
+                    src={userProfile.image_url}
+                    alt={`${userProfile.display_name} 프로필`}
+                    width={40}
+                    height={40}
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <User className="h-6 w-6 text-gray-500" />
+                )}
+              </div>
+              <div className="flex flex-col justify-center">
+                <p className="text-[14px] font-bold text-black leading-tight">
+                  {userProfile ? userProfile.display_name : "Unknown"}
+                </p>
+              </div>
             </div>
-            <div className="flex flex-col justify-center">
-              <p className="text-[14px] font-bold text-black leading-tight">
-                {userProfile ? userProfile.display_name : "Unknown"}
-              </p>
-            </div>
-          </div>
-        </Link>
+          </Link>
+          <button
+            onClick={() => setIsDark((prev) => !prev)}
+            className="p-2 rounded-xl transition-colors duration-200 hover:bg-gray-100"
+            aria-label="Toggle Theme"
+          >
+            <Sun className="h-6 w-6 hidden dark:block text-black" />
+            <Moon className="h-6 w-6 block dark:hidden text-black" />
+          </button>
+        </div>
       </div>
     </aside>
   );
