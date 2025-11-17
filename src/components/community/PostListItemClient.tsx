@@ -50,6 +50,8 @@ export default function PostListItemClient({
   };
 
   const debouncedApiCall = useDebouncedCallback(async () => {
+    if (userId === undefined) return;
+
     if (userId && liked) {
       await supabase.from("likes").delete().eq("user_id", userId).eq("post_id", post.id);
     } else {
