@@ -38,7 +38,7 @@ export default function PostDetailActionsClient({
     e.preventDefault();
 
     if (!userId) {
-      alert("로그인 후 사용하세요.");
+      toast.warning("로그인 후에 좋아요를 남기실 수 있습니다.");
       return;
     }
 
@@ -58,10 +58,31 @@ export default function PostDetailActionsClient({
   };
 
   const debouncedApiCall = useDebouncedCallback(async () => {
-    if (userId && liked) {
-      await supabase.from("likes").delete().eq("user_id", userId).eq("post_id", postId);
+    if (!userId) {
+      toast.warning("로그인 후에 좋아요를 남기실 수 있습니다.");
+      return;
+    }
+
+    if (liked) {
+      await supabase
+        .from("likes")
+        .delete()
+        .eq("user_id", userId)
+        .eq("post_id", postId)
+        .is("comment_id", null);
     } else {
-      await supabase.from("likes").insert({ post_id: postId, user_id: userId });
+      // 좋아요 추가
+      await supabase.from("likes").insert({ post_id: postId, user_id: userId, comment_id: null });
+      // 본인이 작성한 글이 아닐 때만 좋아요 알림
+      if (writerId !== userId) {
+        await supabase.from("notifications").insert({
+          post_id: postId,
+          sender_id: userId,
+          receiver_id: writerId,
+          type: "like",
+          is_read: false,
+        });
+      }
     }
   }, 500);
 

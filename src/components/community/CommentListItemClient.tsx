@@ -9,11 +9,13 @@ import { CommunityComment } from "@/types/community";
 import ConfirmDialog from "@/components/common/ConfirmDialog";
 import { deleteComment } from "@/utils/actions/comment";
 import Link from "next/link";
-import { User } from "@/types/database";
+import { Like, User } from "@/types/database";
 import CommentReplyFormClient from "./CommentReplyFormClient";
 import { useMemo, useState } from "react";
 import CommentChildClient from "./CommentChildClient";
 import { toast } from "sonner";
+import { useDebouncedCallback } from "@/hooks/useDebouncedCallback";
+import { createClient } from "@/utils/supabase/client";
 
 export default function CommentListItemClient({
   comment,
@@ -26,6 +28,7 @@ export default function CommentListItemClient({
   editingReplyComment,
   cancelEditing,
   onEditReply,
+  initialLike,
 }: {
   comment: CommunityComment;
   childComments: CommunityComment[];
@@ -34,10 +37,17 @@ export default function CommentListItemClient({
   isReplying: boolean;
   setIsReplying: () => void;
   editingReplyCommentId: string | null;
-  editingReplyComment: string | undefined;
+  editingReplyComment?: string;
   cancelEditing: () => void;
   onEditReply: (replyId: string) => void;
+  initialLike: Array<Pick<Like, "post_id" | "user_id" | "comment_id">>;
 }) {
+  const supabase = createClient();
+
+  const [liked, setLiked] = useState<boolean>(
+    initialLike.some((like) => like.user_id === profile?.id) ?? false,
+  );
+  const [likeCount, setLikeCount] = useState<number>(comment.likes.length);
   const [showChildren, setShowChildren] = useState<boolean>(false);
 
   const visibleComments = useMemo(
@@ -45,10 +55,12 @@ export default function CommentListItemClient({
     [editingReplyCommentId, childComments],
   );
 
+  // 답글 목록 토글
   const toggleChildComments = () => {
     setShowChildren((prev) => !prev);
   };
 
+  // 답글 삭제
   const deleteHandler = async () => {
     const result = await deleteComment(comment.post_id, comment.id, comment.parent_id);
     if (result.success) {
@@ -57,6 +69,58 @@ export default function CommentListItemClient({
       toast.error(result.error);
     }
   };
+
+  // 댓글 좋아요
+  const likeHandler = async (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    e.stopPropagation();
+    e.preventDefault();
+
+    if (!profile?.id) {
+      toast.warning("로그인 후에 좋아요를 남기실 수 있습니다.");
+      return;
+    }
+
+    setLiked((prev) => !prev);
+    setLikeCount((prev) => (liked ? prev - 1 : prev + 1));
+    debouncedApiCall();
+  };
+
+  const debouncedApiCall = useDebouncedCallback(async () => {
+    if (!profile?.id) return;
+
+    try {
+      if (liked) {
+        // 좋아요 취소
+        await supabase
+          .from("likes")
+          .delete()
+          .eq("user_id", profile.id)
+          .eq("post_id", comment.post_id)
+          .eq("comment_id", comment.id);
+      } else {
+        // 좋아요 추가
+        await supabase
+          .from("likes")
+          .insert({ post_id: comment.post_id, user_id: profile.id, comment_id: comment.id });
+        // 본인이 작성한 글이 아닐 때만 좋아요 알림
+        if (comment.user_id !== profile.id) {
+          await supabase.from("notifications").insert({
+            type: "like",
+            receiver_id: comment.user_id,
+            sender_id: profile.id,
+            post_id: comment.post_id,
+            comment_id: comment.id,
+            is_read: false,
+          });
+        }
+      }
+    } catch (error) {
+      console.error("좋아요 처리 중 오류:", error);
+      setLiked((prev) => !prev);
+      setLikeCount((prev) => (liked ? prev + 1 : prev - 1));
+      toast.error("좋아요 처리 중 문제가 발생했습니다.");
+    }
+  }, 500);
 
   return (
     <>
@@ -105,14 +169,15 @@ export default function CommentListItemClient({
             </div>
             <p>{comment.content}</p>
             <div className="flex gap-2">
-              <Button>
+              <Button onClick={likeHandler}>
                 <Heart
                   size={18}
                   className={twMerge(
                     "transition-transform active:scale-125 stroke-slate-300 fill-slate-300",
+                    liked && "stroke-red-500 fill-red-500",
                   )}
                 />
-                0
+                {likeCount}
               </Button>
               <Button onClick={toggleChildComments}>답글 {childComments.length}</Button>
               {profile?.id && <Button onClick={setIsReplying}>답글 달기</Button>}
@@ -147,6 +212,7 @@ export default function CommentListItemClient({
                   }
                 }}
                 setIsReplying={setIsReplying}
+                initialLikeC={child.likes}
               />
             ))}
           </ul>
