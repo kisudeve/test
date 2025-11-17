@@ -22,10 +22,10 @@ export default async function AlertsPage() {
   post_id,
   is_read,
   created_at,
-  sender:sender_id (
-    id,
-    display_name,
-    image_url
+  sender: users!sender_id (
+  id,
+  display_name,
+  image_url
   ),
   post:post_id (
   id
@@ -39,7 +39,7 @@ comment:comment_id (
     .eq("receiver_id", user.id)
     .order("created_at", { ascending: false });
 
-  const notifications = (data ?? []) as unknown as Notification[];
+  const notifications = (data ?? []) as Notification[];
 
-  return <AlertsPageClient notifications={notifications} />;
+  return <AlertsPageClient uid={user.id} notifications={notifications} />;
 }
