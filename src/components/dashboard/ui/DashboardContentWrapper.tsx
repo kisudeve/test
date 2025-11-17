@@ -16,11 +16,12 @@ interface DashboardContentWrapperProps {
 }
 
 export default function DashboardContentWrapper({ initialData }: DashboardContentWrapperProps) {
-  const [data, setData] = useState<DashboardData>(initialData);
-  const [isRefreshing, setIsRefreshing] = useState(false);
-
   // 실시간 접속자 수 (전역 Context에서 가져옴)
   const { currentUsers } = usePresenceContext();
+
+  // 초기 데이터는 이미 currentUsers가 포함된 상태로 받음
+  const [data, setData] = useState<DashboardData>(initialData);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   // 사용자 정보 (Store에서 가져옴)
   const userName = useUserName();
@@ -32,15 +33,9 @@ export default function DashboardContentWrapper({ initialData }: DashboardConten
         if (showLoading) {
           setIsRefreshing(true);
         }
-        const newData = await fetchDashboardData();
-        // 서버에서 가져온 데이터에 현재 실시간 접속자 수를 유지
-        setData({
-          ...newData,
-          communityStats: {
-            ...newData.communityStats,
-            currentUsers: `${currentUsers || 1}명`, // 1명은 본인을 의미해서 초기값으로 설정
-          },
-        });
+        // 실시간 접속자 수를 파라미터로 전달
+        const newData = await fetchDashboardData(currentUsers || 1);
+        setData(newData);
       } catch (error) {
         console.error("데이터 로드 실패:", error);
       } finally {
@@ -51,6 +46,17 @@ export default function DashboardContentWrapper({ initialData }: DashboardConten
     },
     [currentUsers],
   );
+
+  // 현재 접속자 수가 변경될 때마다 데이터 업데이트
+  useEffect(() => {
+    setData((prevData) => ({
+      ...prevData,
+      communityStats: {
+        ...prevData.communityStats,
+        currentUsers: `${currentUsers || 1}명`,
+      },
+    }));
+  }, [currentUsers]);
 
   // 수동 새로고침
   const handleRefresh = useCallback(() => {
@@ -65,17 +71,6 @@ export default function DashboardContentWrapper({ initialData }: DashboardConten
 
     return () => clearInterval(intervalId);
   }, [loadData]);
-
-  // 현재 접속자 수가 변경될 때마다 데이터 업데이트
-  useEffect(() => {
-    setData((prevData) => ({
-      ...prevData,
-      communityStats: {
-        ...prevData.communityStats,
-        currentUsers: `${currentUsers || 1}명`,
-      },
-    }));
-  }, [currentUsers]);
 
   return (
     <div className="w-full h-full bg-gray-50 p-6 relative">

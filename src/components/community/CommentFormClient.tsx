@@ -36,8 +36,11 @@ export default function CommentFormClient({
 
   const handleCancel = useCallback(() => {
     formRef.current?.reset();
-    router.refresh();
-  }, [router]);
+    if (isEditing) {
+      cancelEditing(); // 수정 모드 취소
+    }
+    setTimeout(() => router.refresh(), 0);
+  }, [router, isEditing, cancelEditing]);
 
   // 수정 모드 진입 시 기존 내용 폼에 채우기
   useEffect(() => {

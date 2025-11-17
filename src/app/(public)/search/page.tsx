@@ -15,7 +15,7 @@ import { mapRowToCommunityPost } from "@/features/search/mappers/post.mapper";
 import { mapRowToSearchUser } from "@/features/search/mappers/user.mapper";
 import { mapRowToSearchTag } from "@/features/search/mappers/tag.mapper";
 
-type Tab = "posts" | "users" | "tags";
+import type { Tab } from "@/components/search/SearchTabs";
 
 export default function Page() {
   const searchParams = useSearchParams();
@@ -31,6 +31,10 @@ export default function Page() {
   const [posts, setPosts] = useState<ReturnType<typeof mapRowToCommunityPost>[]>([]);
   const [users, setUsers] = useState<ReturnType<typeof mapRowToSearchUser>[]>([]);
   const [tags, setTags] = useState<ReturnType<typeof mapRowToSearchTag>[]>([]);
+
+  const [showAllUsers, setShowAllUsers] = useState(false);
+  const [showAllTags, setShowAllTags] = useState(false);
+  const [showAllPosts, setShowAllPosts] = useState(false);
 
   // 데이터 최초 로드 (병렬)
   useEffect(() => {
@@ -62,6 +66,7 @@ export default function Page() {
 
   // 검색 제출
   const onSubmit = () => updateUrl(input, active);
+
   // 탭 변경
   const onChangeTab = (t: Tab) => {
     setActive(t);
@@ -105,15 +110,91 @@ export default function Page() {
 
   return (
     <section className="mx-auto p-6 flex flex-col gap-6">
-      <SearchBar value={input} onChange={setInput} onSubmit={onSubmit} />
-
-      <SearchTabs active={active} counts={counts} onChange={onChangeTab} />
+      <div className="rounded-2xl bg-white border border-slate-200 shadow-[0_4px_16px_rgba(15,23,42,0.06)] px-6 py-5 flex flex-col gap-4">
+        <SearchBar value={input} onChange={setInput} onSubmit={onSubmit} />
+        <SearchTabs active={active} counts={counts} onChange={onChangeTab} />
+      </div>
 
       {loading && <p className="text-slate-400">불러오는 중…</p>}
       {err && <p className="text-red-500">오류: {err}</p>}
 
       {!loading && !err && (
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-6">
+          {/* 전체(all) 탭일 때: 3개 섹션 모두 표시 */}
+          {active === "all" && (
+            <>
+              {/* 사용자 섹션 */}
+              {filteredUsers.length > 0 && (
+                <section className="rounded-2xl bg-white border border-slate-200 p-5 flex flex-col gap-4">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-slate-700 font-semibold">사용자</h3>
+                    {filteredUsers.length > 3 && (
+                      <button
+                        type="button"
+                        onClick={() => setShowAllUsers((prev) => !prev)}
+                        className="text-xs text-slate-500 hover:text-slate-700 cursor-pointer"
+                      >
+                        {showAllUsers ? "접기" : "더보기"}
+                      </button>
+                    )}
+                  </div>
+                  <div className="flex flex-col gap-3">
+                    {(showAllUsers ? filteredUsers : filteredUsers.slice(0, 3)).map((user) => (
+                      <SearchUserItem key={user.id} user={user} />
+                    ))}
+                  </div>
+                </section>
+              )}
+
+              {/* 태그 섹션 */}
+              {filteredTags.length > 0 && (
+                <section className="rounded-2xl bg-white border border-slate-200 p-5 flex flex-col gap-4">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-slate-700 font-semibold">태그</h3>
+                    {filteredTags.length > 3 && (
+                      <button
+                        type="button"
+                        onClick={() => setShowAllTags((prev) => !prev)}
+                        className="text-xs text-slate-500 hover:text-slate-700 cursor-pointer"
+                      >
+                        {showAllTags ? "접기" : "더보기"}
+                      </button>
+                    )}
+                  </div>
+                  <div className="grid grid-cols-1 gap-3">
+                    {(showAllTags ? filteredTags : filteredTags.slice(0, 3)).map((tag) => (
+                      <SearchTagItem key={tag.content} tag={tag} />
+                    ))}
+                  </div>
+                </section>
+              )}
+
+              {/* 게시글 섹션 */}
+              {filteredPosts.length > 0 && (
+                <section className="rounded-2xl bg-white border border-slate-200 p-5 flex flex-col gap-4">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-slate-700 font-semibold">게시글</h3>
+                    {filteredPosts.length > 3 && (
+                      <button
+                        type="button"
+                        onClick={() => setShowAllPosts((prev) => !prev)}
+                        className="text-xs text-slate-500 hover:text-slate-700 cursor-pointer"
+                      >
+                        {showAllPosts ? "접기" : "더보기"}
+                      </button>
+                    )}
+                  </div>
+                  <div className="flex flex-col gap-4">
+                    {(showAllPosts ? filteredPosts : filteredPosts.slice(0, 3)).map((post) => (
+                      <SearchPostItem key={post.id} post={post} />
+                    ))}
+                  </div>
+                </section>
+              )}
+            </>
+          )}
+
+          {/* 단일 탭일 때 */}
           {active === "posts" &&
             filteredPosts.map((post) => <SearchPostItem key={post.id} post={post} />)}
 
