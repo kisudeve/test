@@ -9,6 +9,7 @@ import ProfileImage from "@/components/common/ProfileImage";
 import FeelBadge from "@/components/common/FeelBadge";
 import { CommunityPost } from "./types";
 import type { FeelType as CoreFeelType } from "@/types/community";
+import { togglePostLike } from "@/features/likes/api/togglePostLike";
 
 // 간단한 상대시간 헬퍼(추후 utils로 교체 가능)
 function formatRelativeTime(iso: string) {
@@ -21,13 +22,34 @@ function formatRelativeTime(iso: string) {
 export default function SearchPostItem({ post }: { post: CommunityPost }) {
   const [liked, setLiked] = useState<boolean>(post.likes.length > 0);
   const [likeCount, setLikeCount] = useState<number>(post.likes_count);
+  const [pending, setPending] = useState(false);
 
-  const likeHandler = (e: React.MouseEvent<HTMLButtonElement>) => {
+  const likeHandler = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
     e.preventDefault();
-    setLiked((prev) => !prev);
-    setLikeCount((prev) => (liked ? prev - 1 : prev + 1));
-    // TODO: supabase 연동 시 API 호출 연결
+
+    if (pending) return; // 중복 클릭 방지
+    setPending(true);
+
+    const prevLiked = liked;
+    const nextLiked = !prevLiked;
+
+    // 1) 낙관적 업데이트 - UI 먼저 바꾸기
+    setLiked(nextLiked);
+    setLikeCount((prev) => prev + (nextLiked ? 1 : -1));
+
+    try {
+      // 2) Supabase에 실제로 반영
+      await togglePostLike(post.id, prevLiked);
+    } catch (error) {
+      console.error(error);
+      // 3) 실패하면 UI 롤백
+      setLiked(prevLiked);
+      setLikeCount((prev) => prev + (nextLiked ? -1 : 1));
+      alert("좋아요 처리 중 오류가 발생했습니다.");
+    } finally {
+      setPending(false);
+    }
   };
 
   const feel: CoreFeelType = (post.feels?.[0]?.type?.toLowerCase?.() ?? "hold") as CoreFeelType;
