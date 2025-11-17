@@ -11,6 +11,7 @@ import FeelBadge from "@/components/common/FeelBadge";
 import { CommunityPost } from "./types";
 import type { FeelType as CoreFeelType } from "@/types/community";
 import { togglePostLike } from "@/features/likes/api/togglePostLike";
+import { getHashtagArray } from "@/utils/helpers";
 
 // 간단한 상대시간 헬퍼(추후 utils로 교체 가능)
 function formatRelativeTime(iso: string) {
@@ -25,6 +26,8 @@ export default function SearchPostItem({ post }: { post: CommunityPost }) {
   const [liked, setLiked] = useState<boolean>(post.is_liked_by_me);
   const [likeCount, setLikeCount] = useState<number>(post.likes_count ?? 0);
   const [pending, setPending] = useState(false);
+
+  const hashtags = getHashtagArray(post.tags);
 
   const likeHandler = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
@@ -77,14 +80,14 @@ export default function SearchPostItem({ post }: { post: CommunityPost }) {
               <p className="line-clamp-1 font-medium text-slate-700">{post.content}</p>
             </div>
 
-            {post.tags && post.tags.length > 0 && (
+            {hashtags && (
               <div className="flex gap-2 flex-wrap">
-                {post.tags.map((t) => (
+                {hashtags.map((tag) => (
                   <span
-                    key={t}
+                    key={tag}
                     className="px-2 py-1 rounded-2xl bg-slate-200 text-xs text-slate-600"
                   >
-                    #{t}
+                    #{tag}
                   </span>
                 ))}
               </div>
