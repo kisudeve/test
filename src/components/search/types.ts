@@ -5,18 +5,27 @@ export type User = {
   image_url?: string | null;
 };
 
-export type CommunityPost = {
+export interface CommunityPost {
   id: string;
+  created_at: string;
   title: string;
   content: string;
-  created_at: string;
-  comments_count: number;
   likes_count: number;
-  likes: { user_id: string }[];
-  users: User;
+  comments_count: number;
+  users: {
+    display_name: string;
+    image_url: string | null;
+  };
   feels: { type: FeelType }[];
-  tags?: string[];
-};
+  tags: string[];
+  // 어떤 유저들이 좋아요 눌렀는지 (지금은 길이만 쓰지만, 확장성 위해 남겨둠)
+  likes: {
+    post_id: string;
+    user_id: string;
+  }[];
+  // 현재 로그인한 유저 기준으로, 내가 좋아요를 눌렀는지 여부
+  is_liked_by_me: boolean;
+}
 
 export type SearchUser = {
   id: string;

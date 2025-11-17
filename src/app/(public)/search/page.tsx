@@ -8,7 +8,7 @@ import SearchPostItem from "@/components/search/SearchPostItem";
 import SearchUserItem from "@/components/search/SearchUserItem";
 import SearchTagItem from "@/components/search/SearchTagItem";
 
-import { fetchPosts } from "@/features/search/api/fetchPosts";
+import { fetchPostsWithLikes } from "@/features/search/api/fetchPosts";
 import { fetchUsers } from "@/features/search/api/fetchUsers";
 import { fetchTags } from "@/features/search/api/fetchTags";
 import { mapRowToCommunityPost } from "@/features/search/mappers/post.mapper";
@@ -16,6 +16,7 @@ import { mapRowToSearchUser } from "@/features/search/mappers/user.mapper";
 import { mapRowToSearchTag } from "@/features/search/mappers/tag.mapper";
 
 import type { Tab } from "@/components/search/SearchTabs";
+import { createClient } from "@/utils/supabase/client";
 
 export default function Page() {
   const searchParams = useSearchParams();
@@ -42,8 +43,31 @@ export default function Page() {
       try {
         setLoading(true);
         setErr(null);
-        const [p, u, t] = await Promise.all([fetchPosts(), fetchUsers(), fetchTags()]);
-        setPosts(p.map(mapRowToCommunityPost));
+
+        const supabase = createClient();
+
+        // 1) 현재 로그인한 유저 가져오기
+        const {
+          data: { user },
+          error: userError,
+        } = await supabase.auth.getUser();
+
+        if (userError) {
+          console.error("[search] getUser error", userError);
+        }
+
+        const userId = user?.id ?? null;
+
+        // 2) posts + likes + users + tags 병렬 로드
+        const [{ posts: rawPosts, likes }, u, t] = await Promise.all([
+          fetchPostsWithLikes(),
+          fetchUsers(),
+          fetchTags(),
+        ]);
+
+        // 3) mapper에서 likes + userId를 이용해
+        //    likes_count / is_liked_by_me 계산해서 CommunityPost로 변환
+        setPosts(rawPosts.map((row) => mapRowToCommunityPost(row, likes, userId)));
         setUsers(u.map(mapRowToSearchUser));
         setTags(t.map(mapRowToSearchTag));
       } catch (e) {
