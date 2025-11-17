@@ -71,6 +71,7 @@ export default function EditClient({
 
       if (res.url) {
         setAvatarUrl(res.url);
+        router.refresh();
       }
     } catch (err) {
       console.error("Avatar upload failed:", err);
@@ -91,6 +92,9 @@ export default function EditClient({
       if (!res.ok) {
         console.error(res.message);
         alert(res.message);
+      } else {
+        // Header의 프로필 이미지가 즉시 업데이트되도록 페이지 새로고침
+        router.refresh();
       }
     } catch (err) {
       console.error("Avatar reset failed:", err);
