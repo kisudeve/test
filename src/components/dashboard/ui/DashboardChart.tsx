@@ -139,10 +139,8 @@ export default function DashboardChart({ chartData }: DashboardChartProps) {
       setIsDarkMode(document.documentElement.classList.contains("dark"));
     };
 
-    // 초기 체크
     checkDarkMode();
 
-    // MutationObserver로 다크 모드 변경 감지
     const observer = new MutationObserver(checkDarkMode);
     observer.observe(document.documentElement, {
       attributes: true,

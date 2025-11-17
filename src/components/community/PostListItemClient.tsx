@@ -53,7 +53,7 @@ export default function PostListItemClient({
     if (userId && liked) {
       await supabase.from("likes").delete().eq("user_id", userId).eq("post_id", post.id);
     } else {
-      await supabase.from("likes").insert({ post_id: post.id, user_id: userId });
+      await supabase.from("likes").insert({ post_id: post.id, user_id: userId as string });
       // 본인이 작성한 글이 아닐 때만 좋아요 알림
       if (post.user_id !== userId) {
         await supabase.from("notifications").insert({

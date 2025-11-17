@@ -57,10 +57,8 @@ export default function CommentListItemClient({
       setIsDarkMode(document.documentElement.classList.contains("dark"));
     };
 
-    // 초기 체크
     checkDarkMode();
 
-    // MutationObserver로 다크 모드 변경 감지
     const observer = new MutationObserver(checkDarkMode);
     observer.observe(document.documentElement, {
       attributes: true,
@@ -200,7 +198,7 @@ export default function CommentListItemClient({
                   size={18}
                   className={twMerge(
                     "transition-transform active:scale-125 stroke-slate-300 fill-slate-300 dark:stroke-[#b2b7c2] dark:fill-[#b2b7c2]",
-                    liked && "stroke-red-500 fill-red-500",
+                    liked && "stroke-red-500 fill-red-500 dark:stroke-red-500 dark:fill-red-500",
                   )}
                 />
                 {likeCount}

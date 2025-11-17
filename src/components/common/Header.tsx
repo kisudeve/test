@@ -202,16 +202,14 @@ export default function Header({
         {/* CTA 버튼 */}
         <Link
           href="/write"
-          className="h-12 flex items-center justify-center gap-2 rounded-2xl bg-linear-to-r
-           from-[#A8E0FF] to-[#C5C8FF] dark:from-[#6B8FA3] dark:to-[#7A8FB8]
-            text-white px-4 py-4 font-semibold hover:opacity-90 active:scale-[.99] transition"
+          className="h-12 flex items-center justify-center gap-2 rounded-2xl bg-linear-to-r from-[#A8E0FF] to-[#C5C8FF] dark:from-[#6B8FA3] dark:to-[#7A8FB8] text-white px-4 py-4 font-semibold hover:opacity-90 active:scale-[.99] transition"
         >
           <Icon.write />
           <span className="text-[14px]">오늘의 감정 작성</span>
         </Link>
 
         {/* 구분선 */}
-        <hr className="border-t border-gray-200" />
+        <hr className="border-t border-gray-200 dark:border-[#364153]" />
 
         {/* 프로필 영역 & 테마 토글 */}
         <div className="flex items-center gap-3">

@@ -87,14 +87,14 @@ export default function PostDetailActionsClient({
   }, 500);
 
   return (
-    <div className="flex justify-between border-t border-slate-200 pt-5">
+    <div className="flex justify-between border-t border-slate-200 pt-5 dark:border-[#364153]">
       <div className="flex gap-5">
         <Button onClick={likeHandler}>
           <Heart
             size={18}
             className={twMerge(
               "transition-transform active:scale-125 stroke-slate-300 fill-slate-300 dark:stroke-[#b2b7c2] dark:fill-[#b2b7c2]",
-              liked && "stroke-red-500 fill-red-500",
+              liked && "stroke-red-500 fill-red-500 dark:stroke-red-500 dark:fill-red-500",
             )}
           />
           {likeCount}
