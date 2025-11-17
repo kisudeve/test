@@ -57,7 +57,8 @@ export default function AlertsPageClient({
               image_url
               ),
               post:post_id (
-              id
+              id,
+              comments()
               ),
               comment:comment_id (
               id,
