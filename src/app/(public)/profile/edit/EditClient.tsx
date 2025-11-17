@@ -1,101 +1,101 @@
 // app/(public)/profile/edit/EditClient.tsx
-'use client';
+"use client";
 
-import type React from 'react';
-import { useState, useRef } from 'react';
-import Image from 'next/image';
-import { ArrowLeft, Camera, X } from 'lucide-react';
-import { useRouter } from 'next/navigation';
-import { uploadAvatar, resetAvatar, saveProfile } from './actions';
-
+import type React from "react";
+import { useState, useRef } from "react";
+import Image from "next/image";
+import { ArrowLeft, Camera, X } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { uploadAvatar, resetAvatar, saveProfile } from "./actions";
+import { toast } from "sonner";
 
 interface EditClientProps {
-  userId: string; 
-  nameInit?: string; 
+  userId: string;
+  nameInit?: string;
   bioInit?: string;
-  avatarInit?: string | null; 
+  avatarInit?: string | null;
 }
-
 
 export default function EditClient({
   userId,
-  nameInit = '',
-  bioInit = '',
+  nameInit = "",
+  bioInit = "",
   avatarInit = null,
 }: EditClientProps) {
   const router = useRouter();
 
-  
   const [name, setName] = useState(nameInit);
   const [bio, setBio] = useState(bioInit);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(avatarInit); // 파일 URL 또는 public URL
   const [isPending, setIsPending] = useState(false);
 
-  
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  
   const NAME_MAX = 20;
   const BIO_MAX = 200;
-
 
   const onPickFile = () => {
     fileInputRef.current?.click();
   };
 
- 
   const onFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || e.target.files.length === 0) return;
 
     const file = e.target.files[0];
+    const fileExt = file.name.includes(".") ? file.name.split(".").pop() : "jpg";
+    const now = new Date();
+    const timestamp = now.toISOString().replace(/[-:]/g, "").replace("T", "-").substring(0, 15); // YYYYMMDD-hhmmss
+    const randomId = crypto.randomUUID().replace(/-/g, "").substring(0, 5);
+    const fileName = `${timestamp}-${randomId}.${fileExt}`;
 
-   
+    const renamedFile = new File([file], fileName, { type: file.type });
+
     const previewUrl = URL.createObjectURL(file);
     setAvatarUrl(previewUrl);
 
     try {
       const formData = new FormData();
-      formData.append('userId', userId);
-      formData.append('file', file);
+      formData.append("userId", userId);
+      formData.append("file", renamedFile);
 
       const res = await uploadAvatar(formData);
 
       if (!res.ok) {
         console.error(res.message);
-        alert(res.message);
-       
+        toast.error(res.message);
         setAvatarUrl(avatarInit ?? null);
         return;
       }
 
-    
       if (res.url) {
         setAvatarUrl(res.url);
+        router.refresh();
       }
     } catch (err) {
-      console.error('Avatar upload failed:', err);
-      alert('프로필 사진 업로드 중 오류가 발생했습니다.');
+      console.error("Avatar upload failed:", err);
+      toast.error("프로필 사진 업로드 중 오류가 발생했습니다.");
       setAvatarUrl(avatarInit ?? null);
     }
   };
 
-  
   const onResetAvatar = async () => {
     setAvatarUrl(null);
 
     try {
       const formData = new FormData();
-      formData.append('userId', userId);
+      formData.append("userId", userId);
 
       const res = await resetAvatar(formData);
 
       if (!res.ok) {
         console.error(res.message);
-        alert(res.message);
+        toast.error(res.message);
+      } else {
+        router.refresh();
       }
     } catch (err) {
-      console.error('Avatar reset failed:', err);
-      alert('프로필 사진 초기화 중 오류가 발생했습니다.');
+      console.error("Avatar reset failed:", err);
+      toast.error("프로필 사진 초기화 중 오류가 발생했습니다.");
     }
   };
 
@@ -107,22 +107,22 @@ export default function EditClient({
 
     try {
       const formData = new FormData();
-      formData.append('userId', userId);
-      formData.append('display_name', name);
-      formData.append('bio', bio);
+      formData.append("userId", userId);
+      formData.append("display_name", name);
+      formData.append("bio", bio);
 
       const res = await saveProfile(formData);
 
       if (!res.ok) {
         console.error(res.message);
-        alert(res.message);
+        toast.error(res.message);
         return;
       }
 
-      router.push('/profile');
+      router.push("/profile");
     } catch (err) {
-      console.error('Profile update failed:', err);
-      alert('프로필 저장 중 오류가 발생했습니다.');
+      console.error("Profile update failed:", err);
+      toast.error("프로필 저장 중 오류가 발생했습니다.");
     } finally {
       setIsPending(false);
     }
@@ -130,24 +130,20 @@ export default function EditClient({
 
   return (
     <div className="min-h-screen bg-[linear-gradient(180deg,#eef3ff_0%,#f4f6fb_40%,#eef2fa_100%)]">
-     
       <header className="mx-auto w-full max-w-5xl px-4 pt-8">
         <div className="flex items-center gap-3">
           <button
-            onClick={() => router.push('/profile')}
+            onClick={() => router.push("/profile")}
             className="inline-flex items-center gap-2 rounded-xl px-3 py-2 text-slate-600 hover:bg-slate-100"
           >
             <ArrowLeft size={20} />
             <span className="text-sm">돌아가기</span>
           </button>
 
-          <h1 className="ml-1 text-2xl font-semibold text-slate-800">
-            프로필 수정
-          </h1>
+          <h1 className="ml-1 text-2xl font-semibold text-slate-800">프로필 수정</h1>
         </div>
       </header>
 
- 
       <input
         ref={fileInputRef}
         type="file"
@@ -162,7 +158,6 @@ export default function EditClient({
           onSubmit={onSubmit}
           className="w-full rounded-2xl bg-white px-20 py-20 shadow ring-1 ring-slate-200"
         >
-         
           <div className="mb-10 flex flex-col items-center">
             <div className="relative">
               <div className="relative size-32 sm:size-36 overflow-hidden rounded-full bg-slate-200/60 ring-1 ring-slate-200">
@@ -181,9 +176,7 @@ export default function EditClient({
                   </div>
                 )}
 
-                
                 <div className="absolute inset-0 flex items-center justify-center gap-3 bg-white/60">
-                 
                   <button
                     type="button"
                     onClick={onPickFile}
@@ -209,16 +202,13 @@ export default function EditClient({
 
             {/* 안내 문구 */}
             <p className="mt-4 text-sm text-slate-500 text-center">
-              프로필 사진을 변경하려면 카메라 버튼을, 삭제하려면 X 버튼을
-              클릭하세요.
+              프로필 사진을 변경하려면 카메라 버튼을, 삭제하려면 X 버튼을 클릭하세요.
             </p>
           </div>
 
           {/* 이름 */}
           <div className="mb-8">
-            <label className="mb-2 block text-sm font-medium text-slate-700">
-              이름
-            </label>
+            <label className="mb-2 block text-sm font-medium text-slate-700">이름</label>
             <input
               type="text"
               value={name}
@@ -226,16 +216,12 @@ export default function EditClient({
               placeholder="닉네임을 적어주세요"
               className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none placeholder:text-slate-400 focus:border-violet-300 focus:ring-2 focus:ring-violet-200"
             />
-            <div className="mt-1 text-xs text-slate-500">
-              {`${name.length}/${NAME_MAX}`}
-            </div>
+            <div className="mt-1 text-xs text-slate-500">{`${name.length}/${NAME_MAX}`}</div>
           </div>
 
           {/* 자기소개 */}
           <div className="mb-10">
-            <label className="mb-2 block text-sm font-medium text-slate-700">
-              자기소개
-            </label>
+            <label className="mb-2 block text-sm font-medium text-slate-700">자기소개</label>
             <textarea
               value={bio}
               onChange={(e) => setBio(e.target.value.slice(0, BIO_MAX))}
@@ -243,25 +229,19 @@ export default function EditClient({
               placeholder="자신을 소개해주세요..."
               className="w-full resize-none rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none placeholder:text-slate-400 focus:border-violet-300 focus:ring-2 focus:ring-violet-200"
             />
-            <div className="mt-1 text-xs text-slate-500">
-              {`${bio.length}/${BIO_MAX}`}
-            </div>
+            <div className="mt-1 text-xs text-slate-500">{`${bio.length}/${BIO_MAX}`}</div>
           </div>
 
-          
           <div className="mt-4 flex justify-end">
             <button
               type="submit"
               disabled={isPending}
               className={`rounded-xl bg-violet-500 px-7 py-2.5 text-sm font-medium text-white transition-colors hover:bg-violet-600 focus:outline-none focus:ring-2 focus:ring-violet-200 ${
-                isPending ? 'cursor-not-allowed opacity-50' : ''
+                isPending ? "cursor-not-allowed opacity-50" : ""
               }`}
             >
               {isPending ? (
-                <svg
-                  className="h-5 w-5 animate-spin text-white"
-                  viewBox="0 0 24 24"
-                >
+                <svg className="h-5 w-5 animate-spin text-white" viewBox="0 0 24 24">
                   <circle
                     cx="12"
                     cy="12"
@@ -273,7 +253,7 @@ export default function EditClient({
                   />
                 </svg>
               ) : (
-                '저장'
+                "저장"
               )}
             </button>
           </div>

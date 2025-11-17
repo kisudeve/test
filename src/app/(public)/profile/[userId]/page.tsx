@@ -9,28 +9,21 @@ import type { Tables } from "@/utils/supabase/supabase";
 type PostRow = Tables<"posts">;
 type HashtagRow = Tables<"hashtags">;
 
-
 export type PostWithTags = PostRow & {
   hashtags?: Pick<HashtagRow, "content">[] | null;
-  
+
   likes?: { user_id: string }[] | null;
 };
 
-export default async function ProfilePage({
-  params,
-}: {
-  params: Promise<{ userId: string }>;
-}) {
+export default async function ProfilePage({ params }: { params: Promise<{ userId: string }> }) {
   const { userId: profileUserId } = await params;
   const supabase = await createClient();
 
-  
   const {
     data: { user: me },
   } = await supabase.auth.getUser();
   if (!me) redirect("/auth/sign-in");
 
-  
   const { data: profile, error: profileErr } = await supabase
     .from("users")
     .select("id, display_name, bio, image_url, created_at")
@@ -42,7 +35,6 @@ export default async function ProfilePage({
     notFound();
   }
 
-  
   const [
     { count: followerCount }, // 나를 팔로우하는 수
     { count: followingCount }, // 내가 팔로우하는 수
@@ -50,27 +42,23 @@ export default async function ProfilePage({
     { data: followRel }, // 내가 이 프로필을 팔로우 중인지
     { data: feels }, // 감정 기록
     { data: writtenPostsRaw, error: writtenErr }, // 작성한 글
-    { data: viewedRowsRaw, error: viewedErr }, // 조회한 글 
+    { data: viewedRowsRaw, error: viewedErr }, // 조회한 글
   ] = await Promise.all([
-    
     supabase
       .from("follows")
       .select("id", { head: true, count: "exact" })
       .eq("following_id", profileUserId),
 
-    
     supabase
       .from("follows")
       .select("id", { head: true, count: "exact" })
       .eq("follower_id", profileUserId),
 
-    
     supabase
       .from("posts")
       .select("id", { head: true, count: "exact" })
       .eq("user_id", profileUserId),
 
-    
     supabase
       .from("follows")
       .select("id")
@@ -78,14 +66,12 @@ export default async function ProfilePage({
       .eq("following_id", profileUserId)
       .maybeSingle(),
 
-   
     supabase
       .from("feels")
       .select("type, amount, created_at")
       .eq("user_id", profileUserId)
       .order("created_at", { ascending: true }),
 
-  
     supabase
       .from("posts")
       .select(
@@ -106,7 +92,6 @@ export default async function ProfilePage({
       .order("created_at", { ascending: false })
       .limit(50),
 
-    
     supabase
       .from("recent_views")
       .select(
@@ -137,11 +122,9 @@ export default async function ProfilePage({
   const isMe = me.id === profileUserId;
   const isFollowing = !!followRel;
 
- 
   const chartRaw: ChartDataPoint[] = aggregateFeelsToChartData(feels ?? []);
 
   const hasRealData = chartRaw.length > 0;
-
 
   const preview: ChartDataPoint[] = Array.from({ length: 7 }).map((_, i) => {
     const d = new Date();
@@ -158,10 +141,8 @@ export default async function ProfilePage({
 
   const chartData = hasRealData ? chartRaw : preview;
 
-  
   const writtenPosts: PostWithTags[] = (writtenPostsRaw ?? []) as PostWithTags[];
 
-  
   const viewedPosts: PostWithTags[] = (() => {
     const rows = (viewedRowsRaw ?? []) as { posts: PostWithTags | null }[];
 
@@ -179,10 +160,8 @@ export default async function ProfilePage({
     return acc;
   })();
 
-  
   return (
     <div className="w-full px-6 py-6 space-y-6">
-     
       <section className="rounded-2xl bg-white p-6 shadow-sm">
         <ProfileHeader
           isMe={isMe}
@@ -199,18 +178,15 @@ export default async function ProfilePage({
         />
       </section>
 
-    
       <section className="rounded-2xl bg-white p-6 shadow-sm">
         <h2 className="mb-4 text-lg font-semibold">감정 트렌드</h2>
         <ProfileChart chartData={chartData} hasRealData={hasRealData} />
       </section>
 
-      
       <ProfilePosts written={writtenPosts} viewed={viewedPosts} />
     </div>
   );
 }
-
 
 function aggregateFeelsToChartData(
   rows: Array<{ type: string; amount: number | null; created_at: string }>,
@@ -224,7 +200,7 @@ function aggregateFeelsToChartData(
 
     const bucket = byDate.get(key) ?? { up: 0, down: 0, hold: 0 };
     const rawAmt = typeof r.amount === "number" ? r.amount : 1;
-    const amt = Math.abs(rawAmt); 
+    const amt = Math.abs(rawAmt);
 
     switch (String(r.type).toUpperCase()) {
       case "UP":
