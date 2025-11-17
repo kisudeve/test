@@ -18,7 +18,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <PresenceProvider channelName="dashboard">
           {/* 사용자 정보 초기화 Loader*/}
           <UserInitializer />
-          <div className="min-h-screen bg-[#f9fafb]">{children}</div>
+          <div className="min-h-screen bg-[#f9fafb] dark:bg-[#182236]">{children}</div>
         </PresenceProvider>
         <ToasterClient />
       </body>
