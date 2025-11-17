@@ -251,6 +251,7 @@ export default function Page() {
                   dataLength={Math.min(postLimit, filteredPosts.length)}
                   next={() => setPostLimit((prev) => prev + POST_PAGE_SIZE)}
                   hasMore={postLimit < filteredPosts.length}
+                  scrollThreshold={0.95}
                   loader={<p className="text-center text-slate-400 py-4">불러오는 중…</p>}
                   endMessage={
                     <p className="text-center text-slate-400 py-4">마지막 게시글입니다.</p>
@@ -278,6 +279,7 @@ export default function Page() {
                   dataLength={Math.min(userLimit, filteredUsers.length)}
                   next={() => setUserLimit((prev) => prev + USER_PAGE_SIZE)}
                   hasMore={userLimit < filteredUsers.length}
+                  scrollThreshold={0.95}
                   loader={<p className="text-center text-slate-400 py-4">불러오는 중…</p>}
                   endMessage={
                     <p className="text-center text-slate-400 py-4">마지막 사용자입니다.</p>
@@ -305,6 +307,7 @@ export default function Page() {
                   dataLength={Math.min(tagLimit, filteredTags.length)}
                   next={() => setTagLimit((prev) => prev + TAG_PAGE_SIZE)}
                   hasMore={tagLimit < filteredTags.length}
+                  scrollThreshold={0.95}
                   loader={<p className="text-center text-slate-400 py-4">불러오는 중…</p>}
                   endMessage={<p className="text-center text-slate-400 py-4">마지막 태그입니다.</p>}
                 >
