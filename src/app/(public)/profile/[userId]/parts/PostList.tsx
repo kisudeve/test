@@ -3,13 +3,15 @@
 import PostCard from "./PostCard";
 
 type RawTag = { content?: string } | string;
+
 type RawPost = {
   id: string | number;
   created_at: string;
-  content: string;
-  likes_count?: number | null;
+  title: string;
+  likes_count?: number | null;          
   comments_count?: number | null;
   hashtags?: { content: string }[] | null;
+  likes?: { user_id: string }[] | null;  
 };
 
 export default function PostList({
@@ -19,17 +21,25 @@ export default function PostList({
   posts: RawPost[] | null | undefined;
   hideTitle?: boolean;
 }) {
-  const list = (posts ?? []).map((p) => ({
-    id: p.id,
-    createdAt: p.created_at,
-    visibility: "public" as const, 
-    content: p.content,
-    likeCount: p.likes_count ?? 0,
-    commentCount: p.comments_count ?? 0,
-    tags: (p.hashtags ?? []).map((t: RawTag) =>
-      typeof t === "string" ? t : t.content ?? ""
-    ),
-  }));
+  const list = (posts ?? []).map((p) => {
+   
+    const likeCount =
+      Array.isArray(p.likes) && p.likes.length > 0
+        ? p.likes.length
+        : p.likes_count ?? 0;
+
+    return {
+      id: p.id,
+      createdAt: p.created_at,
+      visibility: "public" as const, 
+      content: p.title,
+      likeCount,
+      commentCount: p.comments_count ?? 0,
+      tags: (p.hashtags ?? []).map((t: RawTag) =>
+        typeof t === "string" ? t : t.content ?? "",
+      ),
+    };
+  });
 
   if (list.length === 0) {
     return (
@@ -42,7 +52,9 @@ export default function PostList({
   return (
     <div className="grid gap-3">
       {!hideTitle && (
-        <div className="mb-1 mt-2 text-sm font-semibold text-slate-600">목록</div>
+        <div className="mb-1 mt-2 text-sm font-semibold text-slate-600">
+          목록
+        </div>
       )}
       {list.map((p) => (
         <PostCard key={p.id} {...p} />

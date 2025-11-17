@@ -264,7 +264,6 @@ export type Database = {
       }
       notifications: {
         Row: {
-          comment_id: string | null
           created_at: string
           id: string
           is_read: boolean
@@ -274,7 +273,6 @@ export type Database = {
           type: string
         }
         Insert: {
-          comment_id?: string | null
           created_at?: string
           id?: string
           is_read: boolean
@@ -284,7 +282,6 @@ export type Database = {
           type: string
         }
         Update: {
-          comment_id?: string | null
           created_at?: string
           id?: string
           is_read?: boolean
@@ -294,13 +291,6 @@ export type Database = {
           type?: string
         }
         Relationships: [
-          {
-            foreignKeyName: "notifications_comment_id_fkey"
-            columns: ["comment_id"]
-            isOneToOne: false
-            referencedRelation: "comments"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "notifications_post_id_fkey"
             columns: ["post_id"]
