@@ -6,6 +6,7 @@ import { PAGE_SIZE } from "@/utils/helpers";
 import { createClient } from "@/utils/supabase/client";
 import PostListItemClient from "./PostListItemClient";
 import { useUserId } from "@/store/useStore";
+import PostListSkeleton from "../skeleton/PostListSkeleton";
 
 export default function PostListClient({ initialPosts }: { initialPosts: CommunityPost[] }) {
   const userId = useUserId();
@@ -73,8 +74,7 @@ export default function PostListClient({ initialPosts }: { initialPosts: Communi
       {posts.map((post) => (
         <PostListItemClient key={post.id} post={post} userId={userId} />
       ))}
-
-      {hasMore && <div ref={oTarget}>{loading && <p>로딩중</p>}</div>}
+      {hasMore && <div ref={oTarget}>{loading && <PostListSkeleton />}</div>}
     </section>
   );
 }

@@ -55,6 +55,7 @@ export default function CommentListClient({
             editingReplyComment={allComments?.find((c) => c.id === editingReplyCommentId)?.content}
             cancelEditing={() => setEditingReplyCommentId(null)}
             onEditReply={(replyId) => setEditingReplyCommentId(replyId)}
+            initialLike={comment.likes}
           />
         ))}
       </div>

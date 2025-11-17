@@ -40,7 +40,7 @@ export default async function TrendTags() {
           <Link
             key={tag}
             className="px-3 py-2 border border-slate-200 rounded-4xl text-sm hover:bg-slate-200"
-            href={"/community"} /* TODO: 임시링크 */
+            href={`/search?query=${tag}`}
           >
             # {tag}
           </Link>
