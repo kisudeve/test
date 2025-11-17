@@ -62,29 +62,29 @@ export type Database = {
       }
       comments: {
         Row: {
-          content: string;
-          created_at: string;
-          id: string;
-          parent_id: string | null;
-          post_id: string;
-          user_id: string;
-        };
+          content: string
+          created_at: string
+          id: string
+          parent_id: string | null
+          post_id: string
+          user_id: string
+        }
         Insert: {
-          content: string;
-          created_at?: string;
-          id?: string;
-          parent_id?: string | null;
-          post_id?: string;
-          user_id?: string;
-        };
+          content: string
+          created_at?: string
+          id?: string
+          parent_id?: string | null
+          post_id?: string
+          user_id?: string
+        }
         Update: {
-          content?: string;
-          created_at?: string;
-          id?: string;
-          parent_id?: string | null;
-          post_id?: string;
-          user_id?: string;
-        };
+          content?: string
+          created_at?: string
+          id?: string
+          parent_id?: string | null
+          post_id?: string
+          user_id?: string
+        }
         Relationships: [
           {
             foreignKeyName: "comments_parent_id_fkey"
@@ -218,40 +218,40 @@ export type Database = {
       }
       likes: {
         Row: {
-          comment_id: string | null;
-          created_at: string;
-          id: string;
-          post_id: string;
-          user_id: string;
-        };
+          comment_id: string | null
+          created_at: string
+          id: string
+          post_id: string
+          user_id: string
+        }
         Insert: {
-          comment_id?: string | null;
-          created_at?: string;
-          id?: string;
-          post_id: string;
-          user_id: string;
-        };
+          comment_id?: string | null
+          created_at?: string
+          id?: string
+          post_id: string
+          user_id: string
+        }
         Update: {
-          comment_id?: string | null;
-          created_at?: string;
-          id?: string;
-          post_id?: string;
-          user_id?: string;
-        };
+          comment_id?: string | null
+          created_at?: string
+          id?: string
+          post_id?: string
+          user_id?: string
+        }
         Relationships: [
           {
-            foreignKeyName: "likes_comment_id_fkey";
-            columns: ["comment_id"];
-            isOneToOne: false;
-            referencedRelation: "comments";
-            referencedColumns: ["id"];
+            foreignKeyName: "likes_comment_id_fkey"
+            columns: ["comment_id"]
+            isOneToOne: false
+            referencedRelation: "comments"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "likes_post_id_fkey";
-            columns: ["post_id"];
-            isOneToOne: false;
-            referencedRelation: "posts";
-            referencedColumns: ["id"];
+            foreignKeyName: "likes_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "likes_user_id_fkey"
@@ -264,49 +264,49 @@ export type Database = {
       }
       notifications: {
         Row: {
-          comment_id: string | null;
-          created_at: string;
-          id: string;
-          is_read: boolean;
-          post_id: string | null;
-          receiver_id: string;
-          sender_id: string;
-          type: string;
-        };
+          comment_id: string | null
+          created_at: string
+          id: string
+          is_read: boolean
+          post_id: string | null
+          receiver_id: string
+          sender_id: string
+          type: string
+        }
         Insert: {
-          comment_id?: string | null;
-          created_at?: string;
-          id?: string;
-          is_read: boolean;
-          post_id?: string | null;
-          receiver_id?: string;
-          sender_id?: string;
-          type: string;
-        };
+          comment_id?: string | null
+          created_at?: string
+          id?: string
+          is_read: boolean
+          post_id?: string | null
+          receiver_id?: string
+          sender_id?: string
+          type: string
+        }
         Update: {
-          comment_id?: string | null;
-          created_at?: string;
-          id?: string;
-          is_read?: boolean;
-          post_id?: string | null;
-          receiver_id?: string;
-          sender_id?: string;
-          type?: string;
-        };
+          comment_id?: string | null
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          post_id?: string | null
+          receiver_id?: string
+          sender_id?: string
+          type?: string
+        }
         Relationships: [
           {
-            foreignKeyName: "notifications_comment_id_fkey";
-            columns: ["comment_id"];
-            isOneToOne: false;
-            referencedRelation: "comments";
-            referencedColumns: ["id"];
+            foreignKeyName: "notifications_comment_id_fkey"
+            columns: ["comment_id"]
+            isOneToOne: false
+            referencedRelation: "comments"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "notifications_post_id_fkey";
-            columns: ["post_id"];
-            isOneToOne: false;
-            referencedRelation: "posts";
-            referencedColumns: ["id"];
+            foreignKeyName: "notifications_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "notifications_receiver_id_fkey"
@@ -316,11 +316,11 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "notifications_sender_id_fkey";
-            columns: ["sender_id"];
-            isOneToOne: false;
-            referencedRelation: "users";
-            referencedColumns: ["id"];
+            foreignKeyName: "notifications_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -399,44 +399,8 @@ export type Database = {
             referencedRelation: "users"
             referencedColumns: ["id"]
           },
-        ];
-      };
-      recent_views: {
-        Row: {
-          created_at: string;
-          id: string;
-          post_id: string;
-          user_id: string;
-        };
-        Insert: {
-          created_at?: string;
-          id?: string;
-          post_id?: string;
-          user_id?: string;
-        };
-        Update: {
-          created_at?: string;
-          id?: string;
-          post_id?: string;
-          user_id?: string;
-        };
-        Relationships: [
-          {
-            foreignKeyName: "recent_views_post_id_fkey";
-            columns: ["post_id"];
-            isOneToOne: false;
-            referencedRelation: "posts";
-            referencedColumns: ["id"];
-          },
-          {
-            foreignKeyName: "recent_views_user_id_fkey";
-            columns: ["user_id"];
-            isOneToOne: false;
-            referencedRelation: "users";
-            referencedColumns: ["id"];
-          },
-        ];
-      };
+        ]
+      }
       users: {
         Row: {
           bio: string | null
