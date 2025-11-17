@@ -96,6 +96,11 @@ export default function Header({
   const userProfile = initialProfile || null;
 
   const computedActiveKey = React.useMemo(() => {
+    // 글 작성 시 Header 탭 커뮤니티 활성화
+    if (pathname === "/write" || pathname.startsWith("/write/")) {
+      return "community";
+    }
+
     for (const n of NAV) {
       if (n.href === "/") {
         if (pathname === "/") return n.key;

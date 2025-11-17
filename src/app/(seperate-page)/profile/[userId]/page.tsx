@@ -31,7 +31,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userId
     .maybeSingle();
 
   if (!profile) {
-    console.error("[profile] select error:", profileErr);
+    // console.error("[profile] select error:", profileErr);
     notFound();
   }
 
