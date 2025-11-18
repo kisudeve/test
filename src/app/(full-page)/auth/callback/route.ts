@@ -12,7 +12,7 @@ export async function GET(request: Request) {
   const oauthError = searchParams.get("error");
   const errorDescription = searchParams.get("error_description");
 
-  if (oauthError) {
+  if (oauthError !== null) {
     console.error("OAuth error:", oauthError, errorDescription);
     return NextResponse.redirect(`${origin}/auth/auth-code-error`);
   }
