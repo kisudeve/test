@@ -29,7 +29,7 @@ export default function PostListSkeleton() {
             </div>
           </div>
         </div>
-        <div className="flex gap-5 border-t border-slate-300 pt-5 animate-pulse">
+        <div className="flex gap-5 border-t border-slate-300 pt-5 animate-pulse dark:border-slate-700">
           <div className="flex items-center justify-center gap-1">
             <Heart
               size={18}
