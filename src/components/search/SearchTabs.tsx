@@ -47,7 +47,7 @@ export default function SearchTabs({
   const total = counts.posts + counts.users + counts.tags;
 
   return (
-    <div className="flex items-center gap-2 text-sm">
+    <div className="flex items-center gap-2 text-sm flex-wrap">
       <TabButton t="all" label="전체" count={total} active={active} onChange={onChange} />
       <TabButton
         t="posts"

@@ -116,7 +116,7 @@ export default function ProfileHeader({ isMe, profile }: Props) {
             <>
               <Button
                 variant="edit"
-                className="px-3 py-1 border border-gray-300 min-w-20"
+                className="px-3 py-1 min-w-20"
                 style={isDarkMode ? { backgroundColor: "#e2e6ec", color: "#1e2939" } : undefined}
                 onClick={() => router.push(`/profile/edit?mode=edit&return=/profile/${profile.id}`)}
               >

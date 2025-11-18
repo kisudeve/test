@@ -6,7 +6,7 @@ export default function PostDetailSkeleton() {
       <div className="flex flex-col gap-6 animate-pulse">
         <div className="flex gap-4">
           <div className="rounded-full bg-slate-300 w-15 h-15"></div>
-          <div className="flex-1 flex justify-between items-center">
+          <div className="flex-1 flex justify-between items-start">
             <div className="flex flex-col gap-0.5">
               <div className="w-30 h-7 bg-slate-300 rounded-sm"></div>
               <div className="w-20 h-5 bg-slate-300 rounded-sm"></div>
