@@ -18,3 +18,38 @@ export function formatRelativeTime(iso?: string | null) {
   if (min >= 1) return `${min}분 전`;
   return "방금 전";
 }
+
+// 전체 랭크
+export function setTrendTagsRank(
+  tags: { content: string; created_at?: string }[],
+  count: number = 10,
+) {
+  const tokens = tags.flatMap((tag) => tag.content.split(",")).filter((tag) => tag.length > 0);
+  const frequencyMap: {
+    [key: string]: number;
+  } = {};
+
+  tokens.forEach((token) => {
+    frequencyMap[token] = (frequencyMap[token] || 0) + 1;
+  });
+
+  const tagRanks = Object.entries(frequencyMap)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, count)
+    .map(([tag, count]) => ({ tag, count }));
+
+  return tagRanks;
+}
+
+// 해시태그 배열로 변환
+export function getHashtagArray(hashtags: { content: string }[] | string[]) {
+  if (hashtags.length > 0) {
+    if (typeof hashtags[0] === "string" && hashtags[0] !== "") {
+      return hashtags[0].split(",");
+    }
+    if (typeof hashtags[0] === "object" && hashtags[0].content !== "") {
+      return hashtags[0].content.split(",");
+    }
+  }
+  return null;
+}

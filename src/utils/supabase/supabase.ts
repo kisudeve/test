@@ -12,13 +12,60 @@ export type Database = {
   __InternalSupabase: {
     PostgrestVersion: "13.0.5"
   }
+  graphql_public: {
+    Tables: {
+      [_ in never]: never
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      graphql: {
+        Args: {
+          extensions?: Json
+          operationName?: string
+          query?: string
+          variables?: Json
+        }
+        Returns: Json
+      }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
   public: {
     Tables: {
+      active_users: {
+        Row: {
+          created_at: string
+          id: string
+          last_seen_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          last_seen_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          last_seen_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       comments: {
         Row: {
           content: string
           created_at: string
           id: string
+          parent_id: string | null
           post_id: string
           user_id: string
         }
@@ -26,6 +73,7 @@ export type Database = {
           content: string
           created_at?: string
           id?: string
+          parent_id?: string | null
           post_id?: string
           user_id?: string
         }
@@ -33,10 +81,18 @@ export type Database = {
           content?: string
           created_at?: string
           id?: string
+          parent_id?: string | null
           post_id?: string
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "comments_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "comments"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "comments_post_id_fkey"
             columns: ["post_id"]
@@ -59,7 +115,7 @@ export type Database = {
           created_at: string
           id: string
           post_id: string
-          type: string
+          type: Database["public"]["Enums"]["feel"]
           user_id: string
         }
         Insert: {
@@ -67,7 +123,7 @@ export type Database = {
           created_at?: string
           id?: string
           post_id?: string
-          type: string
+          type: Database["public"]["Enums"]["feel"]
           user_id?: string
         }
         Update: {
@@ -75,7 +131,7 @@ export type Database = {
           created_at?: string
           id?: string
           post_id?: string
-          type?: string
+          type?: Database["public"]["Enums"]["feel"]
           user_id?: string
         }
         Relationships: [
@@ -162,24 +218,34 @@ export type Database = {
       }
       likes: {
         Row: {
+          comment_id: string | null
           created_at: string
           id: string
           post_id: string
           user_id: string
         }
         Insert: {
+          comment_id?: string | null
           created_at?: string
           id?: string
-          post_id?: string
-          user_id?: string
+          post_id: string
+          user_id: string
         }
         Update: {
+          comment_id?: string | null
           created_at?: string
           id?: string
           post_id?: string
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "likes_comment_id_fkey"
+            columns: ["comment_id"]
+            isOneToOne: false
+            referencedRelation: "comments"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "likes_post_id_fkey"
             columns: ["post_id"]
@@ -198,6 +264,7 @@ export type Database = {
       }
       notifications: {
         Row: {
+          comment_id: string | null
           created_at: string
           id: string
           is_read: boolean
@@ -207,6 +274,7 @@ export type Database = {
           type: string
         }
         Insert: {
+          comment_id?: string | null
           created_at?: string
           id?: string
           is_read: boolean
@@ -216,6 +284,7 @@ export type Database = {
           type: string
         }
         Update: {
+          comment_id?: string | null
           created_at?: string
           id?: string
           is_read?: boolean
@@ -225,6 +294,13 @@ export type Database = {
           type?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "notifications_comment_id_fkey"
+            columns: ["comment_id"]
+            isOneToOne: false
+            referencedRelation: "comments"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "notifications_post_id_fkey"
             columns: ["post_id"]
@@ -243,7 +319,7 @@ export type Database = {
             foreignKeyName: "notifications_sender_id_fkey"
             columns: ["sender_id"]
             isOneToOne: false
-            referencedRelation: "posts"
+            referencedRelation: "users"
             referencedColumns: ["id"]
           },
         ]
@@ -289,6 +365,42 @@ export type Database = {
           },
         ]
       }
+      recent_views: {
+        Row: {
+          created_at: string
+          id: string
+          post_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          post_id?: string
+          user_id?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          post_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "recent_views_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "recent_views_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       users: {
         Row: {
           bio: string | null
@@ -321,10 +433,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      cleanup_inactive_users: { Args: never; Returns: undefined }
     }
     Enums: {
-      [_ in never]: never
+      feel: "up" | "down" | "hold"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -450,7 +562,12 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
-  public: {
+  graphql_public: {
     Enums: {},
+  },
+  public: {
+    Enums: {
+      feel: ["up", "down", "hold"],
+    },
   },
 } as const

@@ -5,17 +5,16 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { PAGE_SIZE } from "@/utils/helpers";
 import { createClient } from "@/utils/supabase/client";
 import PostListItemClient from "./PostListItemClient";
+import { useUserId } from "@/store/useStore";
+import PostListSkeleton from "../skeleton/PostListSkeleton";
 
-export default function PostListClient({
-  initialPosts,
-  userId,
-}: {
-  initialPosts: CommunityPost[];
-  userId: string | undefined;
-}) {
+export default function PostListClient({ initialPosts }: { initialPosts: CommunityPost[] }) {
+  const userId = useUserId();
+
   const [posts, setPosts] = useState<CommunityPost[]>(initialPosts);
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(false);
+
   const oTarget = useRef(null);
   const page = useRef(PAGE_SIZE);
 
@@ -27,7 +26,9 @@ export default function PostListClient({
 
     const { data: posts, error: postsError } = await supabase
       .from("posts")
-      .select("*, users(display_name, image_url), feels(type), likes(post_id)")
+      .select(
+        "*, users(display_name, image_url), feels(type), likes(post_id, user_id), hashtags(content)",
+      )
       .order("created_at", { ascending: false })
       .order("id", { ascending: false })
       .range(page.current, page.current + PAGE_SIZE - 1);
@@ -69,12 +70,11 @@ export default function PostListClient({
   }, [hasMore, loading, loadMorePosts]);
 
   return (
-    <section className="flex flex-col gap-4 m-8">
+    <section className="flex-1 flex flex-col gap-4">
       {posts.map((post) => (
         <PostListItemClient key={post.id} post={post} userId={userId} />
       ))}
-
-      {hasMore && <div ref={oTarget}>{loading && <p>로딩중</p>}</div>}
+      {hasMore && <div ref={oTarget}>{loading && <PostListSkeleton />}</div>}
     </section>
   );
 }

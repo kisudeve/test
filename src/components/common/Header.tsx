@@ -1,89 +1,40 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import {
+  TrendingUp,
+  TrendingDown,
+  UserIcon,
+  Moon,
+  Sun,
+  LayoutDashboard,
+  Users,
+  Search,
+  Bell,
+  PenTool,
+  X,
+  Menu,
+} from "lucide-react";
+import type { Database } from "@/utils/supabase/supabase";
+import { twMerge } from "tailwind-merge";
+import { useBreakpoint } from "@/hooks/useBreakPoint";
+import Button from "./Button";
+import ProfileImage from "./ProfileImage";
+
+type Profile = Database["public"]["Tables"]["users"]["Row"];
 
 const Icon = {
-  logo: ({ className }: { className?: string }) => (
-    <div className={"flex items-center justify-center w-full " + (className || "")}>
-      <Image
-        src="/logo/logo.svg"
-        alt="logo"
-        width={224}
-        height={89}
-        className="object-contain"
-        priority
-      />
-    </div>
-  ),
   dashboard: ({ className }: { className?: string }) => (
-    <div className={" w-6 h-6 flex items-center justify-center " + (className || "")}>
-      <Image
-        src="/header/dashboard.svg"
-        alt="dashboard-icon"
-        width={18}
-        height={18}
-        className="object-contain"
-      />
-    </div>
+    <LayoutDashboard size={18} className={className} />
   ),
-  community: ({ className }: { className?: string }) => (
-    <div className={" w-6 h-6 flex items-center justify-center " + (className || "")}>
-      <Image
-        src="/header/community.svg"
-        alt="community-icon"
-        width={18}
-        height={18}
-        className="object-contain"
-      />
-    </div>
-  ),
-  search: ({ className }: { className?: string }) => (
-    <div className={" w-6 h-6 flex items-center justify-center " + (className || "")}>
-      <Image
-        src="/header/search.svg"
-        alt="search-icon"
-        width={18}
-        height={18}
-        className="object-contain"
-      />
-    </div>
-  ),
-  profile: ({ className }: { className?: string }) => (
-    <div className={" w-6 h-6 flex items-center justify-center " + (className || "")}>
-      <Image
-        src="/header/profile.svg"
-        alt="profile-icon"
-        width={18}
-        height={18}
-        className="object-contain"
-      />
-    </div>
-  ),
-  bell: ({ className }: { className?: string }) => (
-    <div className={" w-6 h-6 flex items-center justify-center " + (className || "")}>
-      <Image
-        src="/header/bell.svg"
-        alt="bell-icon"
-        width={18}
-        height={18}
-        className="object-contain"
-      />
-    </div>
-  ),
-  write: ({ className }: { className?: string }) => (
-    <div className={" w-6 h-6 flex items-center justify-center " + (className || "")}>
-      <Image
-        src="/header/write.svg"
-        alt="write-icon"
-        width={18}
-        height={18}
-        className="object-contain"
-      />
-    </div>
-  ),
+  community: ({ className }: { className?: string }) => <Users size={18} className={className} />,
+  search: ({ className }: { className?: string }) => <Search size={18} className={className} />,
+  profile: ({ className }: { className?: string }) => <UserIcon size={18} className={className} />,
+  bell: ({ className }: { className?: string }) => <Bell size={18} className={className} />,
+  write: ({ className }: { className?: string }) => <PenTool size={18} className={className} />,
 };
 
 type NavItem = {
@@ -105,9 +56,10 @@ interface HeaderProps {
   // 현재 활성화된 메뉴 키 (예: 'search')
   activeKey?: string;
   // 사용자 정보 (하단 프로필 영역): 이름과 프로필 이미지
-  userInfo?: { name: string; profileImg: string };
+  userProfile?: { display_name: string; image_url: string };
   // 오늘의 감정 지수 카드에 보여줄 값
-  todayScore?: { value: number; changePct: number };
+  todayScore?: { value: number; finalResult: number };
+  initialProfile?: Profile | null;
   className?: string;
 }
 
@@ -115,156 +67,256 @@ interface HeaderProps {
 // activeKey: 현재 활성화된 메뉴 키
 // userName: 사용자 이름
 // todayScore: 오늘의 감정 지수 정보
+// initialProfile: SSR에서 가져온 초기 프로필
 export default function Header({
   activeKey = "dashboard",
-  userInfo = { name: "김민준", profileImg: "" },
-  todayScore = { value: 1240, changePct: 1.8 },
+  todayScore = { value: 1240, finalResult: 1.8 },
+  initialProfile,
   className,
 }: HeaderProps) {
   const pathname = usePathname();
+
+  const [visible, setVisible] = useState(false);
+  const { isMobile, isXl } = useBreakpoint();
+
+  // SSR 프로필을 우선 사용하고, 클라이언트 사이드에서 업데이트되면 그것을 사용
+  const userProfile = initialProfile || null;
+
   const computedActiveKey = React.useMemo(() => {
-    const hit = NAV.find((n) => n.href === pathname);
-    return hit?.key ?? activeKey;
+    // 글 작성 시 Header 탭 커뮤니티 활성화
+    if (pathname === "/write" || pathname.startsWith("/write/")) {
+      return "community";
+    }
+
+    for (const n of NAV) {
+      if (n.href === "/") {
+        if (pathname === "/") return n.key;
+      } else {
+        if (pathname === n.href || pathname.startsWith(n.href + "/")) return n.key;
+      }
+    }
+    return activeKey;
   }, [pathname, activeKey]);
+
+  const [isDark, setIsDark] = useState(false);
+
+  useEffect(() => {
+    document.documentElement.classList.toggle("dark", isDark);
+  }, [isDark]);
+
+  // 헤더 렌더링
+  const headerHandler = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setVisible(!visible);
+    if (visible) {
+      document.body.style.overflow = "auto";
+    } else {
+      document.body.style.overflow = "hidden";
+    }
+  };
+
+  // 링크 클릭 시 메뉴 닫기
+  const handleLinkClick = () => {
+    if (visible) {
+      setVisible(false);
+      document.body.style.overflow = "auto";
+    }
+  };
+
   return (
-    <aside
-      className={[
-        "bg-white/85 backdrop-blur shadow-md shadow-gray-200/70 rounded-lg",
-        "w-full",
-        "h-full flex flex-col p-4 gap-4",
-        "shrink-0",
-        "font-[Paperlogy]",
-        "font-semibold",
-        className || "",
-      ].join(" ")}
-      aria-label="헤더"
-    >
-      {/* Logo */}
-      <div className="flex items-center gap-3 px-2">
-        <Link href="/">
-          <div className="text-black">
-            <Icon.logo />
-          </div>
-          <span className="font-semibold text-lg tracking-tight sm:hidden">updown</span>
-        </Link>
-      </div>
-
-      {/* 오늘의 감정 지수 카드 */}
-      <section>
-        <div className="w-full rounded-2xl bg-black text-white p-4 shadow-sm">
-          <p className="text-[14px] text-gray-300">오늘의 감정 지수</p>
-          <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-            <span className="text-[26px] font-extrabold tabular-nums tracking-tight sm:text-[30px]">
-              {todayScore.value.toLocaleString()}
-            </span>
-            <span
-              className={`inline-flex shrink-0 items-center gap-1 rounded-lg bg-white/10 px-3 py-1 text-sm font-semibold backdrop-blur sm:gap-2 sm:bg-transparent sm:px-0 sm:py-0 sm:text-[14px] ${
-                todayScore.changePct >= 0 ? "text-emerald-500" : "text-rose-500"
-              }`}
-            >
-              {todayScore.changePct >= 0 ? "+" : "-"}
-              {todayScore.changePct.toFixed(2)}%
-              {todayScore.changePct >= 0 ? (
-                <svg
-                  viewBox="0 0 24 24"
-                  aria-hidden
-                  className="h-5 w-5 sm:h-7 sm:w-7"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  {/* trending up arrow */}
-                  <path d="M3 17l6-6 4 4 7-7" />
-                  <path d="M17 8h4v4" />
-                </svg>
-              ) : (
-                <svg
-                  viewBox="0 0 24 24"
-                  aria-hidden
-                  className="h-5 w-5 sm:h-7 sm:w-7"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  {/* trending down arrow */}
-                  <path d="M3 7l6 6 4-4 7 7" />
-                  <path d="M17 16h4v-4" />
-                </svg>
-              )}
-            </span>
-          </div>
-        </div>
-      </section>
-
-      {/* 네비게이션 */}
-      <nav className="mt-2 flex-1">
-        <ul className="flex flex-col gap-1">
-          {NAV.map(({ key, label, href, Icon: I }) => {
-            const active = key === computedActiveKey;
-            return (
-              <li key={key}>
-                <Link
-                  href={href}
-                  className={[
-                    "group flex items-center justify-between rounded-xl px-3 py-2",
-                    active
-                      ? "bg-gray-200 text-gray-900"
-                      : "text-gray-400 transition-colors duration-200 hover:text-gray-600 hover:bg-gray-100",
-                  ].join(" ")}
-                  aria-current={active ? "page" : undefined}
-                >
-                  <div className="flex items-center gap-3">
-                    <I className={active ? "" : "grayscale opacity-60"} />
-                    <span>{label}</span>
-                  </div>
-                  {active ? (
-                    <Image src="/header/active-indicator.svg" alt="active" width={8} height={8} />
-                  ) : null}
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
-      </nav>
-
-      {/* 하단 CTA & 프로필 */}
-      <div className="mt-auto flex flex-col gap-6">
-        {/* CTA 버튼 */}
+    <>
+      {/* 모바일 헤더 - CSS로 반응형 처리 */}
+      <header
+        className={twMerge(
+          "fixed top-0 left-0 w-full h-18 bg-white/85 backdrop-blur-2xl shadow-sm flex justify-center items-center z-61",
+          "xl:hidden", // 데스크탑에서 숨김
+          visible && "bg-white",
+          "dark:bg-[#101828] dark:border-b dark:border-slate-700",
+        )}
+      >
+        {/* Logo */}
         <Link
-          href="/write"
-          className="h-12 flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#A8E0FF] to-[#C5C8FF] text-white px-4 py-4 font-semibold  hover:opacity-90 active:scale-[.99] transition"
+          href="/"
+          className={twMerge("flex items-center justify-center")}
+          onClick={handleLinkClick}
         >
-          <Icon.write />
-          <span className="text-[14px]">오늘의 감정 작성</span>
+          <Image
+            src="/logo/logo.svg"
+            alt="logo"
+            width={98}
+            height={39}
+            className="object-contain dark:invert"
+            priority
+          />
         </Link>
+        <Button className="absolute left-6 text-black dark:text-slate-200" onClick={headerHandler}>
+          {visible ? <X /> : <Menu />}
+        </Button>
+      </header>
+      <div
+        className={twMerge(
+          "xl:z-0 xl:pl-4 xl:py-6 xl:sticky xl:top-0 xl:bottom-6 xl:h-dvh xl:w-full xl:min-w-64 xl:max-w-64",
+          "fixed top-0 right-0 bottom-0 left-0 -z-60",
+          !isXl && visible && "bg-slate-900/30 backdrop-blur-xs z-60",
+          className,
+        )}
+        onClick={headerHandler}
+      >
+        <aside
+          className={twMerge(
+            "h-full flex-col p-4 gap-4 shadow-sm ",
+            "shrink-0",
+            "font-semibold",
+            "xl:pt-4 xl:min-w-60 xl:max-w-60 xl:flex xl:rounded-lg xl:bg-white/85 xl:backdrop-blur", // 반응형 작업
+            visible ? "flex" : "hidden",
+            "bg-white w-4/5 max-w-200 pt-25",
+            isMobile && "w-full min-w-auto max-w-auto",
+            "dark:bg-[#101828] dark:border-r dark:border-slate-700",
+          )}
+          aria-label="헤더"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {/* Logo - 데스크톱에서만 보이기 */}
+          <Link
+            href="/"
+            className={twMerge("hidden xl:flex items-center justify-center h-[89px]")}
+            onClick={handleLinkClick}
+          >
+            <Image
+              src="/logo/logo.svg"
+              alt="logo"
+              width={144}
+              height={57}
+              className="object-contain dark:invert"
+              priority
+            />
+          </Link>
 
-        {/* 구분선 */}
-        <hr className="border-t border-gray-200" />
-
-        {/* 프로필 영역 */}
-        <Link href="/profile">
-          <div className="flex items-center gap-3 px-1 py-2 rounded-2xl transition-colors duration-200 hover:bg-gray-100">
-            <div className="h-10 w-10 shrink-0 rounded-full bg-gray-300 overflow-hidden">
-              {userInfo?.profileImg ? (
-                <Image
-                  src={userInfo.profileImg}
-                  alt={`${userInfo.name} 프로필`}
-                  width={40}
-                  height={40}
-                  className="h-full w-full object-cover"
-                />
-              ) : null}
+          {/* 오늘의 감정 지수 카드 */}
+          <section>
+            <div className="w-full rounded-2xl bg-black text-white p-4 shadow-sm dark:bg-[#141d2b]">
+              <p className="text-[14px] text-gray-300">오늘의 감정 지수</p>
+              <div className="mt-3 flex gap-y-0.5 gap-x-3 max-[1215px]:flex-wrap min-[1216px]:flex-nowrap items-end justify-between">
+                <span className="text-[26px] font-extrabold tabular-nums tracking-tight max-[1215px]:text-[28px] min-[1216px]:text-[34px]">
+                  {todayScore.value.toLocaleString()}
+                </span>
+                <span
+                  className={`inline-flex shrink-0 items-center gap-1 rounded-lg font-semibold backdrop-blur bg-transparent px-0 py-0 text-[14px] ${
+                    todayScore.finalResult >= 0 ? "text-emerald-500" : "text-rose-500"
+                  }`}
+                >
+                  {todayScore.finalResult >= 0 ? "+" : ""}
+                  {Math.abs(todayScore.finalResult).toFixed(2)}%
+                  {todayScore.finalResult >= 0 ? (
+                    <TrendingUp className="h-5 w-5 sm:h-7 sm:w-7" />
+                  ) : (
+                    <TrendingDown className="h-5 w-5 sm:h-7 sm:w-7" />
+                  )}
+                </span>
+              </div>
             </div>
-            <div className="flex flex-col justify-center">
-              <p className="text-[14px] font-bold text-black leading-tight">{userInfo.name}</p>
+          </section>
+
+          {/* 네비게이션 */}
+          <nav className="mt-2 flex-1">
+            <ul className="flex flex-col gap-1">
+              {NAV.map(({ key, label, href, Icon: I }) => {
+                const active = key === computedActiveKey;
+                return (
+                  <li key={key}>
+                    <Link
+                      href={href}
+                      className={[
+                        "group flex items-center justify-between rounded-xl px-3 py-2",
+                        active
+                          ? "bg-gray-200 text-gray-900 dark:bg-gray-800 dark:text-gray-200"
+                          : "text-gray-400 transition-colors duration-200 hover:text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-gray-200",
+                      ].join(" ")}
+                      aria-current={active ? "page" : undefined}
+                      onClick={handleLinkClick}
+                    >
+                      <div className="flex items-center gap-3">
+                        <I className={active ? "" : " grayscale opacity-60"} />
+                        <span>{label}</span>
+                      </div>
+                      {active ? (
+                        <Image
+                          src="/header/active-indicator.svg"
+                          alt="active"
+                          width={8}
+                          height={8}
+                        />
+                      ) : null}
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </nav>
+
+          {/* 하단 CTA & 프로필 */}
+          <div className="mt-auto flex flex-col gap-6 dark:bg-[#101828]">
+            {/* CTA 버튼 */}
+            <Link
+              href="/write"
+              className="h-12 flex items-center justify-center gap-2 rounded-2xl bg-linear-to-r from-[#A8E0FF] to-[#C5C8FF] text-white px-4 py-4 font-semibold  hover:opacity-90 active:scale-[.99] transition dark:from-[#6B8FA3] dark:to-[#7A8FB8]"
+              onClick={handleLinkClick}
+            >
+              <Icon.write />
+              <span className="text-[14px]">오늘의 감정 작성</span>
+            </Link>
+
+            {/* 구분선 */}
+            <hr className="border-t border-gray-200 dark:border-[#364153]" />
+
+            {/* 프로필 영역 & 테마 토글 */}
+            <div className="flex justify-between items-center pl-3 py-2 rounded-2xl">
+              {userProfile && (
+                <div className="flex items-center gap-3 flex-1 rounded-lg px-2 py-1 -ml-2 transition-colors duration-200 hover:bg-gray-100 dark:hover:bg-gray-800">
+                  <ProfileImage
+                    displayName={userProfile.display_name}
+                    imageUrl={userProfile?.image_url}
+                    className="w-10 h-10 shrink-0"
+                  />
+                  <Link
+                    href="/profile"
+                    className="flex-1 rounded-lg px-2 py-1 -ml-2 transition-colors duration-200"
+                  >
+                    <div className="flex flex-col justify-center">
+                      <p className="text-[14px] font-bold text-black leading-tight dark:text-gray-400">
+                        {userProfile ? userProfile.display_name : "Unknown"}
+                      </p>
+                    </div>
+                  </Link>
+                </div>
+              )}
+              {!userProfile && (
+                <div className="flex items-center gap-3 flex-1 rounded-lg px-2 py-1 -ml-2 transition-colors duration-200 hover:bg-gray-100 dark:hover:bg-gray-800">
+                  <UserIcon className="h-6 w-6 text-gray-500 shrink-0" />
+                  <Link
+                    href="/profile"
+                    className="flex-1 rounded-lg px-2 py-1 -ml-2 transition-colors duration-200"
+                  >
+                    <div className="flex flex-col justify-center">
+                      <p className="text-[14px] font-bold text-black leading-tight dark:text-gray-400">
+                        로그인
+                      </p>
+                    </div>
+                  </Link>
+                </div>
+              )}
+              <button
+                onClick={() => setIsDark((prev) => !prev)}
+                className="p-2 rounded-xl transition-colors duration-200 cursor-pointer"
+                aria-label="Toggle Theme"
+              >
+                <Sun className="h-6 w-6 hidden  rounded-lg dark:block dark:text-gray-400 transition-colors duration-200 hover:bg-gray-100 dark:hover:bg-gray-800" />
+                <Moon className="h-6 w-6 block  rounded-lg dark:hidden text-black transition-colors duration-200 hover:bg-gray-100 dark:hover:bg-gray-800" />
+              </button>
             </div>
           </div>
-        </Link>
+        </aside>
       </div>
-    </aside>
+    </>
   );
 }
