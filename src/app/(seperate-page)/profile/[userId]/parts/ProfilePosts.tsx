@@ -15,7 +15,7 @@ export default function ProfilePosts({
   const [active, setActive] = useState<"posts" | "views">("posts");
 
   return (
-    <section className="rounded-2xl bg-white p-6 shadow-sm">
+    <section className="rounded-2xl bg-white p-6 shadow-sm border border-slate-200 dark:bg-[#141d2b] dark:border-[#364153]">
       <div className="mb-5">
         <PostTabs
           active={active}

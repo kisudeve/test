@@ -11,8 +11,9 @@ import Link from "next/link";
 export default async function PostDetail({ postId }: { postId: string }) {
   const supabase = await createClient();
 
-  const { data: { user }}
-  = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   const { data: post, error: postError } = await supabase
     .from("posts")
@@ -26,20 +27,16 @@ export default async function PostDetail({ postId }: { postId: string }) {
   }
 
   if (user) {
-    await supabase
-     .from("recent_views")
-     .upsert(
-       {
-        user_id: user.id,
-        post_id: postId,
-       },
-     )
+    await supabase.from("recent_views").upsert({
+      user_id: user.id,
+      post_id: postId,
+    });
   }
 
   const hashtags = getHashtagArray(post.hashtags);
 
   return (
-    <section className="p-10 rounded-2xl shadow-[0_4px_12px_rgba(0,0,0,0.06)] bg-white border border-slate-200">
+    <section className="p-10 rounded-2xl shadow-[0_4px_12px_rgba(0,0,0,0.06)] bg-white border border-slate-200 dark:bg-[#141d2b] dark:border-[#364153]">
       <div className="flex flex-col gap-6">
         <div className="flex gap-4">
           {/* 사용자 프로필 사진 */}
@@ -55,10 +52,10 @@ export default async function PostDetail({ postId }: { postId: string }) {
             {/* 사용자 닉네임, 작성시간, 글 타입 */}
             <div className="flex justify-between items-center">
               <div className="flex flex-col gap-0.5">
-                <strong className="text-lg font-semibold text-slate-800">
+                <strong className="text-lg font-semibold text-slate-800 dark:text-gray-300">
                   {post.users.display_name}
                 </strong>
-                <span className="text-slate-400 text-sm">
+                <span className="text-slate-400 text-sm dark:text-gray-400">
                   {formatRelativeTime(post.created_at)}
                 </span>
               </div>
@@ -69,8 +66,8 @@ export default async function PostDetail({ postId }: { postId: string }) {
         <div className="flex flex-col gap-4">
           {/* 작성글 제목, 내용, 이미지 */}
           <div className="flex flex-col gap-2">
-            <h3 className="text-2xl font-bold">{post.title}</h3>
-            <p className="font-medium text-slate-700">{post.content}</p>
+            <h3 className="text-2xl font-bold dark:text-gray-300">{post.title}</h3>
+            <p className="font-medium text-slate-700 dark:text-gray-400">{post.content}</p>
             {post.image_url && (
               <Link href={`/community/${post.id}/zoom?image_url=${post.image_url}`}>
                 <Image
@@ -89,7 +86,7 @@ export default async function PostDetail({ postId }: { postId: string }) {
               {hashtags.map((tag) => (
                 <span
                   key={tag}
-                  className="px-2 py-1 rounded-2xl bg-slate-200 text-xs text-slate-600"
+                  className="px-2 py-1 rounded-2xl bg-slate-200 text-sm text-slate-600 dark:bg-gray-700 dark:text-gray-300"
                 >
                   #{tag}
                 </span>

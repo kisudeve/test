@@ -1,11 +1,23 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { TrendingUp, TrendingDown, User } from "lucide-react";
+import {
+  TrendingUp,
+  TrendingDown,
+  User,
+  Moon,
+  Sun,
+  LayoutDashboard,
+  Users,
+  Search,
+  Bell,
+  PenTool,
+} from "lucide-react";
 import type { Database } from "@/utils/supabase/supabase";
+
 type Profile = Database["public"]["Tables"]["users"]["Row"];
 
 const Icon = {
@@ -16,76 +28,28 @@ const Icon = {
         alt="logo"
         width={224}
         height={89}
-        className="object-contain"
+        className="object-contain dark:invert"
         priority
       />
     </div>
   ),
   dashboard: ({ className }: { className?: string }) => (
-    <div className={" w-6 h-6 flex items-center justify-center " + (className || "")}>
-      <Image
-        src="/header/dashboard.svg"
-        alt="dashboard-icon"
-        width={18}
-        height={18}
-        className="object-contain"
-      />
-    </div>
+    <LayoutDashboard className={className || "w-[18px] h-[18px]"} />
   ),
   community: ({ className }: { className?: string }) => (
-    <div className={" w-6 h-6 flex items-center justify-center " + (className || "")}>
-      <Image
-        src="/header/community.svg"
-        alt="community-icon"
-        width={18}
-        height={18}
-        className="object-contain"
-      />
-    </div>
+    <Users className={className || "w-[18px] h-[18px]"} />
   ),
   search: ({ className }: { className?: string }) => (
-    <div className={" w-6 h-6 flex items-center justify-center " + (className || "")}>
-      <Image
-        src="/header/search.svg"
-        alt="search-icon"
-        width={18}
-        height={18}
-        className="object-contain"
-      />
-    </div>
+    <Search className={className || "w-[18px] h-[18px]"} />
   ),
   profile: ({ className }: { className?: string }) => (
-    <div className={" w-6 h-6 flex items-center justify-center " + (className || "")}>
-      <Image
-        src="/header/profile.svg"
-        alt="profile-icon"
-        width={18}
-        height={18}
-        className="object-contain"
-      />
-    </div>
+    <User className={className || "w-[18px] h-[18px]"} />
   ),
   bell: ({ className }: { className?: string }) => (
-    <div className={" w-6 h-6 flex items-center justify-center " + (className || "")}>
-      <Image
-        src="/header/bell.svg"
-        alt="bell-icon"
-        width={18}
-        height={18}
-        className="object-contain"
-      />
-    </div>
+    <Bell className={className || "w-[18px] h-[18px]"} />
   ),
   write: ({ className }: { className?: string }) => (
-    <div className={" w-6 h-6 flex items-center justify-center " + (className || "")}>
-      <Image
-        src="/header/write.svg"
-        alt="write-icon"
-        width={18}
-        height={18}
-        className="object-contain"
-      />
-    </div>
+    <PenTool className={className || "w-[18px] h-[18px]"} />
   ),
 };
 
@@ -132,6 +96,11 @@ export default function Header({
   const userProfile = initialProfile || null;
 
   const computedActiveKey = React.useMemo(() => {
+    // 글 작성 시 Header 탭 커뮤니티 활성화
+    if (pathname === "/write" || pathname.startsWith("/write/")) {
+      return "community";
+    }
+
     for (const n of NAV) {
       if (n.href === "/") {
         if (pathname === "/") return n.key;
@@ -141,6 +110,12 @@ export default function Header({
     }
     return activeKey;
   }, [pathname, activeKey]);
+
+  const [isDark, setIsDark] = useState(false);
+
+  useEffect(() => {
+    document.documentElement.classList.toggle("dark", isDark);
+  }, [isDark]);
 
   return (
     <aside
@@ -152,6 +127,7 @@ export default function Header({
         "shrink-0",
         "font-[Paperlogy]",
         "font-semibold",
+        "dark:bg-[#101828]",
         className || "",
       ].join(" ")}
       aria-label="헤더"
@@ -167,7 +143,7 @@ export default function Header({
 
       {/* 오늘의 감정 지수 카드 */}
       <section>
-        <div className="w-full rounded-2xl bg-black text-white p-4 shadow-sm">
+        <div className="w-full rounded-2xl bg-black text-white p-4 shadow-sm dark:bg-[#141d2b]">
           <p className="text-[14px] text-gray-300">오늘의 감정 지수</p>
           <div className="mt-3 flex flex-col gap-3 max-[1215px]:flex-wrap min-[1216px]:flex-nowrap">
             <span className="text-[26px] font-extrabold tabular-nums tracking-tight max-[1215px]:text-[28px] min-[1216px]:text-[34px]">
@@ -200,10 +176,10 @@ export default function Header({
                 <Link
                   href={href}
                   className={[
-                    "group flex items-center justify-between rounded-xl px-3 py-2",
+                    "group flex items-center justify-between rounded-xl px-3 py-2 mb-2",
                     active
-                      ? "bg-gray-200 text-gray-900"
-                      : "text-gray-400 transition-colors duration-200 hover:text-gray-600 hover:bg-gray-100",
+                      ? "bg-gray-200 text-gray-900 dark:bg-gray-800 dark:text-gray-200"
+                      : "text-gray-400 transition-colors duration-200 hover:text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-gray-200",
                   ].join(" ")}
                   aria-current={active ? "page" : undefined}
                 >
@@ -222,42 +198,52 @@ export default function Header({
       </nav>
 
       {/* 하단 CTA & 프로필 */}
-      <div className="mt-auto flex flex-col gap-6">
+      <div className="mt-auto flex flex-col gap-6 dark:bg-[#101828]">
         {/* CTA 버튼 */}
         <Link
           href="/write"
-          className="h-12 flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#A8E0FF] to-[#C5C8FF] text-white px-4 py-4 font-semibold  hover:opacity-90 active:scale-[.99] transition"
+          className="h-12 flex items-center justify-center gap-2 rounded-2xl bg-linear-to-r from-[#A8E0FF] to-[#C5C8FF] dark:from-[#6B8FA3] dark:to-[#7A8FB8] text-white px-4 py-4 font-semibold hover:opacity-90 active:scale-[.99] transition"
         >
           <Icon.write />
           <span className="text-[14px]">오늘의 감정 작성</span>
         </Link>
 
         {/* 구분선 */}
-        <hr className="border-t border-gray-200" />
+        <hr className="border-t border-gray-200 dark:border-[#364153]" />
 
-        {/* 프로필 영역 */}
-        <Link href="/profile">
-          <div className="flex items-center gap-3 px-1 py-2 rounded-2xl transition-colors duration-200 hover:bg-gray-100">
-            <div className="h-10 w-10 shrink-0 rounded-full bg-gray-300 overflow-hidden flex items-center justify-center">
-              {userProfile?.image_url && userProfile.image_url.trim() !== "" ? (
-                <Image
-                  src={userProfile.image_url}
-                  alt={`${userProfile.display_name} 프로필`}
-                  width={40}
-                  height={40}
-                  className="h-full w-full object-cover"
-                />
-              ) : (
-                <User className="h-6 w-6 text-gray-500" />
-              )}
+        {/* 프로필 영역 & 테마 토글 */}
+        <div className="flex items-center gap-3">
+          <Link href="/profile" className="flex-1">
+            <div className="flex items-center gap-3 px-1 py-2 rounded-2xl transition-colors duration-200 hover:bg-gray-100 dark:hover:bg-gray-600">
+              <div className="h-10 w-10 shrink-0 rounded-full bg-gray-300 overflow-hidden flex items-center justify-center">
+                {userProfile?.image_url && userProfile.image_url.trim() !== "" ? (
+                  <Image
+                    src={userProfile.image_url}
+                    alt={`${userProfile.display_name} 프로필`}
+                    width={40}
+                    height={40}
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <User className="h-6 w-6 text-gray-500" />
+                )}
+              </div>
+              <div className="flex flex-col justify-center ml-2">
+                <p className="text-md font-bold text-black leading-tight dark:text-gray-400">
+                  {userProfile ? userProfile.display_name : "Unknown"}
+                </p>
+              </div>
             </div>
-            <div className="flex flex-col justify-center">
-              <p className="text-[14px] font-bold text-black leading-tight">
-                {userProfile ? userProfile.display_name : "Unknown"}
-              </p>
-            </div>
-          </div>
-        </Link>
+          </Link>
+          <button
+            onClick={() => setIsDark((prev) => !prev)}
+            className="p-2 rounded-xl transition-colors duration-200 hover:bg-gray-100 dark:hover:bg-gray-600"
+            aria-label="Toggle Theme"
+          >
+            <Sun className="h-6 w-6 hidden dark:block dark:text-gray-400" />
+            <Moon className="h-6 w-6 block dark:hidden text-black" />
+          </button>
+        </div>
       </div>
     </aside>
   );
