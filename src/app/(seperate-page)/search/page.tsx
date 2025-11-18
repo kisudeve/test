@@ -2,6 +2,8 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import InfiniteScroll from "react-infinite-scroll-component";
+
 import SearchBar from "@/components/search/SearchBar";
 import SearchTabs from "@/components/search/SearchTabs";
 import SearchPostItem from "@/components/search/SearchPostItem";
@@ -37,6 +39,15 @@ export default function Page() {
   const [showAllTags, setShowAllTags] = useState(false);
   const [showAllPosts, setShowAllPosts] = useState(false);
 
+  // 무한 스크롤: 페이지 크기 및 현재 노출 개수
+  const POST_PAGE_SIZE = 10;
+  const USER_PAGE_SIZE = 10;
+  const TAG_PAGE_SIZE = 15;
+
+  const [postLimit, setPostLimit] = useState(POST_PAGE_SIZE);
+  const [userLimit, setUserLimit] = useState(USER_PAGE_SIZE);
+  const [tagLimit, setTagLimit] = useState(TAG_PAGE_SIZE);
+
   // 데이터 최초 로드 (병렬)
   useEffect(() => {
     (async () => {
@@ -46,7 +57,7 @@ export default function Page() {
 
         const supabase = createClient();
 
-        // 1) 현재 로그인한 유저 가져오기
+        // 현재 로그인한 유저
         const {
           data: { user },
           error: userError,
@@ -58,15 +69,14 @@ export default function Page() {
 
         const userId = user?.id ?? null;
 
-        // 2) posts + likes + users + tags 병렬 로드
+        // posts + likes + users + tags 병렬 로드
         const [{ posts: rawPosts, likes }, u, t] = await Promise.all([
           fetchPostsWithLikes(),
           fetchUsers(),
           fetchTags(),
         ]);
 
-        // 3) mapper에서 likes + userId를 이용해
-        //    likes_count / is_liked_by_me 계산해서 CommunityPost로 변환
+        // mapper에서 likes + userId 를 이용해 is_liked_by_me 계산
         setPosts(rawPosts.map((row) => mapRowToCommunityPost(row, likes, userId)));
         setUsers(u.map(mapRowToSearchUser));
         setTags(t.map(mapRowToSearchTag));
@@ -102,6 +112,13 @@ export default function Page() {
   };
 
   const needle = q.toLowerCase();
+
+  // 검색어가 바뀌면 무한 스크롤 노출 개수 리셋
+  useEffect(() => {
+    setPostLimit(POST_PAGE_SIZE);
+    setUserLimit(USER_PAGE_SIZE);
+    setTagLimit(TAG_PAGE_SIZE);
+  }, [needle]);
 
   const filteredPosts = useMemo(() => {
     if (!needle) return posts;
@@ -222,15 +239,87 @@ export default function Page() {
             </>
           )}
 
-          {/* 단일 탭일 때 */}
-          {active === "posts" &&
-            filteredPosts.map((post) => <SearchPostItem key={post.id} post={post} />)}
+          {/* 단일 탭 - 게시글 (무한 스크롤) */}
+          {active === "posts" && (
+            <>
+              {filteredPosts.length === 0 ? (
+                <p className="text-center text-slate-400 py-6">
+                  해당 키워드와 일치하는 게시글이 없습니다.
+                </p>
+              ) : (
+                <InfiniteScroll
+                  dataLength={Math.min(postLimit, filteredPosts.length)}
+                  next={() => setPostLimit((prev) => prev + POST_PAGE_SIZE)}
+                  hasMore={postLimit < filteredPosts.length}
+                  scrollThreshold={0.95}
+                  loader={<p className="text-center text-slate-400 py-4">불러오는 중…</p>}
+                  endMessage={
+                    <p className="text-center text-slate-400 py-4">마지막 게시글입니다.</p>
+                  }
+                >
+                  <div className="flex flex-col gap-4">
+                    {filteredPosts.slice(0, postLimit).map((post) => (
+                      <SearchPostItem key={post.id} post={post} />
+                    ))}
+                  </div>
+                </InfiniteScroll>
+              )}
+            </>
+          )}
 
-          {active === "users" &&
-            filteredUsers.map((user) => <SearchUserItem key={user.id} user={user} />)}
+          {/* 단일 탭 - 사용자 (무한 스크롤) */}
+          {active === "users" && (
+            <>
+              {filteredUsers.length === 0 ? (
+                <p className="text-center text-slate-400 py-6">
+                  해당 키워드와 일치하는 사용자가 없습니다.
+                </p>
+              ) : (
+                <InfiniteScroll
+                  dataLength={Math.min(userLimit, filteredUsers.length)}
+                  next={() => setUserLimit((prev) => prev + USER_PAGE_SIZE)}
+                  hasMore={userLimit < filteredUsers.length}
+                  scrollThreshold={0.95}
+                  loader={<p className="text-center text-slate-400 py-4">불러오는 중…</p>}
+                  endMessage={
+                    <p className="text-center text-slate-400 py-4">마지막 사용자입니다.</p>
+                  }
+                >
+                  <div className="flex flex-col gap-3">
+                    {filteredUsers.slice(0, userLimit).map((user) => (
+                      <SearchUserItem key={user.id} user={user} />
+                    ))}
+                  </div>
+                </InfiniteScroll>
+              )}
+            </>
+          )}
 
-          {active === "tags" &&
-            filteredTags.map((tag) => <SearchTagItem key={tag.content} tag={tag} />)}
+          {/* 단일 탭 - 태그 (무한 스크롤) */}
+          {active === "tags" && (
+            <>
+              {filteredTags.length === 0 ? (
+                <p className="text-center text-slate-400 py-6">
+                  해당 키워드와 일치하는 태그가 없습니다.
+                </p>
+              ) : (
+                <InfiniteScroll
+                  dataLength={Math.min(tagLimit, filteredTags.length)}
+                  next={() => setTagLimit((prev) => prev + TAG_PAGE_SIZE)}
+                  hasMore={tagLimit < filteredTags.length}
+                  scrollThreshold={0.95}
+                  loader={<p className="text-center text-slate-400 py-4">불러오는 중…</p>}
+                  endMessage={<p className="text-center text-slate-400 py-4">마지막 태그입니다.</p>}
+                >
+                  <div className="grid grid-cols-1 gap-3">
+                    {filteredTags.slice(0, tagLimit).map((tag) => (
+                      <SearchTagItem key={tag.content} tag={tag} />
+                    ))}
+                  </div>
+                </InfiniteScroll>
+              )}
+            </>
+          )}
         </div>
       )}
     </section>
