@@ -4,11 +4,13 @@ import type { SearchUser } from "./types";
 
 export default function SearchUserItem({ user }: { user: SearchUser }) {
   return (
-    <article className="p-5 rounded-2xl bg-white border border-slate-200 shadow-[0_4px_12px_rgba(15,23,42,0.04)] flex gap-3 items-center">
+    <article className="p-5 rounded-2xl bg-white border border-slate-200 shadow-[0_4px_12px_rgba(15,23,42,0.04)] flex gap-3 items-center dark:bg-[#141d2b] dark:border-[#364153]">
       <ProfileImage displayName={user.display_name} imageUrl={user.image_url} />
 
       <div className="flex-1 min-w-0">
-        <div className="font-semibold text-slate-800 truncate">{user.display_name}</div>
+        <div className="font-semibold text-slate-800 truncate dark:text-gray-300">
+          {user.display_name}
+        </div>
         {user.bio && <p className="text-sm text-slate-500 line-clamp-1">{user.bio}</p>}
       </div>
 

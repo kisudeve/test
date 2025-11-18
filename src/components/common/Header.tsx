@@ -27,21 +27,11 @@ import Button from "./Button";
 type Profile = Database["public"]["Tables"]["users"]["Row"];
 
 const Icon = {
-  logo: ({ className }: { className?: string }) => (
-    <div className={"flex items-center justify-center w-full " + (className || "")}>
-      <Image
-        src="/logo/logo.svg"
-        alt="logo"
-        width={224}
-        height={89}
-        className="object-contain dark:invert"
-        priority
-      />
-    </div>
+  dashboard: ({ className }: { className?: string }) => (
+    <LayoutDashboard size={18} className={className} />
   ),
-  dashboard: ({ className }: { className?: string }) => <LayoutDashboard size={18} className={className} />,
   community: ({ className }: { className?: string }) => <Users size={18} className={className} />,
-  search: ({ className }: { className?: string }) => <Search size={18}  className={className} />,
+  search: ({ className }: { className?: string }) => <Search size={18} className={className} />,
   profile: ({ className }: { className?: string }) => <UserIcon size={18} className={className} />,
   bell: ({ className }: { className?: string }) => <Bell size={18} className={className} />,
   write: ({ className }: { className?: string }) => <PenTool size={18} className={className} />,
@@ -155,7 +145,7 @@ export default function Header({
             alt="logo"
             width={98}
             height={39}
-            className="object-contain"
+            className="object-contain dark:invert"
             priority
           />
         </Link>
@@ -198,7 +188,7 @@ export default function Header({
               alt="logo"
               width={144}
               height={57}
-              className="object-contain"
+              className="object-contain dark:invert"
               priority
             />
           </Link>
