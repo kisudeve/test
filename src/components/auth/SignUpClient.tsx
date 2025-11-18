@@ -117,7 +117,9 @@ export default function SignUpClient({
         </div>
         <div className="space-y-2">
           <h2 className="text-3xl font-bold">환영합니다!</h2>
-          <p className="text-slate-500">감정 시장 업다운의 새로운 개미가 되신 것을 환영합니다.</p>
+          <p className="text-slate-500  dark:text-slate-400">
+            감정 시장 업다운의 새로운 개미가 되신 것을 환영합니다.
+          </p>
         </div>
       </div>
       <div className="flex flex-col gap-5 p-8 rounded-2xl shadow-lg shadow-slate-200/50 bg-white border border-slate-200 dark:bg-[#101828] dark:border-slate-700/20 dark:shadow-slate-900/50">
@@ -177,7 +179,9 @@ export default function SignUpClient({
         <Activity mode={isDone ? "visible" : "hidden"}>
           <div className="text-center">
             <h2 className="text-2xl font-bold">거의 다 왔어요!</h2>
-            <p className="text-center text-slate-600">입력하신 정보를 확인해주세요.</p>
+            <p className="text-center text-slate-600 dark:text-slate-400">
+              입력하신 정보를 확인해주세요.
+            </p>
           </div>
           <div className="flex flex-col p-6 border border-slate-50 bg-slate-50 rounded-2xl gap-4 dark:bg-[#141d2b] dark:border-[#364153]">
             <div className="flex items-center gap-4">

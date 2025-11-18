@@ -27,7 +27,10 @@ export default function PostDetailSkeleton() {
             <div className="w-5 h-4 bg-slate-300 dark:bg-slate-700 rounded-sm"></div>
           </div>
           <div className="flex items-center justify-center gap-1">
-            <MessageCircle size={16} className="stroke-slate-300 fill-slate-300" />
+            <MessageCircle
+              size={16}
+              className="stroke-slate-300 fill-slate-300 dark:stroke-slate-700 dark:fill-slate-700"
+            />
             <div className="w-5 h-4 bg-slate-300 dark:bg-slate-700 rounded-sm"></div>
           </div>
         </div>

@@ -143,7 +143,7 @@ export default function Notfound() {
             </div>
           </div>
           <div className="space-y-2 bg-slate-100 border border-slate-200 rounded-lg p-4 dark:bg-slate-700/20 dark:border-slate-600">
-            <h3 className="font-medium">이런 경우 확인해보세요.</h3>
+            <h3 className="font-medium dark:text-slate-200">이런 경우 확인해보세요.</h3>
             <ul className="text-sm dark:text-slate-500">
               <li>· URL 주소가 정확한지 확인</li>
               <li>· 삭제되거나 이동된 페이지인지 확인</li>

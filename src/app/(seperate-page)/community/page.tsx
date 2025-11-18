@@ -1,8 +1,6 @@
 import { createClient } from "@/utils/supabase/server";
 import { PAGE_SIZE } from "@/utils/helpers";
 import PostListClient from "@/components/community/PostListClient";
-import { Suspense } from "react";
-import PostListSkeleton from "@/components/skeleton/PostListSkeleton";
 
 export default async function Page() {
   const supabase = await createClient();
@@ -23,9 +21,7 @@ export default async function Page() {
 
   return (
     <>
-      <Suspense fallback={<PostListSkeleton />}>
-        <PostListClient initialPosts={posts} />
-      </Suspense>
+      <PostListClient initialPosts={posts} />
     </>
   );
 }
