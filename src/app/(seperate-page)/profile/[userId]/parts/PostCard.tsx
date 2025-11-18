@@ -76,8 +76,9 @@ export default function PostCard({
 
         <footer className="mt-3 flex items-center justify-end gap-4 text-sm text-slate-500">
           <div className="inline-flex items-center gap-1">
-            <span className="font-semibold">{likeCount}</span>
+            
             <span>❤</span>
+            <span className="font-semibold">{likeCount}</span>
           </div>
           <div className="inline-flex items-center gap-1">
             <MessageCircle className="h-4 w-4" />
