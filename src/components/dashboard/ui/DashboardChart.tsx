@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import {
   LineChart,
   Line,
@@ -49,20 +49,28 @@ const CustomTooltip = ({
         : chartData.find((d) => d.date === label);
     if (data) {
       return (
-        <div className="bg-white p-4 border border-gray-200 rounded-lg shadow-xl z-50">
-          <p className="font-semibold text-sm mb-3 text-gray-800">{formatKoreanDate(data.date)}</p>
+        <div className="bg-white p-4 border border-gray-200 rounded-lg shadow-xl z-50 dark:bg-[#1e2939] dark:border-[#374151]">
+          <p className="font-semibold text-sm mb-3 text-gray-800 dark:text-gray-300">
+            {formatKoreanDate(data.date)}
+          </p>
           <div className="space-y-2">
             <div className="flex items-center gap-2.5">
               <div className="w-2.5 h-2.5 rounded-full bg-red-500"></div>
-              <span className="text-sm text-gray-700 font-medium">UP {data.up}</span>
+              <span className="text-sm text-gray-700 font-medium dark:text-gray-400">
+                UP {data.up}
+              </span>
             </div>
             <div className="flex items-center gap-2.5">
               <div className="w-2.5 h-2.5 rounded-full bg-blue-500"></div>
-              <span className="text-sm text-gray-700 font-medium">DOWN {data.down}</span>
+              <span className="text-sm text-gray-700 font-medium dark:text-gray-400">
+                DOWN {data.down}
+              </span>
             </div>
             <div className="flex items-center gap-2.5">
               <div className="w-2.5 h-2.5 rounded-full bg-black"></div>
-              <span className="text-sm text-gray-700 font-medium">HOLD {data.hold}</span>
+              <span className="text-sm text-gray-700 font-medium dark:text-gray-400">
+                HOLD {data.hold}
+              </span>
             </div>
           </div>
         </div>
@@ -88,7 +96,8 @@ const CustomTick = ({
   y = 0,
   payload,
   chartData,
-}: CustomTickProps & { chartData: ProcessedPoint[] }) => {
+  isDarkMode,
+}: CustomTickProps & { chartData: ProcessedPoint[]; isDarkMode: boolean }) => {
   if (!payload || chartData.length === 0) return null;
 
   const index = Math.round(payload.value);
@@ -101,7 +110,14 @@ const CustomTick = ({
 
   return (
     <g transform={`translate(${x},${y})`}>
-      <text x={0} y={0} dy={12} textAnchor="middle" fill="#6b7280" fontSize={11}>
+      <text
+        x={0}
+        y={0}
+        dy={12}
+        textAnchor="middle"
+        fill={isDarkMode ? "#9ca3af" : "#6b7280"}
+        fontSize={11}
+      >
         <tspan x={0} dy="0">
           {line1}
         </tspan>
@@ -115,6 +131,24 @@ const CustomTick = ({
 
 export default function DashboardChart({ chartData }: DashboardChartProps) {
   const [selectedPeriod, setSelectedPeriod] = useState<Period>("1주");
+  const [isDarkMode, setIsDarkMode] = useState(false);
+
+  // 다크 모드 감지
+  useEffect(() => {
+    const checkDarkMode = () => {
+      setIsDarkMode(document.documentElement.classList.contains("dark"));
+    };
+
+    checkDarkMode();
+
+    const observer = new MutationObserver(checkDarkMode);
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["class"],
+    });
+
+    return () => observer.disconnect();
+  }, []);
 
   // 데이터 정렬 및 메모이제이션
   const sortedData = useMemo(
@@ -231,7 +265,7 @@ export default function DashboardChart({ chartData }: DashboardChartProps) {
   }, [processedData]);
 
   return (
-    <div className="w-full">
+    <div className="w-full select-none">
       <div className="flex items-center justify-between mb-4">
         {/* 기간 선택 버튼 */}
         <div className="flex flex-wrap gap-2 select-none">
@@ -244,12 +278,11 @@ export default function DashboardChart({ chartData }: DashboardChartProps) {
               }}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                 selectedPeriod === period
-                  ? "bg-blue-600 text-white"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  ? "bg-blue-600 text-white dark:bg-indigo-500 dark:text-white"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-[#1e2939] dark:text-gray-300 dark:hover:bg-gray-700"
               }`}
             >
               {period}
-              {period === "All" && <span className="ml-1">📊</span>}
             </button>
           ))}
         </div>
@@ -257,21 +290,25 @@ export default function DashboardChart({ chartData }: DashboardChartProps) {
         <div className="flex gap-4 pr-2 select-none">
           <div className="flex items-center gap-2">
             <div className="w-3 h-3 rounded-full bg-red-500"></div>
-            <span className="text-sm text-gray-600 font-medium">UP</span>
+            <span className="text-sm text-gray-600 font-medium dark:text-gray-400">UP</span>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-3 h-3 rounded-full bg-blue-500"></div>
-            <span className="text-sm text-gray-600 font-medium">DOWN</span>
+            <span className="text-sm text-gray-600 font-medium dark:text-gray-400">DOWN</span>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-3 h-3 rounded-full bg-black"></div>
-            <span className="text-sm text-gray-600 font-medium">HOLD</span>
+            <span className="text-sm text-gray-600 font-medium dark:text-gray-400">HOLD</span>
           </div>
         </div>
       </div>
       {/* 차트 */}
-      <div className="w-full bg-white rounded-lg">
-        <ResponsiveContainer width="100%" height={384}>
+      <div className="w-full bg-white rounded-lg select-none dark:bg-[#141d2b] outline-none focus:outline-none [&_svg]:outline-none [&_svg]:focus:outline-none [&_svg]:focus-visible:outline-none">
+        <ResponsiveContainer
+          width="100%"
+          height={384}
+          className="outline-none focus:outline-none select-none pt-4"
+        >
           <LineChart
             data={processedData}
             margin={{ top: 10, right: 20, left: 0, bottom: 30 }}
@@ -284,6 +321,7 @@ export default function DashboardChart({ chartData }: DashboardChartProps) {
               }
             }}
             onMouseLeave={() => setHoveredOverride(null)}
+            style={{ outline: "none" }}
           >
             <defs>
               <linearGradient id="colorUp" x1="0" y1="0" x2="0" y2="1">
@@ -292,8 +330,8 @@ export default function DashboardChart({ chartData }: DashboardChartProps) {
               </linearGradient>
             </defs>
             <CartesianGrid
-              strokeDasharray="3 3" // 점선 패턴 : 3px 선, 3px 공백
-              stroke="#e5e7eb" // 선 색상
+              strokeDasharray={isDarkMode ? "0" : "3 3"}
+              stroke={isDarkMode ? "#374151" : "#e5e7eb"}
               horizontal={true} // 수평선 표시
               vertical={false} // 수직선 표시
             />
@@ -302,13 +340,13 @@ export default function DashboardChart({ chartData }: DashboardChartProps) {
               type="number"
               domain={processedData.length > 0 ? [-0.5, processedData.length - 0.5] : [0, 0]}
               stroke="#6b7280" // 선 색상
-              axisLine={{ stroke: "#e5e7eb" }} // 기본 스타일
-              tickLine={{ stroke: "#e5e7eb" }} // 눈금 선 스타일
+              axisLine={{ stroke: isDarkMode ? "#374151" : "#e5e7eb" }} // 기본 스타일
+              tickLine={{ stroke: isDarkMode ? "#374151" : "#e5e7eb" }} // 눈금 선 스타일
               ticks={tickValues}
               interval={0}
               height={48}
               tickMargin={14}
-              tick={<CustomTick chartData={processedData} />}
+              tick={<CustomTick chartData={processedData} isDarkMode={isDarkMode} />}
             />
             {/* 일자별 경계선 */}
             {processedData.map((item, index) => {
@@ -318,7 +356,7 @@ export default function DashboardChart({ chartData }: DashboardChartProps) {
                 <ReferenceLine
                   key={`border-${index}`}
                   x={item.index} // 인덱스를 기준으로
-                  stroke="#e5e7eb" // 선 색상
+                  stroke={isDarkMode ? "#374151" : "#e5e7eb"} // 선 색상
                   strokeWidth={1} // 선 두께 : 1px
                 />
               );
@@ -326,17 +364,17 @@ export default function DashboardChart({ chartData }: DashboardChartProps) {
             <YAxis
               domain={yAxisConfig.domain} // Y축 범위를 데이터에 맞게 동적으로 설정
               ticks={yAxisConfig.ticks} // 눈금 위치를 데이터에 맞게 동적으로 설정
-              stroke="#6b7280" // 선 색상
-              tick={{ fontSize: 12, fill: "#6b7280" }} // 눈금 텍스트 스타일
-              axisLine={{ stroke: "#e5e7eb" }} // 기본 스타일
-              tickLine={{ stroke: "#e5e7eb" }} // 눈금 선 스타일
+              stroke={isDarkMode ? "#374151" : "#6b7280"} // 선 색상
+              tick={{ fontSize: 12, fill: isDarkMode ? "#9ca3af" : "#6b7280" }} // 눈금 텍스트 스타일
+              axisLine={{ stroke: isDarkMode ? "#374151" : "#e5e7eb" }} // 기본 스타일
+              tickLine={{ stroke: isDarkMode ? "#374151" : "#e5e7eb" }} // 눈금 선 스타일
               width={40} // Y축 너비
             />
             <Tooltip content={<CustomTooltip chartData={processedData} />} />
             {hoveredDate !== null && (
               <ReferenceLine
                 x={hoveredDate}
-                stroke="#9ca3af" // 선 색상
+                stroke={isDarkMode ? "#374151" : "#9ca3af"} // 선 색상
                 strokeWidth={1} // 선 두께
                 strokeDasharray="5 5" // 5px 선, 5px 공백
               />
@@ -350,10 +388,15 @@ export default function DashboardChart({ chartData }: DashboardChartProps) {
             <Line
               type="monotone"
               dataKey="up"
-              stroke="#3b82f6"
+              stroke={isDarkMode ? "#3b82f6" : "#3b82f6"}
               strokeWidth={2.5}
               dot={{ fill: "#3b82f6", r: 0, strokeWidth: 0 }} // 점 스타일
-              activeDot={{ r: 5, fill: "#3b82f6", stroke: "#fff", strokeWidth: 2 }} // 활성화 점 스타일
+              activeDot={{
+                r: 5,
+                fill: isDarkMode ? "#3b82f6" : "#3b82f6",
+                stroke: "#fff",
+                strokeWidth: 2,
+              }} // 활성화 점 스타일
             />
           </LineChart>
         </ResponsiveContainer>
