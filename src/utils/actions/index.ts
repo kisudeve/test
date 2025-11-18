@@ -7,7 +7,7 @@ import { revalidatePath } from "next/cache";
 // 깃허브 로그인
 export const githubLogin = async () => {
   const supabase = await createClient();
-  alert(`${process.env.NEXT_PUBLIC_URL}/auth/callback`);
+  console.log(`>> ${process.env.NEXT_PUBLIC_URL}/auth/callback`);
   const { data } = await supabase.auth.signInWithOAuth({
     provider: "github",
     options: {
