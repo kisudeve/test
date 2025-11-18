@@ -31,7 +31,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userId
     .maybeSingle();
 
   if (!profile) {
-    console.error("[profile] select error:", profileErr);
+    // console.error("[profile] select error:", profileErr);
     notFound();
   }
 
@@ -160,9 +160,10 @@ export default async function ProfilePage({ params }: { params: Promise<{ userId
     return acc;
   })();
 
+  console.log("writtenPostsRaw", writtenPostsRaw);
   return (
     <div className="w-full space-y-6">
-      <section className="rounded-2xl bg-white p-6 shadow-sm">
+      <section className="rounded-2xl bg-white p-6 shadow-sm border border-slate-200 dark:bg-[#141d2b] dark:border-[#364153]">
         <ProfileHeader
           isMe={isMe}
           profile={{
@@ -178,8 +179,8 @@ export default async function ProfilePage({ params }: { params: Promise<{ userId
         />
       </section>
 
-      <section className="rounded-2xl bg-white p-6 shadow-sm">
-        <h2 className="mb-4 text-lg font-semibold">감정 트렌드</h2>
+      <section className="rounded-2xl bg-white p-6 shadow-sm  border border-slate-200 dark:bg-[#141d2b] dark:border-[#364153]">
+        <h2 className="mb-4 text-lg font-semibold dark:text-gray-300">감정 트렌드</h2>
         <ProfileChart chartData={chartData} hasRealData={hasRealData} />
       </section>
 

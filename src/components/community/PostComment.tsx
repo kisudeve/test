@@ -34,7 +34,7 @@ export default async function PostComment({ postId }: { postId: string }) {
   }
 
   return (
-    <section className="p-10 rounded-2xl shadow-[0_4px_12px_rgba(0,0,0,0.06)] bg-white border border-slate-200">
+    <section className="p-10 rounded-2xl shadow-[0_4px_12px_rgba(0,0,0,0.06)] bg-white border border-slate-200 dark:bg-[#141d2b] dark:border-[#364153]">
       <PostCommentClient postId={postId} initialComments={comments} profile={profile} />
     </section>
   );
