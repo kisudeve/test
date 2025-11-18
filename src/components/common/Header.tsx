@@ -131,7 +131,7 @@ export default function Header({
           "fixed top-0 left-0 w-full h-18 bg-white/85 backdrop-blur-2xl shadow-sm flex justify-center items-center z-61",
           "xl:hidden", // 데스크탑에서 숨김
           visible && "bg-white",
-          "dark:bg-[#101828]",
+          "dark:bg-[#101828] dark:border-b dark:border-slate-700",
         )}
       >
         {/* Logo */}
@@ -149,7 +149,7 @@ export default function Header({
             priority
           />
         </Link>
-        <Button className="absolute left-6 text-black" onClick={headerHandler}>
+        <Button className="absolute left-6 text-black dark:text-slate-200" onClick={headerHandler}>
           {visible ? <X /> : <Menu />}
         </Button>
       </header>
@@ -164,14 +164,14 @@ export default function Header({
       >
         <aside
           className={twMerge(
-            "h-full flex-col p-4 gap-4 shadow-sm",
+            "h-full flex-col p-4 gap-4 shadow-sm ",
             "shrink-0",
             "font-semibold",
             "xl:pt-4 xl:min-w-60 xl:max-w-60 xl:flex xl:rounded-lg xl:bg-white/85 xl:backdrop-blur", // 반응형 작업
             visible ? "flex" : "hidden",
             "bg-white w-4/5 max-w-200 pt-25",
             isMobile && "w-full min-w-auto max-w-auto",
-            "dark:bg-[#101828]",
+            "dark:bg-[#101828] dark:border-r dark:border-slate-700",
           )}
           aria-label="헤더"
           onClick={(e) => e.stopPropagation()}
