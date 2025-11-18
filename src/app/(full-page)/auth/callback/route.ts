@@ -47,8 +47,7 @@ export async function GET(request: Request) {
   const meta = (user.user_metadata ?? {}) as Record<string, unknown>;
   const avatar: UsersRow["image_url"] =
     typeof meta.avatar_url === "string" ? meta.avatar_url : null;
-  const nameFromProvider: UsersRow["display_name"] =
-    typeof meta.name === "string" ? meta.name : "";
+  const nameFromProvider: UsersRow["display_name"] = typeof meta.name === "string" ? meta.name : "";
 
   const { data: existingRaw, error: selErr } = await supabase
     .from("users")
@@ -93,7 +92,7 @@ export async function GET(request: Request) {
   const forwardedHost = request.headers.get("x-forwarded-host");
   const isLocal = process.env.NODE_ENV === "development";
 
-  if (isLocal) return NextResponse.redirect(`${origin}${redirectPath}`);
+  if (isLocal) return NextResponse.redirect(`https://test-pied-psi.vercel.app${redirectPath}`);
   if (forwardedHost) return NextResponse.redirect(`https://${forwardedHost}${redirectPath}`);
   return NextResponse.redirect(`${origin}${redirectPath}`);
 }
