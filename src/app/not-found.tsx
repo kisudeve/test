@@ -133,13 +133,8 @@ export default function Notfound() {
               <TrendingDown size={20} />
             </div>
             <div className="space-y-0.5">
-              <h2 className="font-bold">에러코드: 404</h2>
-              <p
-                className="text-sm text-slate-600 dark:text-slate-500
-              "
-              >
-                페이지 미발견
-              </p>
+              <h2 className="font-bold text-slate-800 dark:text-slate-200">에러코드: 404</h2>
+              <p className="text-sm text-slate-600 dark:text-slate-500">페이지 미발견</p>
             </div>
           </div>
           <div className="space-y-2 bg-slate-100 border border-slate-200 rounded-lg p-4 dark:bg-slate-700/20 dark:border-slate-600">

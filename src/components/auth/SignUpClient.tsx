@@ -178,7 +178,7 @@ export default function SignUpClient({
         </Activity>
         <Activity mode={isDone ? "visible" : "hidden"}>
           <div className="text-center">
-            <h2 className="text-2xl font-bold">거의 다 왔어요!</h2>
+            <h2 className="text-2xl font-bold dark:text-slate-200">거의 다 왔어요!</h2>
             <p className="text-center text-slate-600 dark:text-slate-400">
               입력하신 정보를 확인해주세요.
             </p>
