@@ -12,18 +12,18 @@ export async function GET(request: Request) {
   const oauthError = searchParams.get("error");
   const errorDescription = searchParams.get("error_description");
 
-  if (oauthError !== null) {
-    console.error("OAuth error:", oauthError, errorDescription);
-    return NextResponse.redirect(`${origin}/auth/auth-code-error`);
-  }
-
+  // if (oauthError !== null) {
+  //   console.error("OAuth error:", oauthError, errorDescription);
+  //   return NextResponse.redirect(`${origin}/auth/auth-code-error`);
+  // }
+  console.log("in");
   let next = searchParams.get("next") ?? "/";
   if (!next.startsWith("/")) next = "/";
 
   if (!code) {
     return NextResponse.redirect(`${origin}/auth/auth-code-error`);
   }
-
+  console.log("in2");
   const supabase = await createClient();
 
   const { error: exchangeErr } = await supabase.auth.exchangeCodeForSession(code);
