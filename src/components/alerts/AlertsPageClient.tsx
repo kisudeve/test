@@ -7,83 +7,44 @@ import commentIcon from "@/assets/alerts/comment.svg";
 import followIcon from "@/assets/alerts/follow.svg";
 import blueDot from "@/assets/alerts/bluepoint.svg";
 import ProfileImage from "../common/ProfileImage";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
-import { createClient } from "@/utils/supabase/client";
+import {} from "@/utils/supabase/client";
 import { timeAgo } from "./TimeAgo";
 import { useRouter } from "next/navigation";
+import { useNotificationStore } from "@/store/alarmStore";
 
 export default function AlertsPageClient({
   notifications: initialNotifications,
+  uid,
 }: {
   notifications: Notification[];
+  uid: string;
 }) {
   const router = useRouter();
-  const supabase = createClient();
 
-  const [notifications, setNotifications] = useState<Notification[]>(initialNotifications);
+  const notifications = useNotificationStore((s) => s.notifications);
+  const setNotifications = useNotificationStore((s) => s.setNotifications);
+  const setUnReadCount = useNotificationStore((s) => s.setUnReadCount);
+  const markAllRead = useNotificationStore((s) => s.markAllRead);
 
   useEffect(() => {
-    async function subscribeRealtime() {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (!user) return;
-
-      const channel = supabase
-        .channel("notifications-realtime")
-        .on(
-          "postgres_changes",
-          {
-            event: "INSERT",
-            schema: "public",
-            table: "notifications",
-            filter: `receiver_id=eq.${user.id}`,
-          },
-          async (payload) => {
-            const inserted = payload.new as Notification;
-            const { data: rows } = await supabase
-              .from("notifications")
-              .select(
-                `
-              id,
-              type,
-              post_id,
-              is_read,
-              created_at,
-              sender: sender_id (
-              id,
-              display_name,
-              image_url
-              ),
-              post:post_id (
-              id,
-              comments()
-              ),
-              comment:comment_id (
-              id,
-              content
-              )
-            `,
-              )
-              .eq("id", inserted.id)
-              .single();
-            if (!rows) return;
-            const newN = rows as unknown as Notification;
-            setNotifications((prev) => [newN, ...prev]);
-          },
-        )
-        .subscribe((state) => console.log(state));
-      return () => {
-        supabase.removeChannel(channel);
-      };
+    if (initialNotifications) {
+      setNotifications(initialNotifications);
+      setUnReadCount(initialNotifications.filter((n) => !n.is_read).length);
     }
-    subscribeRealtime();
-  }, [supabase]);
+  }, [initialNotifications, setNotifications, setUnReadCount]);
 
   const handleClick = async (n: Notification) => {
-    setNotifications((prev) =>
-      prev.map((item) => (item.id === n.id ? { ...item, is_read: true } : item)),
+    setNotifications(
+      notifications.map((i) =>
+        i.id === n.id
+          ? {
+              ...i,
+              is_read: true,
+            }
+          : i,
+      ),
     );
 
     await fetch("api/notifications/read", {
@@ -99,11 +60,9 @@ export default function AlertsPageClient({
   };
 
   const allRead = async () => {
-    setNotifications((prev) => prev.map((n) => ({ ...n, is_read: true })));
-    await fetch("/api/notifications/read-all", {
-      method: "POST",
-    });
+    await markAllRead(uid);
   };
+
   const getMessage = (n: Notification) => {
     const name = n.sender.display_name;
     switch (n.type) {
