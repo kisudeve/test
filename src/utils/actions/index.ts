@@ -7,28 +7,16 @@ import { revalidatePath } from "next/cache";
 // 깃허브 로그인
 export const githubLogin = async () => {
   const supabase = await createClient();
-
-  const origin = process.env.NEXT_PUBLIC_URL;
-
-  console.log("origin:", origin);
-  console.log("redirectTo:", `${origin}/auth/callback`);
-
-  const { data, error } = await supabase.auth.signInWithOAuth({
+  const { data } = await supabase.auth.signInWithOAuth({
     provider: "github",
     options: {
-      redirectTo: `${origin}/auth/callback`,
+      redirectTo: `${process.env.NEXT_PUBLIC_URL}/auth/callback`,
     },
   });
 
-  console.log("OAuth data:", data);
-  console.log("OAuth error:", error);
-
-  if (error || !data?.url) {
-    // 여기서 에러 강제로 터뜨려서 Vercel 로그에 확실히 보이게
-    throw new Error(error?.message ?? "No URL returned from Supabase OAuth");
+  if (data.url) {
+    redirect(data.url);
   }
-
-  redirect(data.url);
 };
 
 // 구글 로그인

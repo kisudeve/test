@@ -12,18 +12,18 @@ export async function GET(request: Request) {
   const oauthError = searchParams.get("error");
   const errorDescription = searchParams.get("error_description");
 
-  // if (oauthError !== null) {
-  //   console.error("OAuth error:", oauthError, errorDescription);
-  //   return NextResponse.redirect(`${origin}/auth/auth-code-error`);
-  // }
-  console.log("in");
+  if (oauthError) {
+    console.error("OAuth error:", oauthError, errorDescription);
+    return NextResponse.redirect(`${origin}/auth/auth-code-error`);
+  }
+
   let next = searchParams.get("next") ?? "/";
   if (!next.startsWith("/")) next = "/";
 
   if (!code) {
     return NextResponse.redirect(`${origin}/auth/auth-code-error`);
   }
-  console.log("in2");
+
   const supabase = await createClient();
 
   const { error: exchangeErr } = await supabase.auth.exchangeCodeForSession(code);
@@ -92,12 +92,7 @@ export async function GET(request: Request) {
   const forwardedHost = request.headers.get("x-forwarded-host");
   const isLocal = process.env.NODE_ENV === "development";
 
-  console.log("ttt");
-  console.log(isLocal);
-  console.log(`https://test-pied-psi.vercel.app${redirectPath}`);
-  console.log(`https://${forwardedHost}${redirectPath}`);
-
-  if (isLocal) return NextResponse.redirect(`https://test-pied-psi.vercel.app${redirectPath}`);
+  if (isLocal) return NextResponse.redirect(`${origin}${redirectPath}`);
   if (forwardedHost) return NextResponse.redirect(`https://${forwardedHost}${redirectPath}`);
-  return NextResponse.redirect(`https://test-pied-psi.vercel.app${redirectPath}`);
+  return NextResponse.redirect(`${origin}${redirectPath}`);
 }

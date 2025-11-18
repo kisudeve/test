@@ -90,33 +90,43 @@ export default function SignInPage() {
 
         <div className="flex flex-col gap-5 p-8 rounded-2xl shadow-lg shadow-slate-200/50 bg-white border border-slate-200">
           <h3 className="text-lg font-bold">소셜 계정으로 시작하기</h3>
-          <fieldset className="flex flex-col gap-4 min-w-100">
-            <Button className="gap-3 py-4 bg-slate-900 text-white font-bold" onClick={githubLogin}>
-              <GithubIcon className="w-5 h-5" />
-              <span className="min-w-30">GitHub로 계속하기</span>
-            </Button>
-            <Button
-              className="gap-3 py-4 border border-slate-300 text-slate-900 font-bold"
-              onClick={googleLogin}
-            >
-              <GoogleIcon className="w-5 h-5" />
-              <span className="min-w-30">Google로 계속하기</span>
-            </Button>
-            <Button className="gap-3 py-4 bg-blue-600 text-white font-bold" onClick={discordLogin}>
-              <DiscordIcon className="w-5 h-5" />
-              <span className="min-w-30">Discord로 계속하기</span>
-            </Button>
-            <div className="text-gray-500 text-xs">
-              <p>
-                계속 진행하면{" "}
-                <span className="text-slate-900 underline underline-offset-1">서비스 약관</span> 및{" "}
-                <span className="text-slate-900 underline underline-offset-1">
-                  개인정보 처리방침
-                </span>
-                에 동의하는 것으로 간주됩니다
-              </p>
-            </div>
-          </fieldset>
+          <form aria-label="로그인 폼">
+            <fieldset className="flex flex-col gap-4 min-w-100">
+              <Button
+                type="button"
+                className="gap-3 py-4 bg-slate-900 text-white font-bold"
+                onClick={githubLogin}
+              >
+                <GithubIcon className="w-5 h-5" />
+                <span className="min-w-30">GitHub로 계속하기</span>
+              </Button>
+              <Button
+                className="gap-3 py-4 border border-slate-300 text-slate-900 font-bold"
+                onClick={googleLogin}
+              >
+                <GoogleIcon className="w-5 h-5" />
+                <span className="min-w-30">Google로 계속하기</span>
+              </Button>
+              <Button
+                className="gap-3 py-4 bg-blue-600 text-white font-bold"
+                onClick={discordLogin}
+              >
+                <DiscordIcon className="w-5 h-5" />
+                <span className="min-w-30">Discord로 계속하기</span>
+              </Button>
+              <div className="text-gray-500 text-xs">
+                <p>
+                  계속 진행하면{" "}
+                  <span className="text-slate-900 underline underline-offset-1">서비스 약관</span>{" "}
+                  및{" "}
+                  <span className="text-slate-900 underline underline-offset-1">
+                    개인정보 처리방침
+                  </span>
+                  에 동의하는 것으로 간주됩니다
+                </p>
+              </div>
+            </fieldset>
+          </form>
         </div>
 
         <div className="flex flex-col items-center gap-5 p-8 rounded-2xl shadow-lg shadow-slate-200/50 bg-white border border-slate-200">
