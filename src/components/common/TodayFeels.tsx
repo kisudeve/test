@@ -62,11 +62,11 @@ export default async function TodayFeels() {
   }));
 
   return (
-    <section className="flex flex-col gap-3 p-6 bg-white border border-slate-200 rounded-2xl shadow-[0_4px_12px_rgba(0,0,0,0.06)]">
-      <h2 className="text-lg font-bold text-slate-900">오늘의 감정 TOP3</h2>
+    <section className="flex flex-col gap-3 p-6 bg-white border border-slate-200 dark:bg-[#141d2b] dark:border-[#364153] rounded-2xl shadow-[0_4px_12px_rgba(0,0,0,0.06)]">
+      <h2 className="text-lg font-bold text-slate-900 dark:text-gray-300">오늘의 감정 TOP3</h2>
       <div className="flex flex-col gap-4">
         {ranksWithPercentage.length === 0 && (
-          <p className="text-slate-500">오늘 기록된 감정이 없습니다.</p>
+          <p className="text-slate-500 dark:text-gray-400">오늘 기록된 감정이 없습니다.</p>
         )}
         {ranksWithPercentage.length > 0 &&
           ranksWithPercentage.map((rank, index) => (
@@ -75,12 +75,12 @@ export default async function TodayFeels() {
               className="flex items-center gap-4 hover:opacity-70 cursor-pointer"
               href={`/search?query=${rank.tag}`}
             >
-              <span className="w-3 text-slate-500 text-lg">{index + 1}</span>
+              <span className="w-3 text-slate-500 text-lg dark:text-gray-400">{index + 1}</span>
               <EmotionBadge emotion={rank.tag} />
               <div className="flex flex-col">
-                <strong className="font-medium">{rank.tag}</strong>
+                <strong className="font-medium dark:text-gray-300">{rank.tag}</strong>
                 <span
-                  className={`text-xs ${
+                  className={`text-xs dark:text-gray-400 ${
                     rank.percentageChange.startsWith("+")
                       ? "text-green-500"
                       : rank.percentageChange.startsWith("-")

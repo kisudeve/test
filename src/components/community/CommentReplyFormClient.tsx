@@ -95,12 +95,17 @@ export default function CommentReplyFormClient({
               )}
               <TextArea
                 name="comment"
-                className="w-full h-20"
+                className="w-full h-20 dark:bg-[#1e2939] dark:text-gray-300 dark:placeholder:text-gray-400 border-color-transparent"
                 placeholder="답글을 입력하세요..."
                 disabled={pending}
               />
               {!isEditing && (
-                <Button type="submit" className="w-30" variant="submit" disabled={pending}>
+                <Button
+                  type="submit"
+                  className="w-30  dark:from-[#6B8FA3] dark:to-[#7A8FB8]"
+                  variant="submit"
+                  disabled={pending}
+                >
                   {pending ? "등록중..." : "작성"}
                 </Button>
               )}

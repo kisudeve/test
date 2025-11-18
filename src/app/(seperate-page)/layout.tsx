@@ -10,7 +10,3 @@ export default async function SeperateLayout({ children }: { children: React.Rea
     </SeperateLayoutClient>
   );
 }
-
-export const metadata = {
-  title: "Public",
-};

@@ -8,9 +8,10 @@ import { useRouter } from "next/navigation";
 export default function Notfound() {
   const router = useRouter();
 
+  // TODO: 이미지말고 직접 스타일링하기
   return (
     <>
-      <div className="flex justify-center items-center flex-col h-screen w-full bg-[#f9fafb]">
+      <div className="flex justify-center items-center flex-col p-10">
         <Image src={top} alt="404에러" className="w-[500px] h-[250px]" priority unoptimized />
         <h1 className="font-bold mt-7 text-[32px] text-[#101828]">길 잃은 개미!</h1>
         <div className="mt-7 text-[18px] text-[#4A5565] flex flex-col justify-center items-center select-none">

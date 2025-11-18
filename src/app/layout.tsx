@@ -4,6 +4,7 @@ import { PresenceProvider } from "@/contexts/PresenceContext";
 import { UserInitializer } from "@/components/auth/UserInitializer";
 import "../css/globals.css";
 import { ToasterClient } from "@/components/common/ToasterClient";
+import { twMerge } from "tailwind-merge";
 
 export const metadata = {
   title: "DevCourse3",
@@ -12,13 +13,13 @@ export const metadata = {
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="ko" suppressHydrationWarning>
+    <html lang="ko" suppressHydrationWarning className="text-[14px] xl:text-[16px]">
       <body className={paperlogy.className}>
         {/* 실시간 접속자 관리를 위한 Provider */}
         <PresenceProvider channelName="dashboard">
           {/* 사용자 정보 초기화 Loader*/}
           <UserInitializer />
-          <div className="min-h-screen bg-[#f9fafb]">{children}</div>
+          <div className="min-h-screen bg-[#f9fafb] dark:bg-[#182236]">{children}</div>
         </PresenceProvider>
         <ToasterClient />
       </body>

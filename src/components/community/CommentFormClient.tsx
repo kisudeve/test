@@ -76,7 +76,11 @@ export default function CommentFormClient({
 
   return (
     <>
-      {!profile && <p className="py-7 text-center bg-slate-100 border border-slate-200 rounded-2xl font-medium text-slate-500">회원만 댓글 작성 권한이 있습니다.</p>}
+      {!profile && (
+        <p className="py-7 text-center bg-slate-100 border border-slate-200 rounded-2xl font-medium text-slate-500 dark:bg-[#141d2b] dark:border-[#364153] dark:text-slate-500">
+          회원만 댓글 작성 권한이 있습니다.
+        </p>
+      )}
       {profile && (
         <>
           <div className="flex gap-3">
@@ -95,12 +99,17 @@ export default function CommentFormClient({
                   )}
                   <TextArea
                     name="comment"
-                    className="w-full h-20"
+                    className="w-full h-20 dark:bg-[#1e2939] dark:text-gray-300 dark:placeholder:text-gray-400 border-color-transparent"
                     placeholder="댓글을 입력하세요..."
                     disabled={pending}
                   />
                   {!isEditing && (
-                    <Button type="submit" className="w-30" variant="submit" disabled={pending}>
+                    <Button
+                      type="submit"
+                      className="w-30 dark:bg-[#1e2939] dark:from-[#6B8FA3] dark:to-[#7A8FB8]"
+                      variant="submit"
+                      disabled={pending}
+                    >
                       {pending ? "등록중..." : "작성"}
                     </Button>
                   )}
@@ -108,7 +117,7 @@ export default function CommentFormClient({
                     <div className="flex flex-col gap-1">
                       <Button
                         type="submit"
-                        className="flex-1 w-30 min-h-0 py-1 rounded-lg"
+                        className="flex-1 w-30 min-h-0 py-1 rounded-lg  dark:from-[#6B8FA3] dark:to-[#7A8FB8]"
                         variant="submit"
                         disabled={pending}
                       >

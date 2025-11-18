@@ -1,8 +1,10 @@
 import AlertsPageClient from "@/components/alerts/AlertsPageClient";
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
+import { Suspense } from "react";
+import AlertsPageSkeleton from "@/components/skeleton/AlertsPageSkeleton";
 
-export default async function AlertsPage() {
+async function fetchNotifications() {
   const supabase = await createClient();
 
   const {
@@ -41,5 +43,18 @@ comment:comment_id (
 
   const notifications = (data ?? []) as Notification[];
 
+  return notifications;
+}
+
+async function AlertsPageWrapper() {
+  const notifications = await fetchNotifications();
   return <AlertsPageClient uid={user.id} notifications={notifications} />;
+}
+
+export default async function AlertsPage() {
+  return (
+    <Suspense fallback={<AlertsPageSkeleton />}>
+      <AlertsPageWrapper />
+    </Suspense>
+  );
 }
