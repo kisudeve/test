@@ -135,7 +135,7 @@ export default function ProfileHeader({ isMe, profile }: Props) {
           ) : (
             <Button
               variant={following ? "common" : "edit"}
-              className="px-4 py-1.5 text-sm"
+              className="px-4 py-1.5 text-sm  bg-linear-to-r from-[#A8E0FF] to-[#C5C8FF] dark:from-[#6B8FA3] dark:to-[#7A8FB8] text-slate-700 dark:text-slate-300 text-sm font-semibold hover:opacity-90 active:scale-[.99] transition cursor-pointer select-none"
               onClick={handleFollowToggle}
               disabled={followPending}
             >
