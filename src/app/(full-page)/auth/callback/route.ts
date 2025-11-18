@@ -92,7 +92,12 @@ export async function GET(request: Request) {
   const forwardedHost = request.headers.get("x-forwarded-host");
   const isLocal = process.env.NODE_ENV === "development";
 
+  console.log("ttt");
+  console.log(isLocal);
+  console.log(`https://test-pied-psi.vercel.app${redirectPath}`);
+  console.log(`https://${forwardedHost}${redirectPath}`);
+
   if (isLocal) return NextResponse.redirect(`https://test-pied-psi.vercel.app${redirectPath}`);
   if (forwardedHost) return NextResponse.redirect(`https://${forwardedHost}${redirectPath}`);
-  return NextResponse.redirect(`${origin}${redirectPath}`);
+  return NextResponse.redirect(`https://test-pied-psi.vercel.app${redirectPath}`);
 }

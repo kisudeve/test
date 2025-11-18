@@ -7,6 +7,7 @@ import { revalidatePath } from "next/cache";
 // 깃허브 로그인
 export const githubLogin = async () => {
   const supabase = await createClient();
+  alert(`${process.env.NEXT_PUBLIC_URL}/auth/callback`);
   const { data } = await supabase.auth.signInWithOAuth({
     provider: "github",
     options: {
@@ -54,7 +55,6 @@ export async function signOut() {
   await supabase.auth.signOut();
   revalidatePath("/");
 }
-
 
 export async function save(userId: string, displayName: string, bio: string) {
   "use server";
@@ -160,7 +160,6 @@ export async function getTodayScore() {
         return sum + feel.amount; // amount 값 그대로 더하기 (up은 양수, down은 이미 음수)
       }, 0) || 0;
 
-
     let finalResult = 0;
     if (yesterdayResult !== 0) {
       finalResult = ((todayResult - yesterdayResult) / Math.abs(yesterdayResult)) * 100;
@@ -168,7 +167,7 @@ export async function getTodayScore() {
       finalResult = todayResult > 0 ? 100 : -100;
     }
 
-    if (process.env.NODE_ENV === 'development') {
+    if (process.env.NODE_ENV === "development") {
       console.log("감정지수", todayResult, yesterdayResult, finalResult);
     }
 
